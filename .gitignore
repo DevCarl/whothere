@@ -1,4 +1,5 @@
 # Basic git ignore file
 
 
-#
+#DS store file
+.DS_store
