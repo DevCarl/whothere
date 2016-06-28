@@ -15,9 +15,10 @@ def unmerge_excel_cells_and_perserve_data(directory):
     sheet = work_book.get_sheet_by_name("B0.02")
     # croped_sheet = sheet["A1:L12"]
 
-    # print(sheet["A1"].value,sheet["B5"].value)
-    # sheet.unmerge_cells("A1:A2")
-    # print(sheet["A1"].value,sheet["A2"].value)
+    print(sheet["A1"].value,sheet["B5"].value)
+    sheet.unmerge_cells("A1:A2")
+    sheet["A2"] = sheet["A1"].value
+    print(sheet["A1"].value,sheet["A2"].value)
     # work_book.save("merged.xlsx")
     print(sheet.merged_cell_ranges)
 
