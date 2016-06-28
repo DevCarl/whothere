@@ -3,7 +3,24 @@
 ### Aim of this script will be to open the csv file and read in the csv data.
 ### This data is then cleaned and returned as a json object
 
-import unittest, csv, json, re
+import unittest, csv, json, re, openpyxl
+
+def main(directory):
+
+    unmerge_excel_cells_and_perserve_data(directory)
+
+def unmerge_excel_cells_and_perserve_data(directory):
+
+    work_book  = openpyxl.load_workbook(directory)
+    sheet = work_book.get_sheet_by_name("B0.02")
+    # croped_sheet = sheet["A1:L12"]
+
+    # print(sheet["A1"].value,sheet["B5"].value)
+    # sheet.unmerge_cells("A1:A2")
+    # print(sheet["A1"].value,sheet["A2"].value)
+    # work_book.save("merged.xlsx")
+    print(sheet.merged_cell_ranges)
+
 
 
 def convert_csv_to_array(directory):
@@ -17,7 +34,8 @@ def convert_csv_to_array(directory):
             for current_row in file_ouput:
                 csv_rows.append(current_row)
 
-            print(csv_rows[0])
+            for row in csv_rows:
+                print(row)
 
 
     except FileNotFoundError:
@@ -38,4 +56,4 @@ def sort_csv_output_return_json(csv_array):
 # def test_that_multidimensional_array_returned:
 
 if __name__ == '__main__':
-    convert_csv_to_array("1.test_data/B0.02 B0.03 B0.04 Timetable.csv")
+    unmerge_excel_cells_and_perserve_data("1.test_data/B0.02 B0.03 B0.04 Timetable.xlsx")
