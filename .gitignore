@@ -3,3 +3,7 @@
 
 #DS store file
 .DS_store
+
+
+# Ignore lock on files
+.~lock*
