@@ -9,7 +9,8 @@ import unittest, csv, json, re, openpyxl
 def main(directory):
 
     sheet_object = load_workbook_return_sheets_object(directory)
-    unmerge_excel_cells_and_perserve_data(sheet_object)
+    unmerge_excel_cells_and_perserve_data(sheet_object[1])
+    sheet_object[0].save("1.test_data/new.xlsx")
 
 
 def load_workbook_return_sheets_object(directory):
@@ -29,34 +30,35 @@ def load_workbook_return_sheets_object(directory):
     for sh_name in sheet_names:
         sheet_objects.append(work_book.get_sheet_by_name(sh_name))
 
-    return sheet_objects
+    return (work_book,sheet_objects)
 
 
 def unmerge_excel_cells_and_perserve_data(sheet_objects):
-    
 
     # Test procedure on first sheet
     current_sheet = sheet_objects[0]
 
-    merged_ranges = current_sheet.merged_cell_ranges
+    cell_range_in_sheet = [item for item in current_sheet.merged_cell_ranges]
 
-    # Fix single range
-    current_range = merged_ranges[1]
+    for cell_range in cell_range_in_sheet:
 
-    # Set range coordinates and get first in merged range value
-    first_coord, second_cord = current_range.split(":")
-    first_cell_value = current_sheet[first_coord].value
+        # Unmerge range
+        current_sheet.unmerge_cells(cell_range)
 
-    # Generate cells id in range
-    cells_in_merged_range = []
-    for letter in range(ord(first_coord[0]),ord(second_cord[0])+1):
-        letter_value = chr(letter)
-        for number in range(int(first_coord[1]),int(second_cord[1])+1):
-            cells_in_merged_range.append(letter_value+str(number))
+        # Set range coordinates and get first in merged range value
+        first_coord, second_cord = cell_range.split(":")
+        first_cell_value = current_sheet[first_coord].value
 
-    for cell in cells_in_merged_range:
-        current_sheet[cell].value = first_cell_value
+        # Generate cells id in range
+        cells_in_merged_range = []
+        for letter in range(ord(first_coord[0]),ord(second_cord[0])+1):
+            letter_value = chr(letter)
+            for number in range(int(first_coord[1:]),int(second_cord[1:])+1):
+                cells_in_merged_range.append(letter_value+str(number))
 
+
+        for cell in cells_in_merged_range:
+            current_sheet[cell].value = first_cell_value
 
 
 def convert_csv_to_array(directory):
