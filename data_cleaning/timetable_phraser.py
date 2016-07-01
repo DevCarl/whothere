@@ -3,7 +3,6 @@
 # Aim of this script will be to take in the excel file data for the timetable. The data is first cleaned then
 # placed into dicts that are returned to be handling by the main controller
 
-import unittest
 import openpyxl
 import nose2
 
@@ -137,7 +136,7 @@ def convert_sheets_into_dict(sheet_objects):
     return timetable_information
 
 
-# Unittesting
+# Nose2 tests
 
 def test_workbook_loads_and_returns_workbook():
     results = load_workbook_return_sheets_object("1.test_data/B0.02 B0.03 B0.04 Timetable.xlsx")
