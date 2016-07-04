@@ -7,3 +7,6 @@
 
 # Ignore lock on files
 .~lock*
+
+#Ignore test data
+1.test_data/
