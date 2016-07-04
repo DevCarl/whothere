@@ -11,6 +11,7 @@ import csv
 
 import pandas as pd
 import dateutil.parser
+import warnings
 
 
 def phrase_occupancy_excel_file(target_directory):
@@ -75,8 +76,22 @@ def return_data_frame_from_excel_using_pandas(directory):
 
 def convert_data_frame_into_dict_array(pandas_data_frame):
 
-    print(pandas_data_frame[0:5])
+    all_data_array = []
 
+    # Convert frame into matrix and get column names
+    rows_in_array = pandas_data_frame.as_matrix()
+    column_name = pandas_data_frame.columns.values
+
+    # Convert each row into a dict
+    for current_row in rows_in_array:
+        current_dict = {"time": current_row[0], "building": "CSI", "BOO4": current_row[1], "BOO2": current_row[2],
+                        "B003": current_row[3], "B106": current_row[4], "B108": current_row[5], "B109": current_row[6],
+                        "date": str(current_row[7]).split(" ")[0]}
+        # Append current dict to array
+        all_data_array.append(current_dict)
+
+    # print(all_data_array)
+    return all_data_array
 
 def load_excel_file(directory):
 
@@ -103,4 +118,5 @@ def phrase_data_from_csi_sheet_in_workbook(excel_workbook):
 # Nose2 test
 
 if __name__ == '__main__':
+    warnings.filterwarnings("ignore")
     phrase_occupancy_excel_file("1.test_data/CSI Occupancy report.xlsx")
