@@ -6,6 +6,12 @@
 # Return dict with information on success of program
 
 import os
+import pymysql
+from wifi_log_phraser import phrase_csv_file_and_return_array_of_dicts
+from occupancy_report_phraser import phrase_occupancy_excel_file
+from timetable_phraser import phrase_excel_sheet_into_array_of_dicts
+
+import nose2
 
 
 def phrase_data_and_input_into_database(new_data_directory="data_storage/new_data"):
@@ -32,6 +38,7 @@ def process_files(file_list):
 
 def determine_file_type(file):
 
+    print("k")
     return 1
 
 
