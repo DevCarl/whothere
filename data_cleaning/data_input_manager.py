@@ -6,7 +6,7 @@
 # Return dict with information on success of program
 
 import os
-import pymysql
+import PyMySQL
 from wifi_log_phraser import phrase_csv_file_and_return_array_of_dicts
 from occupancy_report_phraser import phrase_occupancy_excel_file
 from timetable_phraser import phrase_excel_sheet_into_array_of_dicts
@@ -43,6 +43,12 @@ def determine_file_type(file):
 
 
 def input_file_into_db():
+
+    # Connect to database
+    import PyMySQL.connector
+
+    cnx = PyMySQL.connector.connect(user='root', password='', host='127.0.0.1',database='mydb')
+    cnx.close()
 
     return 1
 
