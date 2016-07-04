@@ -3,14 +3,14 @@
 # Aim of this section will be to load in a occupancy excel file and convert the occupancy information into a array
 # of dicts. Each containing the relevant information. Any derived information will be disregarded from the file
 
-# Not the name of the work
+# Script possibly dependant on the name of the name of the worksheet?????
 
 import nose2
 import openpyxl
-import csv
-
 import pandas as pd
 import dateutil.parser
+
+# To suppress warnings while using editor - number of warning from pandas
 import warnings
 
 
@@ -18,7 +18,8 @@ def phrase_occupancy_excel_file(target_directory):
 
     pandas_data_frame = return_data_frame_from_excel_using_pandas(target_directory)
     results_array = convert_data_frame_into_dict_array(pandas_data_frame)
-    # print(pandas_data_frame)
+
+    return results_array
 
 
 def return_data_frame_from_excel_using_pandas(directory):
@@ -87,12 +88,16 @@ def convert_data_frame_into_dict_array(pandas_data_frame):
         current_dict = {"time": current_row[0], "building": "CSI", "BOO4": current_row[1], "BOO2": current_row[2],
                         "B003": current_row[3], "B106": current_row[4], "B108": current_row[5], "B109": current_row[6],
                         "date": str(current_row[7]).split(" ")[0]}
+        # Date is converted from timestamp object into string
+
         # Append current dict to array
         all_data_array.append(current_dict)
 
     # print(all_data_array)
     return all_data_array
 
+
+# Not currently being used
 def load_excel_file(directory):
 
     try:
@@ -106,13 +111,12 @@ def load_excel_file(directory):
         return None
 
 
+# Not currently being used
 def phrase_data_from_csi_sheet_in_workbook(excel_workbook):
 
     # Taking only the CSI sheet from the excel document
     work_sheet = excel_workbook.get_sheet_by_name("CSI")
     print(work_sheet["A1"].value)
-
-
 
 
 # Nose2 test
