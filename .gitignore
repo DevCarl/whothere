@@ -10,3 +10,13 @@
 
 #Ignore test data
 1.test_data/
+
+# Ignore contents of the following directories excpet the .gitkeep file
+
+data_storage/failed_to_store_data/
+data_storage/new_data/
+data_storage/stored_data/
+
+!data_storage/failed_to_store_data/.gitkeep
+!data_storage/new_data/.gitkeep
+!data_storage/stored_data/.gitkeep
