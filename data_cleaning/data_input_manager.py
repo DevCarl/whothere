@@ -69,8 +69,8 @@ def process_files(data_directory, file_list, db_tuple):
             rooms = generate_list_of_rooms(file_data)
 
             # Insert files into the database
-            # input_file_into_db((file_data, rooms, modules, file_type), db_host_name, db_user_name, db_password,
-            #                    database_name, port)
+            input_file_into_db((file_data, rooms, modules, file_type), db_host_name, db_user_name, db_password,
+                               database_name, port)
 
         elif file_type == 3:
             file_data = phrase_occupancy_excel_file(data_directory+file)
@@ -78,8 +78,8 @@ def process_files(data_directory, file_list, db_tuple):
             modules = []
 
             # Insert files into the database
-            # input_file_into_db((file_data, rooms, modules, file_type), db_host_name, db_user_name, db_password,
-            #                    database_name, port)
+            input_file_into_db((file_data, rooms, modules, file_type), db_host_name, db_user_name, db_password,
+                               database_name, port)
 
         else:
             processing_results.append({"success": False, "data_input": False, "file_name": file,
@@ -155,6 +155,9 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
     # unpack database tuple
     general_data, room_list, module_list, data_type = data_to_be_input_tuple
 
+    # Create empty room moudle code
+    cursor.execute("insert ignore into module (Module_code) values ('0');")
+
     # First check all room / module are in db already. If not add them in.
 
     # Filter room list and then insert missing ones
@@ -182,33 +185,113 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
     # print(data_type, general_data[0])
 
     if data_type == 1:
-        current_data = general_data[0]
-        print(current_data)
+        for current_data in general_data:
+            # print(current_data)
 
-        # Get room_id for current room
-        room = current_data.get("room")
-        cursor.execute("select room_id from room where room_no='"+room+"';")
-        room_id = cursor.fetchone()[0]
-        # Assign other variables
-        month = current_data.get("date").split(" ")[-2]
-        date = current_data.get("year") + "-" + str(list(calendar.month_abbr).index(month)) + "-" + \
-               current_data.get("date").split(" ")[-1]
+            # Get room_id for current room
+            room = current_data.get("room")
+            cursor.execute("select room_id from room where room_no='"+room+"';")
+            room_id = cursor.fetchone()[0]
+            # Assign other variables
+            month = current_data.get("date").split(" ")[-2]
+            date = current_data.get("year") + "-" + str(list(calendar.month_abbr).index(month)) + "-" + \
+                   current_data.get("date").split(" ")[-1]
 
-        print(date)
-        time = current_data.get("time_stamp").split(" ")[3]
-        associated_client_counts = current_data.get("associated_count")
-        authenticated_client_counts = current_data.get("authenticated_count")
+            time = current_data.get("time_stamp").split(" ")[3]
+            associated_client_counts = current_data.get("associated_count")
+            authenticated_client_counts = current_data.get("authenticated_count")
 
-        cursor.execute("insert ignore into wifi_log (Room_Room_id,date,time,"
-                       "Associated_client_counts,Authenticated_client_counts) values "
-                       "('"+str(room_id)+"','"+date+"','"+time+"','"+str(associated_client_counts)+"','"+
-                       str(authenticated_client_counts)+"');")
+            cursor.execute("insert ignore into wifi_log (Room_Room_id,date,time,"
+                           "Associated_client_counts,Authenticated_client_counts) values "
+                           "('"+str(room_id)+"','"+date+"','"+time+"','"+str(associated_client_counts)+"','"+
+                           str(authenticated_client_counts)+"');")
 
     elif data_type == 2:
-        
+        for current_data in general_data:
+
+            # Get room_id for current room
+            room = current_data.get("room")
+            cursor.execute("select room_id from room where room_no='"+room+"';")
+            room_id_fet = cursor.fetchone()[0]
+
+            # Generate variables
+            date_unformated = current_data.get("date").split("/")
+            date = "20" + date_unformated[2] + "/" + date_unformated[1] + "/" + date_unformated[0]
+            time_period = current_data.get("time").split("-")[0]
+            room_id = room_id_fet
+            module_id = current_data.get("module")
+            if module_id == None:
+                module_id = 0
+            no_expected_students = current_data.get("no_expected_students")
+            if no_expected_students == None:
+                no_expected_students = 0
+            tutorial = current_data.get("practical")
+            double_module = current_data.get("shared_time_slot")
+            # convert true to 1 and 0 to false
+            if current_data.get("class_appeared_to_go_ahead") == True:
+                class_went_ahead = 1
+            else:
+                class_went_ahead = 0
+
+            cursor.execute("insert ignore into time_table (Date, Time_period, room_room_id, module_module_code, "
+                           "No_expected_students, Tutorial, Double_module, Class_went_ahead) "
+                           "values ('"+date+"','"+time_period+"','"+str(room_id)+"','"+str(module_id)+"','"+str(no_expected_students)+"','"
+                           + str(tutorial)+"','"+str(double_module)+"','"+str(class_went_ahead)+"');")
 
     elif data_type == 3:
-        pass
+
+        for current_line in general_data:
+            # print(general_data[0])
+            time = current_line.get("time")
+            date = current_line.get("date")
+            room_B002 = current_line.get("B002")
+
+            # Get room_id for current room
+            room = "B002"
+            cursor.execute("select room_id from room where room_no='"+room+"';")
+            room_id = cursor.fetchone()[0]
+            cursor.execute("insert ignore into ground_truth_data (Room_Room_id, date, time, Percentage_room_full) "
+                           "values ('"+str(room_id)+"','"+date+"','"+time+"','"+str(room_B002)+"');")
+
+            room_B003 = current_line.get("B003")
+            # Get room_id for current room
+            room = "B003"
+            cursor.execute("select room_id from room where room_no='"+room+"';")
+            room_id = cursor.fetchone()[0]
+            cursor.execute("insert ignore into ground_truth_data (Room_Room_id, date, time, Percentage_room_full) "
+                           "values ('"+str(room_id)+"','"+date+"','"+time+"','"+str(room_B003)+"');")
+
+            room_B004 = current_line.get("B004")
+            # Get room_id for current room
+            room = "B004"
+            cursor.execute("select room_id from room where room_no='"+room+"';")
+            room_id = cursor.fetchone()[0]
+            cursor.execute("insert ignore into ground_truth_data (Room_Room_id, date, time, Percentage_room_full) "
+                           "values ('"+str(room_id)+"','"+date+"','"+time+"','"+str(room_B004)+"');")
+
+            room_B106 = current_line.get("B106")
+            # Get room_id for current room
+            room = "B106"
+            cursor.execute("select room_id from room where room_no='"+room+"';")
+            room_id = cursor.fetchone()[0]
+            cursor.execute("insert ignore into ground_truth_data (Room_Room_id, date, time, Percentage_room_full) "
+                           "values ('"+str(room_id)+"','"+date+"','"+time+"','"+str(room_B106)+"');")
+
+            room_B108 = current_line.get("B108")
+            # Get room_id for current room
+            room = "B108"
+            cursor.execute("select room_id from room where room_no='"+room+"';")
+            room_id = cursor.fetchone()[0]
+            cursor.execute("insert ignore into ground_truth_data (Room_Room_id, date, time, Percentage_room_full) "
+                           "values ('"+str(room_id)+"','"+date+"','"+time+"','"+str(room_B108)+"');")
+
+            room_B109 = current_line.get("B109")
+            # Get room_id for current room
+            room = "B109"
+            cursor.execute("select room_id from room where room_no='"+room+"';")
+            room_id = cursor.fetchone()[0]
+            cursor.execute("insert ignore into ground_truth_data (Room_Room_id, date, time, Percentage_room_full) "
+                           "values ('"+str(room_id)+"','"+date+"','"+time+"','"+str(room_B109)+"');")
 
 
 
