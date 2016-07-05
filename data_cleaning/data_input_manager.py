@@ -58,16 +58,23 @@ def process_files(data_directory, file_list, db_tuple):
             rooms = generate_list_of_rooms(file_data)
             modules = []
 
+            # Insert files into the database
+            input_file_into_db((file_data, rooms, modules, file_type), db_host_name, db_user_name, db_password,
+                               database_name, port)
 
         elif file_type == 2:
             file_data = phrase_timetable_excel_sheet_into_array_of_dicts(data_directory+file)
-            modules = generate_list_of_modules(file_data)
+            modules = [moudle for moudle in generate_list_of_modules(file_data) if moudle != None]
             rooms = generate_list_of_rooms(file_data)
+
+            # Insert files into the database
+            input_file_into_db((file_data, rooms, modules, file_type), db_host_name, db_user_name, db_password,
+                               database_name, port)
 
         elif file_type == 3:
             file_data = phrase_occupancy_excel_file(data_directory+file)
             rooms = generate_occupancy_rooms_list(file_data)
-            modules = ["COMP2020", "COMP2030"]
+            modules = []
 
             # Insert files into the database
             input_file_into_db((file_data, rooms, modules, file_type), db_host_name, db_user_name, db_password,
@@ -168,10 +175,20 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
     for module in missing_modules:
         cursor.execute("insert ignore into module (Module_code) values ('"+module+"');")
 
-
-
     # Second depending on data type insert information into the database
+    print(data_type, general_data)
+
     # type 0 unknown / csv type 1 / timetable type 2 / occupancy type 3
+
+
+    if data_type == 1:
+        
+    elif data_type == 2:
+
+    elif data_type == 3:
+
+
+
 
     # value = "('10', 'B003', 'CSI', '1', 'Belfied', 1, 90, 1)"
     # cursor.execute("insert ignore into room values "+value+";")
