@@ -185,7 +185,7 @@ def convert_sheets_into_dict(sheet_objects):
 
                 # Cycle through rows and extract the required data
                 for row_no in range(3, 11+1):
-                    room = current_sheet[chr(ord(start_column)-1)+"1"].value
+                    room = current_sheet[chr(ord(start_column)-1)+"1"].value.replace(".", "")
                     time = current_sheet[chr(ord(start_column)-1)+str(row_no)].value
                     module = current_sheet[chr(col_letter)+str(row_no)].value
                     no_expected_students = current_sheet[chr(col_letter+1)+str(row_no)].value
@@ -205,7 +205,7 @@ def convert_sheets_into_dict(sheet_objects):
         # Add array for single week to file return information
         timetable_information.extend(current_sheet_array)
 
-    print(len(timetable_information))
+    # print(len(timetable_information))
     # count = 1
     # for i in timetable_information:
     #     print(i, count)
