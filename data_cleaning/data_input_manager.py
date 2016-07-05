@@ -67,7 +67,7 @@ def process_files(data_directory, file_list, db_tuple):
         elif file_type == 3:
             file_data = phrase_occupancy_excel_file(data_directory+file)
             rooms = generate_occupancy_rooms_list(file_data)
-            modules = ["COMP2020"]
+            modules = ["COMP2020", "COMP2030"]
 
             # Insert files into the database
             input_file_into_db((file_data, rooms, modules, file_type), db_host_name, db_user_name, db_password,
@@ -148,14 +148,25 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
     general_data, room_list, module_list, data_type = data_to_be_input_tuple
 
     # First check all room / module are in db already. If not add them in.
-    print(room_list)
-    print(module_list)
 
-    for room in room_list:
-        cursor.execute("insert ignore into room values ("+room+");")
+    # Filter room list and then insert missing ones
+    cursor.execute("select room_no from room;")
+    rooms_in_db = [i[0] for i in cursor.fetchall()]
+    missing_rooms = list(set(room_list) - set(rooms_in_db))
 
-    for module in module_list:
-        cursor.execute("insert ignore into module values ("+module+");")
+    # Insert into DB
+    for room in missing_rooms:
+        cursor.execute("insert ignore into room (Room_no) values ('"+room+"');")
+
+    # Filter module list and the insert missing ones
+
+    cursor.execute("select Module_code from module;")
+    modules_in_db = [i[0].upper() for i in cursor.fetchall()]
+    missing_modules = list(set(module_list) - set(modules_in_db))
+
+    # Insert missing modules into db
+    for module in missing_modules:
+        cursor.execute("insert ignore into module (Module_code) values ('"+module+"');")
 
 
 

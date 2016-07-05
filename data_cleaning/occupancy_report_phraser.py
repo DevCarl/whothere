@@ -85,7 +85,7 @@ def convert_data_frame_into_dict_array(pandas_data_frame):
 
     # Convert each row into a dict
     for current_row in rows_in_array:
-        current_dict = {"time": current_row[0], "building": "CSI", "BOO4": current_row[1], "BOO2": current_row[2],
+        current_dict = {"time": current_row[0], "building": "CSI", "B004": current_row[1], "B002": current_row[2],
                         "B003": current_row[3], "B106": current_row[4], "B108": current_row[5], "B109": current_row[6],
                         "date": str(current_row[7]).split(" ")[0]}
         # Date is converted from timestamp object into string
