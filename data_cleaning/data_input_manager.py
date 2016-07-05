@@ -11,6 +11,7 @@
 
 import os
 import pymysql
+import calendar
 # module imports
 from wifi_log_phraser import phrase_csv_file_and_return_array_of_dicts
 from occupancy_report_phraser import phrase_occupancy_excel_file
@@ -68,8 +69,8 @@ def process_files(data_directory, file_list, db_tuple):
             rooms = generate_list_of_rooms(file_data)
 
             # Insert files into the database
-            input_file_into_db((file_data, rooms, modules, file_type), db_host_name, db_user_name, db_password,
-                               database_name, port)
+            # input_file_into_db((file_data, rooms, modules, file_type), db_host_name, db_user_name, db_password,
+            #                    database_name, port)
 
         elif file_type == 3:
             file_data = phrase_occupancy_excel_file(data_directory+file)
@@ -77,8 +78,8 @@ def process_files(data_directory, file_list, db_tuple):
             modules = []
 
             # Insert files into the database
-            input_file_into_db((file_data, rooms, modules, file_type), db_host_name, db_user_name, db_password,
-                               database_name, port)
+            # input_file_into_db((file_data, rooms, modules, file_type), db_host_name, db_user_name, db_password,
+            #                    database_name, port)
 
         else:
             processing_results.append({"success": False, "data_input": False, "file_name": file,
@@ -176,17 +177,38 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
         cursor.execute("insert ignore into module (Module_code) values ('"+module+"');")
 
     # Second depending on data type insert information into the database
-    print(data_type, general_data)
-
     # type 0 unknown / csv type 1 / timetable type 2 / occupancy type 3
 
+    # print(data_type, general_data[0])
 
     if data_type == 1:
-        
+        current_data = general_data[0]
+        print(current_data)
+
+        # Get room_id for current room
+        room = current_data.get("room")
+        cursor.execute("select room_id from room where room_no='"+room+"';")
+        room_id = cursor.fetchone()[0]
+        # Assign other variables
+        month = current_data.get("date").split(" ")[-2]
+        date = current_data.get("year") + "-" + str(list(calendar.month_abbr).index(month)) + "-" + \
+               current_data.get("date").split(" ")[-1]
+
+        print(date)
+        time = current_data.get("time_stamp").split(" ")[3]
+        associated_client_counts = current_data.get("associated_count")
+        authenticated_client_counts = current_data.get("authenticated_count")
+
+        cursor.execute("insert ignore into wifi_log (Room_Room_id,date,time,"
+                       "Associated_client_counts,Authenticated_client_counts) values "
+                       "('"+str(room_id)+"','"+date+"','"+time+"','"+str(associated_client_counts)+"','"+
+                       str(authenticated_client_counts)+"');")
+
     elif data_type == 2:
+        
 
     elif data_type == 3:
-
+        pass
 
 
 
