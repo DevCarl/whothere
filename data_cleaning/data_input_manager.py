@@ -86,19 +86,19 @@ def generate_list_of_modules():
 
 def input_file_into_db():
 
-    # Open database connection
-    db = PyMySQL.connect("localhost","testuser","test123","TESTDB" )
+    # Open database connection - address, username, password, db
+    db = pymysql.connect(host="localhost", user="root", password="", database="who_there_db")
 
     # prepare a cursor object using cursor() method
     cursor = db.cursor()
 
     # execute SQL query using execute() method.
-    cursor.execute("SELECT VERSION()")
+    cursor.execute("select * from room")
 
     # Fetch a single row using fetchone() method.
     data = cursor.fetchone()
 
-    print ("Database version : %s " % data)
+    print(data)
 
     # disconnect from server
     db.close()
