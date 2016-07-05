@@ -7,7 +7,7 @@ import openpyxl
 import nose2
 
 
-def phrase_excel_sheet_into_array_of_dicts(target_directory):
+def phrase_timetable_excel_sheet_into_array_of_dicts(target_directory):
 
     # Function returns tuple of 0 is workbook object / 1 sheet objects
     sheet_object = load_workbook_return_sheets_object(target_directory)
@@ -149,5 +149,6 @@ def test_unmerge_excel_cells_and_perserve_data():
     assert True
 
 if __name__ == '__main__':
-    x = phrase_excel_sheet_into_array_of_dicts("1.test_data/B0.02 B0.03 B0.04 Timetable.xlsx")
+    x = phrase_timetable_excel_sheet_into_array_of_dicts("1.test_data/B0.02 B0.03 B0.04 Timetable.xlsx")
+    print(x)
     # nose2.main()
