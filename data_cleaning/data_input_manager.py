@@ -5,11 +5,15 @@
 
 # Return dict with information on success of program
 
+# File type is determined if extension is CSV first. For excel check name of file => occupancy / timetable must
+# be in their respective file's names
+
 import os
 import pymysql
+# module imports
 from wifi_log_phraser import phrase_csv_file_and_return_array_of_dicts
 from occupancy_report_phraser import phrase_occupancy_excel_file
-from timetable_phraser import phrase_excel_sheet_into_array_of_dicts
+from timetable_phraser import phrase_timetable_excel_sheet_into_array_of_dicts
 
 import nose2
 
@@ -35,11 +39,31 @@ def process_files(file_list):
         # Determine the type of the files
         file_type = determine_file_type(file)
 
+        # type 0 unknown / csv type 1 / timetable type 2 / occupancy type 3
+        if file_type == 1:
+            file_data = phrase_csv_file_and_return_array_of_dicts
+        elif file_type == 2:
+            file_data = phrase_timetable_excel_sheet_into_array_of_dicts()
+        elif file_type == 3:
+            file_data = phrase_occupancy_excel_file()
+
 
 def determine_file_type(file):
 
-    print("k")
-    return 1
+    # type 0 unknown / csv type 1 / timetable type 2 / occupancy type 3
+
+    # print(file)
+
+    file_type = 0
+
+    if ".csv" in file:
+        file_type = 1
+    elif "timetable" in file.lower():
+        file_type = 2
+    elif "occupancy" in file.lower():
+        file_type = 3
+
+    return file_type
 
 
 def input_file_into_db():
