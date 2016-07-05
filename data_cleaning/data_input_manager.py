@@ -58,6 +58,7 @@ def process_files(data_directory, file_list, db_tuple):
             rooms = generate_list_of_rooms(file_data)
             modules = []
 
+
         elif file_type == 2:
             file_data = phrase_timetable_excel_sheet_into_array_of_dicts(data_directory+file)
             modules = generate_list_of_modules(file_data)
@@ -66,7 +67,11 @@ def process_files(data_directory, file_list, db_tuple):
         elif file_type == 3:
             file_data = phrase_occupancy_excel_file(data_directory+file)
             rooms = generate_occupancy_rooms_list(file_data)
-            modules = []
+            modules = ["COMP2020"]
+
+            # Insert files into the database
+            input_file_into_db((file_data, rooms, modules, file_type), db_host_name, db_user_name, db_password,
+                               database_name, port)
 
         else:
             processing_results.append({"success": False, "data_input": False, "file_name": file,
@@ -78,7 +83,7 @@ def process_files(data_directory, file_list, db_tuple):
 
     # Build processing results return dict
 
-    return 1
+    return
 
 
 def determine_file_type(file):
@@ -143,13 +148,25 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
     general_data, room_list, module_list, data_type = data_to_be_input_tuple
 
     # First check all room / module are in db already. If not add them in.
+    print(room_list)
+    print(module_list)
 
+    for room in room_list:
+        cursor.execute("insert ignore into room values ("+room+");")
+
+    for module in module_list:
+        cursor.execute("insert ignore into module values ("+module+");")
+
+
+
+    # Second depending on data type insert information into the database
     # type 0 unknown / csv type 1 / timetable type 2 / occupancy type 3
 
-    cursor.execute("insert ignore into room values ('2', 'B003', 'CSI', '1', 'Belfied', 1, 90, 1);")
-    cursor.execute("select * from room")
-    data = cursor.fetchall()
-    print(data)
+    # value = "('10', 'B003', 'CSI', '1', 'Belfied', 1, 90, 1)"
+    # cursor.execute("insert ignore into room values "+value+";")
+    # cursor.execute("select * from room")
+    # data = cursor.fetchall()
+    # print(data)
 
     # disconnect from server
     db.close()

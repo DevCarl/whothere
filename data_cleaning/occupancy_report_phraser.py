@@ -123,4 +123,5 @@ def phrase_data_from_csi_sheet_in_workbook(excel_workbook):
 
 if __name__ == '__main__':
     warnings.filterwarnings("ignore")
-    phrase_occupancy_excel_file("1.test_data/CSI Occupancy report.xlsx")
+    data = phrase_occupancy_excel_file("1.test_data/CSI Occupancy report.xlsx")
+    print(data)
