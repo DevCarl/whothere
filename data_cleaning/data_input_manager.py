@@ -17,8 +17,11 @@ from timetable_phraser import phrase_timetable_excel_sheet_into_array_of_dicts
 
 import nose2
 
+# To suppress warnings while using editor - number of warning from pandas
+import warnings
 
-def phrase_data_and_input_into_database(new_data_directory="data_storage/new_data"):
+
+def phrase_data_and_input_into_database(new_data_directory="data_storage/new_data/"):
 
     # Get list of files in new data and remove those that are hidden
     new_files_list = os.listdir(new_data_directory)
@@ -26,26 +29,34 @@ def phrase_data_and_input_into_database(new_data_directory="data_storage/new_dat
 
     # If there are new files phrase and input into db
     if len(new_files_list) > 0:
-        process_files(new_files_list)
+        process_files(new_data_directory,new_files_list)
     else:
-        return {"success": True, "new_data_exists": False, "data_input": False, "multiple_files": False,
-                "individual_file_reports": []}
+        return {"success": True, "new_data_exists": False, "data_input": False, "individual_file_reports": []}
 
 
-def process_files(file_list):
+def process_files(data_directory, file_list):
 
+    processing_results = []
     # Cycle through the list of files and input into database
     for file in file_list:
+        # print(data_directory+file)
         # Determine the type of the files
         file_type = determine_file_type(file)
 
         # type 0 unknown / csv type 1 / timetable type 2 / occupancy type 3
         if file_type == 1:
-            file_data = phrase_csv_file_and_return_array_of_dicts
+            file_data = phrase_csv_file_and_return_array_of_dicts(data_directory+file)
         elif file_type == 2:
-            file_data = phrase_timetable_excel_sheet_into_array_of_dicts()
+            file_data = phrase_timetable_excel_sheet_into_array_of_dicts(data_directory+file)
         elif file_type == 3:
-            file_data = phrase_occupancy_excel_file()
+            file_data = phrase_occupancy_excel_file(data_directory+file)
+        else:
+            processing_results.append({"success": False, "data_input": False, "file_name": file,
+                                       "error": "type could not be determined"})
+            file_data = None
+
+        # Continue if file data no blank
+        print(file_data)
 
 
 def determine_file_type(file):
@@ -66,16 +77,34 @@ def determine_file_type(file):
     return file_type
 
 
+def generate_list_of_modules():
+
+    module_list = []
+
+    return module_list
+
+
 def input_file_into_db():
 
-    # Connect to database
-    import PyMySQL.connector
+    # Open database connection
+    db = PyMySQL.connect("localhost","testuser","test123","TESTDB" )
 
-    cnx = PyMySQL.connector.connect(user='root', password='', host='127.0.0.1',database='mydb')
-    cnx.close()
+    # prepare a cursor object using cursor() method
+    cursor = db.cursor()
 
-    return 1
+    # execute SQL query using execute() method.
+    cursor.execute("SELECT VERSION()")
+
+    # Fetch a single row using fetchone() method.
+    data = cursor.fetchone()
+
+    print ("Database version : %s " % data)
+
+    # disconnect from server
+    db.close()
 
 
 if __name__ == '__main__':
-    phrase_data_and_input_into_database()
+    warnings.filterwarnings("ignore")
+    # phrase_data_and_input_into_database()
+    input_file_into_db()
