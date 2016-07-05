@@ -178,10 +178,10 @@ def convert_sheets_into_dict(sheet_objects):
             for col_letter in range(ord(start_column),ord(finish_column)+1,2):
 
                 ### Section need to be updated ###
-                print(col_letter)
+                # print(col_letter)
                 date = str(start_day) + "/11/15"
                 start_day += 1
-                print(date)
+                # print(date)
 
                 # Cycle through rows and extract the required data
                 for row_no in range(3, 11+1):
