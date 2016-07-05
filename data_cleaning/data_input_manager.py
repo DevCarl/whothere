@@ -307,5 +307,5 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
 
 if __name__ == '__main__':
     warnings.filterwarnings("ignore")
-    phrase_data_and_input_into_database("localhost", "root", "", "who_there_db")
-    # input_file_into_db((0,0,0,0), "localhost", "root", "", "who_there_db",3306)
+    phrase_data_and_input_into_database("localhost", "root", "goldilocks", "who_there_db")
+    # input_file_into_db((0,0,0,0), "localhost", "root", "goldilocks", "who_there_db",3306)
