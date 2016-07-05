@@ -6,7 +6,7 @@
 # Return dict with information on success of program
 
 import os
-import PyMySQL
+import pymysql
 from wifi_log_phraser import phrase_csv_file_and_return_array_of_dicts
 from occupancy_report_phraser import phrase_occupancy_excel_file
 from timetable_phraser import phrase_excel_sheet_into_array_of_dicts

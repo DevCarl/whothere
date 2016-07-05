@@ -13,7 +13,7 @@ def phrase_excel_sheet_into_array_of_dicts(target_directory):
     sheet_object = load_workbook_return_sheets_object(target_directory)
     unmerge_excel_cells_and_perserve_data(sheet_object[1])
 
-    sheet_object[0].save("1.test_data/new.xlsx")
+    sheet_object[0].save(target_directory)
     # Convert sheets into dict of all informaiton
     timetable_info = convert_sheets_into_dict(sheet_object[1])
 
@@ -38,10 +38,10 @@ def load_workbook_return_sheets_object(directory):
         for sh_name in sheet_names:
             sheet_objects.append(work_book.get_sheet_by_name(sh_name))
 
-        return (work_book,sheet_objects)
+        return (work_book, sheet_objects)
 
     except FileNotFoundError:
-        print("The file at", directory,"could not be found.")
+        print("The file at", directory, "could not be found.")
         return (0,0)
 
 
@@ -149,5 +149,5 @@ def test_unmerge_excel_cells_and_perserve_data():
     assert True
 
 if __name__ == '__main__':
-    # x = phrase_excel_sheet_into_array_of_dicts("1.test_data/B0.02 B0.03 B0.04 Timetable.xlsx")
-    nose2.main()
+    x = phrase_excel_sheet_into_array_of_dicts("1.test_data/B0.02 B0.03 B0.04 Timetable.xlsx")
+    # nose2.main()
