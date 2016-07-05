@@ -18,7 +18,7 @@ USE `who_there_db` ;
 -- Table `who_there_db`.`Room`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `who_there_db`.`Room` (
-  `Room_id` VARCHAR(45) NOT NULL,
+  `Room_id` INT NOT NULL AUTO_INCREMENT,
   `Room_no` VARCHAR(45) NULL,
   `Buildling` VARCHAR(45) NULL,
   `Floor_no` VARCHAR(45) NULL,
@@ -50,7 +50,7 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `who_there_db`.`time_table` (
   `Date` DATE NOT NULL,
   `Time_period` TIME NOT NULL,
-  `Room_Room_id` VARCHAR(45) NOT NULL,
+  `Room_Room_id` INT NOT NULL,
   `Module_Module_code` VARCHAR(45) NOT NULL,
   `No_expected_students` INT NULL,
   `Lecuter` TINYINT(1) NULL,
@@ -77,7 +77,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `who_there_db`.`wifi_log` (
   `Wifi_log_id` INT NOT NULL AUTO_INCREMENT,
-  `Room_Room_id` VARCHAR(45) NOT NULL,
+  `Room_Room_id` INT NOT NULL,
   `Date` DATE NULL,
   `Time` TIME NULL,
   `Associated_client_counts` INT NULL,
@@ -98,7 +98,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `who_there_db`.`ground_truth_data` (
   `Data_input_id` INT NOT NULL AUTO_INCREMENT,
-  `Room_Room_id` VARCHAR(45) NULL,
+  `Room_Room_id` INT NULL,
   `Date` DATE NULL,
   `Time` TIME NULL,
   `Room_used` TINYINT(1) NULL,
