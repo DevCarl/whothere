@@ -45,17 +45,17 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `who_there_db`.`time_table`
+-- Table `who_there_db`.`Time_table`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `who_there_db`.`time_table` (
+CREATE TABLE IF NOT EXISTS `who_there_db`.`Time_table` (
   `Date` DATE NOT NULL,
   `Time_period` TIME NOT NULL,
   `Room_Room_id` INT NOT NULL,
   `Module_Module_code` VARCHAR(45) NOT NULL,
   `No_expected_students` INT NULL,
+  `Lecuter` TINYINT(1) NULL,
   `Tutorial` TINYINT(1) NULL,
   `Double_module` TINYINT(1) NULL DEFAULT 0 COMMENT '	',
-  `class_went_ahead` TINYINT(1) NULL,
   PRIMARY KEY (`Date`, `Time_period`, `Room_Room_id`, `Module_Module_code`),
   INDEX `fk_time_table_Room1_idx` (`Room_Room_id` ASC),
   INDEX `fk_time_table_Module1_idx` (`Module_Module_code` ASC),
@@ -73,9 +73,9 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `who_there_db`.`wifi_log`
+-- Table `who_there_db`.`Wifi_log`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `who_there_db`.`wifi_log` (
+CREATE TABLE IF NOT EXISTS `who_there_db`.`Wifi_log` (
   `Wifi_log_id` INT NOT NULL AUTO_INCREMENT,
   `Room_Room_id` INT NOT NULL,
   `Date` DATE NULL,
@@ -94,9 +94,9 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `who_there_db`.`ground_truth_data`
+-- Table `who_there_db`.`Ground_truth_data`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `who_there_db`.`ground_truth_data` (
+CREATE TABLE IF NOT EXISTS `who_there_db`.`Ground_truth_data` (
   `Data_input_id` INT NOT NULL AUTO_INCREMENT,
   `Room_Room_id` INT NULL,
   `Date` DATE NULL,
@@ -118,9 +118,9 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `who_there_db`.`users`
+-- Table `who_there_db`.`Users`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `who_there_db`.`users` (
+CREATE TABLE IF NOT EXISTS `who_there_db`.`Users` (
   `users_id` INT NOT NULL,
   `user_name` VARCHAR(45) NOT NULL,
   `password` VARCHAR(45) NOT NULL,
@@ -132,9 +132,9 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `who_there_db`.`data_modeling_information`
+-- Table `who_there_db`.`Proccessed_data`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `who_there_db`.`data_modeling_information` (
+CREATE TABLE IF NOT EXISTS `who_there_db`.`Proccessed_data` (
   `data_input_id` INT NOT NULL,
   `data` FLOAT NULL,
   PRIMARY KEY (`data_input_id`))
