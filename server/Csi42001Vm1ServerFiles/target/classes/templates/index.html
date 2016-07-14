@@ -1,0 +1,33 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head> 
+    <title>Who's there</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" type="text/css" href="/css/style.css" th:attr="href=@{/css/style.css}" />
+</head>
+<body>
+       <header>
+           <img id="logo" alt="logo" src="/img/white_logo.png" th:attr="src=@{img/white_logo.png}"/>
+           <p id="title">Who's there?</p>
+       </header>
+       <section>
+           <form>
+               <select>
+                   <option value="volvo">Select a classroom</option>
+                   <option value="volvo">B002</option>
+                   <option value="saab">B003</option>
+                   <option value="mercedes">B004</option>
+               </select>
+               <select>
+                   <option value="volvo">Select a day</option>
+                   <option value="volvo">Monday</option>
+                   <option value="saab">Tuesday</option>
+                   <option value="mercedes">Wednesday</option>
+                   <option value="volvo">Thursday</option>
+                   <option value="saab">Friday</option>
+               </select>
+               <input class="button" type="submit" value="Search"/>
+           </form>
+       </section>
+</body>
+</html>

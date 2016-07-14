@@ -11,6 +11,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class GreetingController {
+	
+	@RequestMapping(value="/index", method=RequestMethod.GET)
+	public String indexPage(Model model) {
+		return "index";
+	}
 
     @RequestMapping(value="/greeting", method=RequestMethod.GET)
     public String greetingForm(Model model) {
