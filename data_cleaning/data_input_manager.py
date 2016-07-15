@@ -180,7 +180,7 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
     # First check all room / module are in db already. If not add them in.
 
     # Filter room list and then insert missing ones
-    cursor.execute("select room_no from room;")
+    cursor.execute("select Room_no from Room;")
     rooms_in_db = [i[0] for i in cursor.fetchall()]
     missing_rooms = list(set(room_list) - set(rooms_in_db))
 
@@ -209,7 +209,7 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
 
             # Get room_id for current room
             room = current_data.get("room")
-            cursor.execute("select room_id from Room where room_no='"+room+"';")
+            cursor.execute("select Room_id from Room where Room_no='"+room+"';")
             room_id = cursor.fetchone()[0]
             # Assign other variables
             month = current_data.get("date").split(" ")[-2]
@@ -220,7 +220,7 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
             associated_client_counts = current_data.get("associated_count")
             authenticated_client_counts = current_data.get("authenticated_count")
 
-            cursor.execute("insert ignore into Wifi_log (Room_Room_id,date,time,"
+            cursor.execute("insert ignore into Wifi_log (Room_Room_id,Date,Time,"
                            "Associated_client_counts,Authenticated_client_counts) values "
                            "('"+str(room_id)+"','"+date+"','"+time+"','"+str(associated_client_counts)+"','"+
                            str(authenticated_client_counts)+"');")
@@ -230,7 +230,7 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
 
             # Get room_id for current room
             room = current_data.get("room")
-            cursor.execute("select room_id from Room where room_no='"+room+"';")
+            cursor.execute("select Room_id from Room where Room_no='"+room+"';")
             room_id_fet = cursor.fetchone()[0]
 
             # Generate variables
@@ -252,7 +252,7 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
             else:
                 class_went_ahead = 0
 
-            cursor.execute("insert ignore into Time_table (Date, Time_period, room_room_id, Module_module_code, "
+            cursor.execute("insert ignore into Time_table (Date, Time_period, Room_room_id, Module_module_code, "
                            "No_expected_students, Tutorial, Double_module, Class_went_ahead) "
                            "values ('"+date+"','"+time_period+"','"+str(room_id)+"','"+str(module_id)+"','"+str(no_expected_students)+"','"
                            + str(tutorial)+"','"+str(double_module)+"','"+str(class_went_ahead)+"');")
@@ -268,7 +268,7 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
 
             # Get room_id for current room
             room = "B002"
-            cursor.execute("select room_id from Room where room_no='"+room+"';")
+            cursor.execute("select Room_id from Room where Room_no='"+room+"';")
             room_id = cursor.fetchone()[0]
             cursor.execute("insert ignore into Ground_truth_data (Room_Room_id, date, time, Percentage_room_full) "
                            "values ('"+str(room_id)+"','"+date+"','"+time+"','"+str(room_B002)+"');")
@@ -276,7 +276,7 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
             room_B003 = current_line.get("B003")
             # Get room_id for current room
             room = "B003"
-            cursor.execute("select room_id from Room where room_no='"+room+"';")
+            cursor.execute("select Room_id from Room where Room_no='"+room+"';")
             room_id = cursor.fetchone()[0]
             cursor.execute("insert ignore into Ground_truth_data (Room_Room_id, date, time, Percentage_room_full) "
                            "values ('"+str(room_id)+"','"+date+"','"+time+"','"+str(room_B003)+"');")
@@ -300,7 +300,7 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
             room_B108 = current_line.get("B108")
             # Get room_id for current room
             room = "B108"
-            cursor.execute("select room_id from Room where room_no='"+room+"';")
+            cursor.execute("select Room_id from Room where Room_no='"+room+"';")
             room_id = cursor.fetchone()[0]
             cursor.execute("insert ignore into Ground_truth_data (Room_Room_id, date, time, Percentage_room_full) "
                            "values ('"+str(room_id)+"','"+date+"','"+time+"','"+str(room_B108)+"');")
@@ -308,7 +308,7 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
             room_B109 = current_line.get("B109")
             # Get room_id for current room
             room = "B109"
-            cursor.execute("select room_id from Room where room_no='"+room+"';")
+            cursor.execute("select room_id from Room where Room_no='"+room+"';")
             room_id = cursor.fetchone()[0]
             cursor.execute("insert ignore into Ground_truth_data (Room_Room_id, date, time, Percentage_room_full) "
                            "values ('"+str(room_id)+"','"+date+"','"+time+"','"+str(room_B109)+"');")
