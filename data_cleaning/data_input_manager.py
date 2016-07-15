@@ -175,7 +175,7 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
     general_data, room_list, module_list, data_type = data_to_be_input_tuple
 
     # Create empty room moudle code
-    cursor.execute("insert ignore into module (Module_code) values ('0');")
+    cursor.execute("insert ignore into Module (Module_code) values ('0');")
 
     # First check all room / module are in db already. If not add them in.
 
@@ -190,13 +190,13 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
 
     # Filter module list and the insert missing ones
 
-    cursor.execute("select Module_code from module;")
+    cursor.execute("select Module_code from Module;")
     modules_in_db = [i[0].upper() for i in cursor.fetchall()]
     missing_modules = list(set(module_list) - set(modules_in_db))
 
     # Insert missing modules into db
     for module in missing_modules:
-        cursor.execute("insert ignore into module (Module_code) values ('"+module+"');")
+        cursor.execute("insert ignore into Module (Module_code) values ('"+module+"');")
 
     # Second depending on data type insert information into the database
     # type 0 unknown / csv type 1 / timetable type 2 / occupancy type 3
@@ -252,7 +252,7 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
             else:
                 class_went_ahead = 0
 
-            cursor.execute("insert ignore into Time_table (Date, Time_period, room_room_id, module_module_code, "
+            cursor.execute("insert ignore into Time_table (Date, Time_period, room_room_id, Module_module_code, "
                            "No_expected_students, Tutorial, Double_module, Class_went_ahead) "
                            "values ('"+date+"','"+time_period+"','"+str(room_id)+"','"+str(module_id)+"','"+str(no_expected_students)+"','"
                            + str(tutorial)+"','"+str(double_module)+"','"+str(class_went_ahead)+"');")
@@ -327,6 +327,6 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
 
 if __name__ == '__main__':
     warnings.filterwarnings("ignore")
-    phrase_data_and_input_into_database("localhost", "root", "goldilocks", "who_there_db")
+    phrase_data_and_input_into_database("localhost", "root", "", "who_there_db")
     # input_file_into_db((0,0,0,0), "localhost", "root", "goldilocks", "who_there_db",3306)
 
