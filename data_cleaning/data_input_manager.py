@@ -53,7 +53,7 @@ def unzip_files_and_remove_zip(directory):
     # Iterated through directory. Find zip files. Unzip and remove ziped version
     for item in os.listdir(directory):
         if item.endswith(".zip"):
-            print(item)
+            # print(item)
             zip_ref = zipfile.ZipFile(directory+item)
             zip_ref.extractall(directory)
             zip_ref.close()
@@ -260,7 +260,7 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
     elif data_type == 3:
 
         for current_line in general_data:
-            print(current_line)
+            # print(current_line)
             # print(general_data[0])
             time = current_line.get("time")
             date = current_line.get("date")
@@ -327,6 +327,6 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
 
 if __name__ == '__main__':
     warnings.filterwarnings("ignore")
-    phrase_data_and_input_into_database("localhost", "root", "", "who_there_db")
+    phrase_data_and_input_into_database("localhost", "root", "goldilocks", "who_there_db")
     # input_file_into_db((0,0,0,0), "localhost", "root", "goldilocks", "who_there_db",3306)
 

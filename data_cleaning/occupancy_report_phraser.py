@@ -17,6 +17,7 @@ import warnings
 def phrase_occupancy_excel_file(target_directory):
 
     pandas_data_frame = return_data_frame_from_excel_using_pandas(target_directory)
+    # print(pandas_data_frame.head())
     results_array = convert_data_frame_into_dict_array(pandas_data_frame)
 
     return results_array
