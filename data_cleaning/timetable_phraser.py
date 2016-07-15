@@ -190,6 +190,7 @@ def convert_sheets_into_dict(sheet_objects):
                     module = current_sheet[chr(col_letter)+str(row_no)].value
                     no_expected_students = current_sheet[chr(col_letter+1)+str(row_no)].value
                     cell_color = current_sheet[chr(col_letter)+str(row_no)].fill.start_color.index
+                    capacity = current_sheet[chr(col_letter+1)+"1"].value.split(":")[1]
 
                     # Check if cell has color and if has value indicating class did not go ahead
                     if cell_color != "00000000" and module is not None:
@@ -198,7 +199,7 @@ def convert_sheets_into_dict(sheet_objects):
                         class_appeared_to_go_ahead = True
                     time_slot ={"room": room, "date": date, "time": time, "module": module,
                                 "no_expected_students": no_expected_students,
-                                "class_appeared_to_go_ahead": class_appeared_to_go_ahead}
+                                "class_appeared_to_go_ahead": class_appeared_to_go_ahead, "capacity":capacity}
 
                     current_sheet_array.append(time_slot)
 
