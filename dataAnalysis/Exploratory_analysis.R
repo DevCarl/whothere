@@ -6,7 +6,7 @@
 library(RMySQL)
 
 #set up connection
-connection <- dbConnect(MySQL(),user="root", password="goldilocks",dbname="Who_there_db", host="localhost")
+connection <- dbConnect(MySQL(),user="root", password="goldilocks",dbname="who_there_db", host="localhost")
 
 #get the list of tables present in the DB: dbListTables(nameOfConnection)
 dbListTables(connection)
