@@ -12,13 +12,13 @@ connection <- dbConnect(MySQL(),user="root", password="goldilocks",dbname="Who_t
 dbListTables(connection)
 
 #show the field names for a given table: dbListFields(connection, table name).
-dbListFields(connection, "")
+dbListFields(connection, "Room")
 
 #create the query
-query <- "SELECT * FROM WHERE "
+query <-"select * from Room;"
 
 #select the data based on the query and store them in a dataframe called Analysis table
-AnalysisTable <- dbGetQuery (connection, query)
+AnalysisTable <-dbGetQuery(connection, query)
 
 # <--------------------------- EXPLORATORY ANALYSES --------------------------->
 
