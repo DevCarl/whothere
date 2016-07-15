@@ -15,7 +15,7 @@ dbListTables(connection)
 dbListFields(connection, "Room")
 
 #create the query
-query <-"select * from Room;"
+query <-"select * from Wifi_log;"
 
 #select the data based on the query and store them in a dataframe called Analysis table
 AnalysisTable <-dbGetQuery(connection, query)
@@ -49,17 +49,17 @@ histo1 <- ggplot(AnalysisTable, aes(x = variable)) + geom_histogram(binwidth = 2
   
 #plot all the histograms in one window
 
-multiplot(histo1, histo2, histo3, histo4, cols=2)
+#multiplot(histo1, histo2, histo3, histo4, cols=2)
 
 #make the boxplot for continuous variable
   
-box <- ggplot(AnalysisTable, aes(x = factor(0), y = variable)) + geom_boxplot() + xlab("") +
-  scale_x_discrete(breaks = NULL) + coord_flip()
+#box <- ggplot(AnalysisTable, aes(x = factor(0), y = variable)) + geom_boxplot() + xlab("") +
+#scale_x_discrete(breaks = NULL) + coord_flip()
 
 #plot all the histograms in one window
 
-multiplot(box1, box2, box3, box4, cols=2)
+#multiplot(box1, box2, box3, box4, cols=2)
 
 #GRAPH FOR CATEGORICAL DATA
-bar <- ggplot(AnalysisTable, aes(x = Level)) + geom_bar()
+#bar <- ggplot(AnalysisTable, aes(x = Level)) + geom_bar()
 
