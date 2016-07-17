@@ -111,7 +111,7 @@ def convert_data_frame_into_dict_array_add_capacity_info(pandas_data_frame, capa
         # Append current dict to array
         all_data_array.extend([room_1, room_2, room_3, room_4, room_5, room_6])
 
-    print(all_data_array)
+    # print(all_data_array)
     return all_data_array
 
 
