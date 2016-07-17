@@ -262,7 +262,9 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
         for current_line in general_data:
             # print(current_line)
             # print(general_data[0])
-            time = current_line.get("time")
+            # Reformate time into timestamp
+            time = current_line.get("time").split("-")[0].replace(".", ":")
+            print(time)
             date = current_line.get("date")
             room_B002 = current_line.get("B002")
 
@@ -327,6 +329,7 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
 
 if __name__ == '__main__':
     warnings.filterwarnings("ignore")
-    phrase_data_and_input_into_database("localhost", "root", "goldilocks", "who_there_db")
+    phrase_data_and_input_into_database("localhost", "root", "", "who_there_db")
+    # phrase_data_and_input_into_database("localhost", "root", "goldilocks", "who_there_db")
     # input_file_into_db((0,0,0,0), "localhost", "root", "goldilocks", "who_there_db",3306)
 
