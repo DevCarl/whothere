@@ -86,13 +86,20 @@ def convert_data_frame_into_dict_array(pandas_data_frame):
 
     # Convert each row into a dict
     for current_row in rows_in_array:
-        current_dict = {"time": current_row[0], "building": "CSI", "B004": current_row[1], "B002": current_row[2],
-                        "B003": current_row[3], "B106": current_row[4], "B108": current_row[5], "B109": current_row[6],
-                        "date": str(current_row[7]).split(" ")[0]}
+        date = str(current_row[7]).split(" ")[0]
+
+        room_1 = {"time": current_row[0], "building": "CSI", "room": "B004", "occupancy": current_row[1], "date": date}
+        room_2 = {"time": current_row[0], "building": "CSI", "room": "B002", "occupancy": current_row[2], "date": date}
+        room_3 = {"time": current_row[0], "building": "CSI", "room": "B003", "occupancy": current_row[3], "date": date}
+        room_4 = {"time": current_row[0], "building": "CSI", "room": "B106", "occupancy": current_row[4], "date": date}
+        room_5 = {"time": current_row[0], "building": "CSI", "room": "B108", "occupancy": current_row[5], "date": date}
+        room_6 = {"time": current_row[0], "building": "CSI", "room": "B109", "occupancy": current_row[6], "date": date}
+
+
         # Date is converted from timestamp object into string
 
         # Append current dict to array
-        all_data_array.append(current_dict)
+        all_data_array.extend([room_1, room_2, room_3, room_4, room_5, room_6])
 
     # print(all_data_array)
     return all_data_array

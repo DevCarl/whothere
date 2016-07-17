@@ -161,6 +161,7 @@ def generate_occupancy_rooms_list(file_data):
         if key != "date" and key != "time" and key != "building":
             room_list.append(key)
 
+    print(room_list)
     return room_list
 
 
@@ -261,59 +262,21 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
 
         for current_line in general_data:
             # print(current_line)
-            # print(general_data[0])
+
             # Reformate time into timestamp
             time = current_line.get("time").split("-")[0].replace(".", ":")
-            print(time)
             date = current_line.get("date")
-            room_B002 = current_line.get("B002")
+            room_name = current_line.get("room")
+            percentage_room_full = current_line.get("occupancy")
 
-            # Get room_id for current room
-            room = "B002"
-            cursor.execute("select Room_id from Room where Room_no='"+room+"';")
+             # Get room_id for current room
+            cursor.execute("select Room_id from Room where Room_no='"+room_name+"';")
             room_id = cursor.fetchone()[0]
-            cursor.execute("insert ignore into Ground_truth_data (Room_Room_id, date, time, Percentage_room_full) "
-                           "values ('"+str(room_id)+"','"+date+"','"+time+"','"+str(room_B002)+"');")
 
-            room_B003 = current_line.get("B003")
-            # Get room_id for current room
-            room = "B003"
-            cursor.execute("select Room_id from Room where Room_no='"+room+"';")
-            room_id = cursor.fetchone()[0]
-            cursor.execute("insert ignore into Ground_truth_data (Room_Room_id, date, time, Percentage_room_full) "
-                           "values ('"+str(room_id)+"','"+date+"','"+time+"','"+str(room_B003)+"');")
+            # print(time, date, room_name, room_id, percentage_room_full)
 
-            room_B004 = current_line.get("B004")
-            # Get room_id for current room
-            room = "B004"
-            cursor.execute("select room_id from Room where room_no='"+room+"';")
-            room_id = cursor.fetchone()[0]
             cursor.execute("insert ignore into Ground_truth_data (Room_Room_id, date, time, Percentage_room_full) "
-                           "values ('"+str(room_id)+"','"+date+"','"+time+"','"+str(room_B004)+"');")
-
-            room_B106 = current_line.get("B106")
-            # Get room_id for current room
-            room = "B106"
-            cursor.execute("select room_id from Room where room_no='"+room+"';")
-            room_id = cursor.fetchone()[0]
-            cursor.execute("insert ignore into Ground_truth_data (Room_Room_id, date, time, Percentage_room_full) "
-                           "values ('"+str(room_id)+"','"+date+"','"+time+"','"+str(room_B106)+"');")
-
-            room_B108 = current_line.get("B108")
-            # Get room_id for current room
-            room = "B108"
-            cursor.execute("select Room_id from Room where Room_no='"+room+"';")
-            room_id = cursor.fetchone()[0]
-            cursor.execute("insert ignore into Ground_truth_data (Room_Room_id, date, time, Percentage_room_full) "
-                           "values ('"+str(room_id)+"','"+date+"','"+time+"','"+str(room_B108)+"');")
-
-            room_B109 = current_line.get("B109")
-            # Get room_id for current room
-            room = "B109"
-            cursor.execute("select room_id from Room where Room_no='"+room+"';")
-            room_id = cursor.fetchone()[0]
-            cursor.execute("insert ignore into Ground_truth_data (Room_Room_id, date, time, Percentage_room_full) "
-                           "values ('"+str(room_id)+"','"+date+"','"+time+"','"+str(room_B109)+"');")
+                           "values ('"+str(room_id)+"','"+date+"','"+time+"','"+str(percentage_room_full)+"');")
 
 
 
@@ -332,4 +295,3 @@ if __name__ == '__main__':
     phrase_data_and_input_into_database("localhost", "root", "", "who_there_db")
     # phrase_data_and_input_into_database("localhost", "root", "goldilocks", "who_there_db")
     # input_file_into_db((0,0,0,0), "localhost", "root", "goldilocks", "who_there_db",3306)
-
