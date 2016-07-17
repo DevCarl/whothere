@@ -94,7 +94,8 @@ def process_files(data_directory, file_list, db_tuple):
 
         elif file_type == 3:
             file_data = phrase_occupancy_excel_file(data_directory+file)
-            rooms = generate_occupancy_rooms_list(file_data)
+            rooms = generate_list_of_rooms(file_data)
+            generate_capacity_list = 1
             modules = []
 
             # Insert files into the database
@@ -153,7 +154,7 @@ def generate_list_of_rooms(data_array):
     return room_list
 
 
-def generate_occupancy_rooms_list(file_data):
+def generate_capacity_list(file_data):
 
     room_list = []
 
@@ -178,7 +179,7 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
     # Create empty room moudle code
     cursor.execute("insert ignore into Module (Module_code) values ('0');")
 
-    # First check all room / module are in db already. If not add them in.
+    ### First check all room / module are in db already. If not add them in.
 
     # Filter room list and then insert missing ones
     cursor.execute("select Room_no from Room;")
@@ -277,14 +278,6 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
 
             cursor.execute("insert ignore into Ground_truth_data (Room_Room_id, date, time, Percentage_room_full) "
                            "values ('"+str(room_id)+"','"+date+"','"+time+"','"+str(percentage_room_full)+"');")
-
-
-
-    # value = "('10', 'B003', 'CSI', '1', 'Belfied', 1, 90, 1)"
-    # cursor.execute("insert ignore into room values "+value+";")
-    # cursor.execute("select * from room")
-    # data = cursor.fetchall()
-    # print(data)
 
     # disconnect from server
     db.close()
