@@ -40,6 +40,9 @@ def phrase_data_and_input_into_database(db_host_name, db_user_name, db_password,
     new_files_list = os.listdir(new_data_directory)
     new_files_list = [file for file in new_files_list if file[0] is not "."]
 
+    # Check if database exist. If not create it
+
+
     # If there are new files phrase and input into db
     if len(new_files_list) > 0:
         process_files(new_data_directory, new_files_list, db_tuple)
@@ -58,6 +61,10 @@ def unzip_files_and_remove_zip(directory):
             zip_ref.close()
             os.remove(directory+item)
 
+
+def check_database_exists_if_not_create():
+
+    return 1
 
 def process_files(data_directory, file_list, db_tuple):
 
