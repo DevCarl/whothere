@@ -9,14 +9,32 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class ApiController {
+    
+        @RequestMapping(value = "/api/table", method = RequestMethod.GET)
+        public String apiRequest(@RequestParam(value = "request", required=true) String request) throws Exception{
+            DataSourceConnection connection = new DataSourceConnection();
+            request = connection.sqlGetAllJson(request);
+            return request;
+        }
 	
-	@RequestMapping(value = "/api", method = RequestMethod.GET)
+	@RequestMapping(value = "/api/data", method = RequestMethod.GET)
 	public String apiRequest(@RequestParam Map<String,String> requestParams) throws Exception{
-		String SearchMethod=requestParams.get("request");
-		String SearchTerms=requestParams.get("james");
-		DataSourceConnection connection = new DataSourceConnection();
-		SearchMethod = connection.sqlGetAllJson(SearchMethod);
-		return SearchMethod;
+		String request = requestParams.get("request");
+		String specific = requestParams.get(request);
+                String additional = "";
+                DataSourceConnection connection = new DataSourceConnection();
+                switch (request){
+                    case "Date":
+                        additional = "AND W.Date = ?";                  break;
+                    case "Week":
+                        additional = "AND WEEK(W.Date) = WEEK(?)";      break;
+                    case "Module":
+                        additional = "AND M.Module_code = ?";           break;
+                    case "Room_id":
+                        additional = "AND R.Room_id = ?";               break;
+                }
+		request = connection.sqlJson(additional, specific);
+		return request;
 	}
 	
 }
