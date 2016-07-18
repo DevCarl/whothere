@@ -44,7 +44,7 @@ def phrase_data_and_input_into_database(db_host_name, db_user_name, db_password,
     new_files_list = [file for file in new_files_list if file[0] is not "."]
 
     # Check if database exist. If not create it
-
+    check_database_exists_if_not_create(db_tuple)
 
     # If there are new files phrase and input into db
     if len(new_files_list) > 0:
@@ -65,9 +65,24 @@ def unzip_files_and_remove_zip(directory):
             os.remove(directory+item)
 
 
-def check_database_exists_if_not_create():
+def check_database_exists_if_not_create(db_tuple):
 
-    return 1
+    # unpack db tuple
+    db_host_name, db_user_name, db_password, database_name, port = db_tuple
+
+    # print(db_host_name, db_user_name, db_password, database_name, port)
+
+    # Open database connection and prepare cursor object
+    db = pymysql.connect(host=db_host_name, user=db_user_name, password=db_password, database="",
+                         port=port, autocommit=True)
+    cursor = db.cursor()
+
+    # Load sql creation info from file
+    sql_file = open("database_schema/who_there_db.sql", "r")
+    # print(sql_file.read())
+
+    cursor.execute(sql_file.read())
+
 
 def process_files(data_directory, file_list, db_tuple):
 
@@ -307,6 +322,6 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
 
 if __name__ == '__main__':
     warnings.filterwarnings("ignore")
-    phrase_data_and_input_into_database("localhost", "root", "", "who_there_db")
+    phrase_data_and_input_into_database("localhost", "root", "goldilocks", "who_there_db")
     # phrase_data_and_input_into_database("localhost", "root", "goldilocks", "who_there_db")
     # input_file_into_db((0,0,0,0), "localhost", "root", "goldilocks", "who_there_db",3306)
