@@ -29,6 +29,9 @@ def phrase_data_and_input_into_database(db_host_name, db_user_name, db_password,
     # Convert db info into tuple
     db_tuple = (db_host_name, db_user_name, db_password, database_name, db_port)
 
+    # Get directory abs path
+    new_data_directory = os.path.abspath(new_data_directory)
+
     # Check directory path ends with "/". If not add it.
     if new_data_directory.endswith("/") == False:
         new_data_directory += "/"
