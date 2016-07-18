@@ -26,9 +26,11 @@ import warnings
 
 def phrase_data_and_input_into_database(db_host_name, db_user_name, db_password, database_name, db_port=3306,
                                         new_data_directory="data_storage/new_data/"):
-
     # Convert db info into tuple
     db_tuple = (db_host_name, db_user_name, db_password, database_name, db_port)
+
+    # Get directory abs path
+    new_data_directory = os.path.abspath(new_data_directory)
 
     # Check directory path ends with "/". If not add it.
     if new_data_directory.endswith("/") == False:
@@ -40,6 +42,9 @@ def phrase_data_and_input_into_database(db_host_name, db_user_name, db_password,
     # Get list of files in new data and remove those that are hidden
     new_files_list = os.listdir(new_data_directory)
     new_files_list = [file for file in new_files_list if file[0] is not "."]
+
+    # Check if database exist. If not create it
+
 
     # If there are new files phrase and input into db
     if len(new_files_list) > 0:
@@ -59,6 +64,10 @@ def unzip_files_and_remove_zip(directory):
             zip_ref.close()
             os.remove(directory+item)
 
+
+def check_database_exists_if_not_create():
+
+    return 1
 
 def process_files(data_directory, file_list, db_tuple):
 
@@ -94,12 +103,13 @@ def process_files(data_directory, file_list, db_tuple):
 
         elif file_type == 3:
             file_data = phrase_occupancy_excel_file(data_directory+file)
-            rooms = generate_occupancy_rooms_list(file_data)
+            rooms = generate_list_of_rooms(file_data)
+            room_capacity_dict = generate_capacity_list(file_data)
             modules = []
 
             # Insert files into the database
-            input_file_into_db((file_data, rooms, modules, file_type), db_host_name, db_user_name, db_password,
-                               database_name, port)
+            input_file_into_db((file_data, rooms, modules, file_type,), db_host_name, db_user_name, db_password,
+                               database_name, port, capacity_dict=room_capacity_dict)
 
         else:
             processing_results.append({"success": False, "data_input": False, "file_name": file,
@@ -153,19 +163,20 @@ def generate_list_of_rooms(data_array):
     return room_list
 
 
-def generate_occupancy_rooms_list(file_data):
+def generate_capacity_list(file_data):
 
-    room_list = []
+    capacity_dict = {}
 
-    for key in file_data[0]:
-        if key != "date" and key != "time" and key != "building":
-            room_list.append(key)
+    for data_row in file_data:
+        if data_row.get("room") not in capacity_dict:
+            capacity_dict[data_row.get("room")] = data_row.get("capacity")
+            # print(data_row.room)
 
-    print(room_list)
-    return room_list
+    return capacity_dict
 
 
-def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_password, database_name, db_port):
+def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_password, database_name, db_port,
+                       capacity_dict={}):
 
     # Open database connection and prepare cursor object
     db = pymysql.connect(host=db_host_name, user=db_user_name, password=db_password, database=database_name,
@@ -178,7 +189,7 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
     # Create empty room moudle code
     cursor.execute("insert ignore into Module (Module_code) values ('0');")
 
-    # First check all room / module are in db already. If not add them in.
+    ### First check all room / module are in db already. If not add them in.
 
     # Filter room list and then insert missing ones
     cursor.execute("select Room_no from Room;")
@@ -199,7 +210,19 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
     for module in missing_modules:
         cursor.execute("insert ignore into Module (Module_code) values ('"+module+"');")
 
-    # Second depending on data type insert information into the database
+    # Second update room capacities if required
+    # Check that a capacity dict and been given. If room in database has null capacity update it if possible
+    if len(capacity_dict) > 0:
+        for room in capacity_dict:
+            cursor.execute("select Capacity from Room where Room_no='"+room+"';")
+            room_capacity = cursor.fetchone()[0]
+            # print(room_capacity)
+            if room_capacity == None:
+                cursor.execute("update Room set Capacity="+str(capacity_dict.get(room))+" where Room_no='"+room+"';")
+
+
+
+    # Third depending on data type insert information into the database
     # type 0 unknown / csv type 1 / timetable type 2 / occupancy type 3
 
     # print(data_type, general_data[0])
@@ -277,14 +300,6 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
 
             cursor.execute("insert ignore into Ground_truth_data (Room_Room_id, date, time, Percentage_room_full) "
                            "values ('"+str(room_id)+"','"+date+"','"+time+"','"+str(percentage_room_full)+"');")
-
-
-
-    # value = "('10', 'B003', 'CSI', '1', 'Belfied', 1, 90, 1)"
-    # cursor.execute("insert ignore into room values "+value+";")
-    # cursor.execute("select * from room")
-    # data = cursor.fetchall()
-    # print(data)
 
     # disconnect from server
     db.close()
