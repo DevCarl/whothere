@@ -60,7 +60,7 @@ public class DataSourceConnection {
                     + "M.Module_code, M.Facilty, M.Course_level, M.Undergrad, M.Module_active";
             String from = " FROM Room R, Wifi_log W, Ground_truth_data G, Time_table T, Module M";
             String where = " WHERE W.Room_Room_id = R.Room_id AND G.Room_Room_id = W.Room_Room_id AND W.Date = G.Date "
-                            + "AND HOUR( W.Time ) = SECOND( G.Time ) AND HOUR( W.Time ) = HOUR( T.Time_period ) AND T.Module_Module_code = M.Module_code "
+                            + "AND HOUR( W.Time ) = HOUR( G.Time ) AND HOUR( W.Time ) = HOUR( T.Time_period ) AND T.Module_Module_code = M.Module_code "
                             + "AND T.Date = W.Date AND T.Room_Room_id = W.Room_Room_id ";
             String sql = select.concat(from.concat(where.concat(additional)));
             PreparedStatement question = connection.prepareStatement(sql);
