@@ -208,7 +208,7 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
             room_capacity = cursor.fetchone()[0]
             # print(room_capacity)
             if room_capacity == None:
-                cursor.execute("update Room set Capacity="+str(capacity_dict.get(room))+" where Room_no='"+room+"';'")
+                cursor.execute("update Room set Capacity="+str(capacity_dict.get(room))+" where Room_no='"+room+"';")
 
 
 
