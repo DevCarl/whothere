@@ -73,7 +73,7 @@ def check_database_exists_if_not_create(db_tuple):
     # print(db_host_name, db_user_name, db_password, database_name, port)
 
     # Open database connection and prepare cursor object
-    db_1 = pymysql.connect(host=db_host_name, user=db_user_name, password=db_password, database="",
+    db_1 = pymysql.connect(host=db_host_name, user=db_user_name, password=db_password,
                          port=port, autocommit=True)
     cursor = db_1.cursor()
 
@@ -325,6 +325,6 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
 
 if __name__ == '__main__':
     warnings.filterwarnings("ignore")
-    phrase_data_and_input_into_database("localhost", "root", "", "who_there_db")
+    phrase_data_and_input_into_database("localhost", "root", "goldilocks", "who_there_db")
     # phrase_data_and_input_into_database("localhost", "root", "goldilocks", "who_there_db")
     # input_file_into_db((0,0,0,0), "localhost", "root", "goldilocks", "who_there_db",3306)
