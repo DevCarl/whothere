@@ -43,8 +43,8 @@ def phrase_data_and_input_into_database(db_host_name, db_user_name, db_password,
     new_files_list = os.listdir(new_data_directory)
     new_files_list = [file for file in new_files_list if file[0] is not "."]
 
-    # # Check if database exist. If not create it
-    # check_database_exists_if_not_create(db_tuple)
+    # Check if database exist. If not create it
+    check_database_exists_if_not_create(db_tuple)
 
     # If there are new files phrase and input into db
     if len(new_files_list) > 0:
@@ -325,7 +325,6 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
 
 if __name__ == '__main__':
     warnings.filterwarnings("ignore")
-    check_database_exists_if_not_create(("localhost", "root", "", "who_there_db", 3306))
     phrase_data_and_input_into_database("localhost", "root", "", "who_there_db")
     # phrase_data_and_input_into_database("localhost", "root", "goldilocks", "who_there_db")
     # input_file_into_db((0,0,0,0), "localhost", "root", "goldilocks", "who_there_db",3306)
