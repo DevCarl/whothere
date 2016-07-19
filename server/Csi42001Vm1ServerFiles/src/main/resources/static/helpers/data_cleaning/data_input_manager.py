@@ -12,7 +12,9 @@
 import os
 import zipfile
 import pymysql
+import MySQLdb
 import calendar
+
 # module imports
 from wifi_log_phraser import phrase_csv_file_and_return_array_of_dicts
 from occupancy_report_phraser import phrase_occupancy_excel_file
@@ -73,8 +75,7 @@ def check_database_exists_if_not_create(db_tuple):
     # print(db_host_name, db_user_name, db_password, database_name, port)
 
     # Open database connection and prepare cursor object
-    db_1 = pymysql.connect(host=db_host_name, user=db_user_name, password=db_password,
-                         port=port, autocommit=True)
+    db_1 = MySQLdb.connect(db_host_name, db_user_name, db_password, "")
     cursor = db_1.cursor()
 
     # Load sql creation info from file
@@ -262,7 +263,7 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
             associated_client_counts = current_data.get("associated_count")
             authenticated_client_counts = current_data.get("authenticated_count")
 
-            cursor.execute("insert ignore into Wifi_log (Room_Room_id,Date,Time,"
+            cursor.execute("insert ignore into wifi_log (Room_Room_id,Date,Time,"
                            "Associated_client_counts,Authenticated_client_counts) values "
                            "('"+str(room_id)+"','"+date+"','"+time+"','"+str(associated_client_counts)+"','"+
                            str(authenticated_client_counts)+"');")
