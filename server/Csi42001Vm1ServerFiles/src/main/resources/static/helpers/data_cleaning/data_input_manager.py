@@ -12,7 +12,6 @@
 import os
 import zipfile
 import pymysql
-import MySQLdb
 import calendar
 
 # module imports
@@ -75,7 +74,7 @@ def check_database_exists_if_not_create(db_tuple):
     # print(db_host_name, db_user_name, db_password, database_name, port)
 
     # Open database connection and prepare cursor object
-    db_1 = MySQLdb.connect(db_host_name, db_user_name, db_password, "")
+    db_1 = pymysql.connect(db_host_name, db_user_name, db_password, "")
     cursor = db_1.cursor()
 
     # Load sql creation info from file
@@ -83,6 +82,9 @@ def check_database_exists_if_not_create(db_tuple):
     # print(sql_file.read())
 
     cursor.execute(sql_file.read())
+
+    cursor.execute("show tables;")
+    print(cursor.fetchall())
 
     # disconnect from server
     db_1.close()
