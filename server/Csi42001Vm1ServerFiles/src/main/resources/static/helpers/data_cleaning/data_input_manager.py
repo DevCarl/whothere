@@ -83,8 +83,9 @@ def check_database_exists_if_not_create(db_tuple):
 
     cursor.execute(sql_file.read())
 
+    # Fix for wifi_logs not being found
     cursor.execute("show tables;")
-    print(cursor.fetchall())
+    cursor.fetchall()
 
     # disconnect from server
     db_1.close()
@@ -265,7 +266,7 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
             associated_client_counts = current_data.get("associated_count")
             authenticated_client_counts = current_data.get("authenticated_count")
 
-            cursor.execute("insert ignore into wifi_log (Room_Room_id,Date,Time,"
+            cursor.execute("insert ignore into Wifi_log (Room_Room_id,Date,Time,"
                            "Associated_client_counts,Authenticated_client_counts) values "
                            "('"+str(room_id)+"','"+date+"','"+time+"','"+str(associated_client_counts)+"','"+
                            str(authenticated_client_counts)+"');")
