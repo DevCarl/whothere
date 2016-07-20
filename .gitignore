@@ -25,3 +25,7 @@ server/Csi42001Vm1ServerFiles/src/main/resources/static/helpers/data_cleaning/__
 data_cleaning/data_storage/failed_to_store_data/
 data_cleaning/data_storage/new_data/
 data_cleaning/data_storage/stored_data/
+
+# Ignore target folder contents
+
+server/Csi42001Vm1ServerFiles/target
