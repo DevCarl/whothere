@@ -7,28 +7,19 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.CrossOrigin;
-<<<<<<< HEAD
 import org.springframework.web.filter.CharacterEncodingFilter;
-=======
->>>>>>> 656e6824d0d61891a51da1becfe44e2ee508f515
+
 
 @CrossOrigin
 @RestController
 public class ApiController {
-<<<<<<< HEAD
     	
         @RequestMapping(value = "/api/table", method = RequestMethod.GET)
         public String apiRequestTable(@RequestParam(value = "request", required=true) String request) throws Exception{
-=======
-    
-        @RequestMapping(value = "/api/table", method = RequestMethod.GET)
-        public String apiRequest(@RequestParam(value = "request", required=true) String request) throws Exception{
->>>>>>> 656e6824d0d61891a51da1becfe44e2ee508f515
             DataSourceConnection connection = new DataSourceConnection();
             request = connection.sqlGetAllJson(request);
             return request;
         }
-<<<<<<< HEAD
 
 	@RequestMapping(value = "/api/tablesearch", method = RequestMethod.GET)
         public String apiRequestTableSearch(@RequestParam Map<String,String> requestParams) throws Exception{
@@ -41,11 +32,6 @@ public class ApiController {
 	
 	@RequestMapping(value = "/api/data", method = RequestMethod.GET)
 	public String apiRequestData(@RequestParam Map<String,String> requestParams) throws Exception{
-=======
-	
-	@RequestMapping(value = "/api/data", method = RequestMethod.GET)
-	public String apiRequest(@RequestParam Map<String,String> requestParams) throws Exception{
->>>>>>> 656e6824d0d61891a51da1becfe44e2ee508f515
 		String request = requestParams.get("request");
 		String specific = requestParams.get(request);
                 String additional = "";
