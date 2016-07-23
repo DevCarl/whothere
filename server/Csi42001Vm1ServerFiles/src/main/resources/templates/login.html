@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Who's there - Login</title>
+        <link rel="stylesheet" type="text/css" href="../static/css/style.css">
+                
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+         
+    </head>
+        
+    <body>
+        <!-- Insert header -->
+        <div id="header"></div>
+        <script> 
+            $(function(){
+                $("#header").load("header.html");
+            });
+        </script>
+        
+        <!--    Login form    -->
+        <section id="login_box">
+            <form id="login_form">
+                <input type="text" class="login" placeholder="username"/>
+                <input type="password" class="login" placeholder="password"/>
+                <button type="submit" id="login_btn" class="login">LOG IN</button>
+            </form>
+        </section>
+    </body>
+</html>

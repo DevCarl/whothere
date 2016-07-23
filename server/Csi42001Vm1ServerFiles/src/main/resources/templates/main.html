@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Who's there - Login</title>
+        <link rel="stylesheet" type="text/css" href="/css/style.css" th:attr="href=@{/css/style.css}" />
+                
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+        
+        <script>
+            //<![CDATA[
+            var dataResponse = "";
+            var url = 'http://localhost:8080/api/tablesearch?request=Room&key=Buildling'
+            var xmr = new XMLHttpRequest();
+            xmr.open("GET", url, false);
+            xmr.onreadystatechange = function(oEvent) {
+            if (xmr.readyState === 4) {
+                if (xmr.status === 200) {
+                    dataResponse = JSON.parse(xmr.responseText);
+                } else {
+                    console.log("Error", xmr.statusText)
+                }
+            }
+        }
+            xmr.send(null);
+            //]]>
+        </script>
+         
+    </head>
+    
+    <body>
+        <!-- Insert header -->
+        <div id="header"></div>
+        <script> 
+            //<![CDATA[
+            $(function(){
+                $("#header").load("header.html");
+            });
+            //]]>
+        </script>
+    
+        <!--  Search form: by building, module and date     -->
+        <section id="search_section">
+            <form id="search_form">
+                <select id="building" class="search_select">
+                    <option>Select a building</option>                 
+                </select>
+                <select id="classroom" class="search_select">
+                    <option>Select a classroom</option>
+                </select>
+                <input type="date" name="date" class="search_select"/>
+                <button type="submit" id="search_btn">Search</button>
+            </form>
+        </section>
+        
+        <!-- Map - using Google Maps for now -->
+        <main id="map"></main>
+        
+        <script>
+            //<![CDATA[
+            var x = document.getElementById("building");
+                for (var buildingkey in dataResponse){
+                    var option = document.createElement("option");
+                    option.text = dataResponse[buildingkey][0]["Buildling"];
+                    x.add(option);
+                }
+                
+                var classroom = document.getElementById("classroom");
+                building.addEventListener("change", function() {
+                    classroom.innerHTML = "";
+                    var option = document.createElement("option");
+                    option.text = "Select a classroom";
+                    classroom.add(option);
+                    var optionList = building.querySelectorAll("option");
+                    var selected = building.options[building.selectedIndex].text;
+                    if (typeof dataResponse[selected] !== "undefined") {
+                        for (var i = 0; i < dataResponse[selected].length; i++){
+                            var option = document.createElement("option");
+                            option.text = dataResponse[selected][i]["Room_no"];
+                            classroom.add(option);
+                        }
+                    }
+                });            
+            //]]>
+        </script>
+        <script>
+            //<![CDATA[
+            var map;
+            function initMap() {
+                map = new google.maps.Map(document.getElementById('map'), {
+                center: {lat: 53.307722, lng: -6.222274},
+                zoom: 15
+                });
+            }
+            //]]>
+        </script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAysaK-xaVpMze3R5nJp1hniuflmN0tCfY&amp;callback=initMap"
+        async = "async" defer = "defer"></script>
+    </body>
+</html>
+
+    
