@@ -13,11 +13,11 @@ header{
     background-color: rgba(255,255,240, 0.5);
     overflow: auto;
     height: auto; 
-    padding: 20px;
+    padding: 10px; /*silvia changed the padding cause it was to tall the bar, if you do not like go back to origina size: 20 */
 }
 #logo{
     width: 60px;
-    height: 60px;
+    height: 100px;
     margin-left: 5px;
     width: 70px;
     height:60px;
@@ -119,7 +119,105 @@ input.login{
     border: none;
 }
 
+/*    NAVIGATION BAR    */
+aside {
+    height: 600px;
+    width:150px;
+    position: absolute; 
+    top:142px;
+    background-color: #1f7b6c;
+    overflow: auto;
+}
+nav { 
+    position: absolute; 
+    top: 5px;
+    left: 10px; 
+    z-index: 99; 
+    padding-top:5px;
+    text-align: center;
+    align-content: center;
+    font-family: sans-serif;
+    color: white;
+}
+
+nav ul {
+/*
+    display: inline-block;
+    list-style-type: none;
+*/
+    margin: 0;
+    padding:0;
+    align-content: center;
+    align-items:center;
+    overflow: hidden;
+    
+}
+
+nav li {
+/*
+    float: left;
+    display:inline-block;
+*/
+    align-content: center;
+    text-align: left;
+    font-family: sans-serif;
+    color: white;
+}
+
+nav li a {
+    display: block;
+    color: white;
+    text-align: left;
+    text-decoration: none;
+    overflow:auto;
+    padding: 10px 30px 10px 30px;
+   
+}
+
+nav li a:hover:not(.active) {
+    background-color: #ff6e21;
+}
+
+
 /*    MAP    */
 #map{
     height: 600px;
 }
+
+/*    FOOTER    */
+
+footer {
+    background-color: rgba(255,255,240, 0.5);
+    overflow: auto;
+    height: 20px; 
+    padding: 10px; 
+}
+
+footer ul {
+    display: inline-block;
+    list-style-type: none;
+    margin: 0;
+    padding:0;
+    align-content: center;
+    align-items:center;
+    overflow: auto;
+}
+
+
+footer li {
+    float: left;
+    display:inline-block;
+    align-content: center;
+    text-align: center;
+    font: normal 12px sans-serif;
+}
+
+footer li a {
+    display: block;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    overflow:auto;
+    padding: 10px;
+}
+

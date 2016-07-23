@@ -89,13 +89,43 @@
             function initMap() {
                 map = new google.maps.Map(document.getElementById('map'), {
                 center: {lat: 53.307722, lng: -6.222274},
-                zoom: 15
+                zoom: 15,
+                    //silvia: for moving the map controller on the right, so I can put nav bar on the left 
+                mapTypeControl: true,
+                mapTypeControlOptions: {
+                    style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+                    position: google.maps.ControlPosition.TOP_RIGHT
+                    },
                 });
             }
             //]]>
         </script>
         <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAysaK-xaVpMze3R5nJp1hniuflmN0tCfY&amp;callback=initMap"
         async = "async" defer = "defer"></script>
+        
+         <!-- Insert navigation bar -->
+        <aside>
+            <div id="nav_bar"></div>
+            <script> 
+                //<![CDATA[
+                $(function(){
+                    $("#nav_bar").load("nav_bar.html");
+                });
+                //]]>
+            </script>
+        </aside>
+        
+         <!-- Insert footer -->
+        <div id="footer"></div>
+        <script> 
+            //<![CDATA[
+            $(function(){
+                $("#footer").load("footer.html");
+            });
+            //]]>
+        </script>
+        
+        
     </body>
 </html>
     
