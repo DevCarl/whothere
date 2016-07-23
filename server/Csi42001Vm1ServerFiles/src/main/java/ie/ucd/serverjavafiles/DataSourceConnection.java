@@ -51,7 +51,6 @@ public class DataSourceConnection {
 		String result = convert.convertJsonArray(resultSet);
 		return result;
 	}
-<<<<<<< HEAD
 
 	public static String sqlGetAllJsonObject(String SearchMethod, String Key) throws SQLException{
 		String query = "";
@@ -61,8 +60,6 @@ public class DataSourceConnection {
 		String result = convert.convertJsonObject(resultSet, Key);
 		return result;
 	}
-=======
->>>>>>> 656e6824d0d61891a51da1becfe44e2ee508f515
         
         public static String sqlJson(String additional, String specific) throws SQLException{
             String select = "SELECT R.Room_id, R.Room_no, R.Buildling, R.Floor_no, R.Campus, R.Room_active, R.Capacity, R.Plug_friendly, "
