@@ -34,9 +34,12 @@ public class GreetingController {
         return "result";
     }
 
+<<<<<<< HEAD
 	@RequestMapping(value="/main", method=RequestMethod.GET)
 	public String mainPage(Model model) {
 		return "main";
 	}
 
+=======
+>>>>>>> 656e6824d0d61891a51da1becfe44e2ee508f515
 }

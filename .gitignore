@@ -1,0 +1,34 @@
+# Basic git ignore file
+
+
+#DS store file
+.DS_store
+
+# Pycharm files
+data_cleaning/__pycache__/
+
+# Pycharm byte code
+server/Csi42001Vm1ServerFiles/src/main/resources/static/helpers/data_cleaning/__pycache__/
+
+# Ignore lock on files
+.~lock*
+
+#Ignore test data
+1.test_data/
+
+# Ignore server files
+server/Csi42001Vm1ServerFiles/target
+
+# Ignore contents of the following directories excpet the .gitkeep file
+
+!data_cleaning/data_storage/failed_to_store_data/.gitkeep
+!data_cleaning/data_storage/new_data/.gitkeep
+!data_cleaning/data_storage/stored_data/.gitkeep
+
+data_cleaning/data_storage/failed_to_store_data/
+data_cleaning/data_storage/new_data/
+data_cleaning/data_storage/stored_data/
+
+# Ignore target folder contents
+
+server/Csi42001Vm1ServerFiles/target
