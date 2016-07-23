@@ -34,7 +34,7 @@ DEFAULT CHARACTER SET = utf8;
 CREATE TABLE IF NOT EXISTS `who_there_db`.`Room` (
   `Room_id` INT(11) NOT NULL AUTO_INCREMENT,
   `Room_no` VARCHAR(45) NULL DEFAULT NULL,
-  `Buildling` VARCHAR(45) NULL DEFAULT NULL,
+  `Building` VARCHAR(45) NULL DEFAULT NULL,
   `Floor_no` VARCHAR(45) NULL DEFAULT NULL,
   `Campus` VARCHAR(45) NULL DEFAULT NULL,
   `Room_active` TINYINT(1) NULL DEFAULT NULL,
@@ -51,7 +51,10 @@ DEFAULT CHARACTER SET = utf8;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `who_there_db`.`Processed_data` (
   `Data_input_id` INT(11) NOT NULL,
-  `Data` FLOAT NULL DEFAULT NULL,
+  `Time_stamp` DATETIME NULL DEFAULT NULL,
+  `Devices_ratio` FLOAT NULL,
+  `Model_type` VARCHAR(400) NULL,
+  `Model_info` VARCHAR(400) NULL,
   PRIMARY KEY (`Data_input_id`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
@@ -61,18 +64,16 @@ DEFAULT CHARACTER SET = utf8;
 -- Table `who_there_db`.`Ground_truth_data`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `who_there_db`.`Ground_truth_data` (
-  `Data_input_id` INT(11) NOT NULL AUTO_INCREMENT,
-  `Room_Room_id` INT(11) NULL DEFAULT NULL,
-  `Date` DATE NULL DEFAULT NULL,
-  `Time` TIME NULL DEFAULT NULL,
+  `Room_Room_id` INT(11) NOT NULL,
+  `Date` DATE NOT NULL,
+  `Time` TIME NOT NULL,
   `Room_used` TINYINT(1) NULL DEFAULT NULL,
   `Percentage_room_full` FLOAT NULL DEFAULT NULL,
   `No_of_people` INT(11) NULL DEFAULT NULL,
   `Lecture` TINYINT(1) NULL DEFAULT NULL,
   `Tutorial` TINYINT(1) NULL DEFAULT NULL,
-  PRIMARY KEY (`Data_input_id`),
-  UNIQUE INDEX `Data_input_id_UNIQUE` (`Data_input_id` ASC),
   INDEX `fk_ground_truth_data_Room1_idx` (`Room_Room_id` ASC),
+  PRIMARY KEY (`Room_Room_id`, `Date`, `Time`),
   CONSTRAINT `fk_ground_truth_data_Room1`
     FOREIGN KEY (`Room_Room_id`)
     REFERENCES `who_there_db`.`Room` (`Room_id`)
@@ -146,6 +147,18 @@ CREATE TABLE IF NOT EXISTS `who_there_db`.`Wifi_log` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `who_there_db`.`input_logs`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `who_there_db`.`input_logs` (
+  `Input_id` INT NOT NULL AUTO_INCREMENT,
+  `Input_timestamp` DATETIME NULL,
+  `Success` TINYINT(1) NULL,
+  `Error_report` VARCHAR(1000) NULL,
+  PRIMARY KEY (`Input_id`))
+ENGINE = InnoDB;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;

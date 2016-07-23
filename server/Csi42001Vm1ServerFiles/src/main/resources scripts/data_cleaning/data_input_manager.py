@@ -53,6 +53,9 @@ def phrase_data_and_input_into_database(db_host_name, db_user_name, db_password,
     else:
         return {"success": True, "new_data_exists": False, "data_input": False, "individual_file_reports": []}
 
+    # Move contents of new_data_directory to processed data
+
+
 
 def unzip_files_and_remove_zip(directory):
 
