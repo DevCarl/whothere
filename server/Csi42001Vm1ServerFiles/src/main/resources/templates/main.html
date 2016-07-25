@@ -83,6 +83,7 @@
                 });            
             //]]>
         </script>
+        
         <script>
             //<![CDATA[
             var map;
@@ -97,6 +98,57 @@
                     position: google.maps.ControlPosition.TOP_RIGHT
                     },
                 });
+                setMarkers();
+            }
+            
+            // Place markers on the map over each building
+            function setMarkers(){
+                var markers = [];
+                var marker;
+                
+                // Coordinates for some buildings -  hardcoded for now - needs to be discussed
+                var buildingList = [
+                    ["Agriculture and Food Science Centre", 53.307386, -6.224636],
+                    ["UCD Centre for Molecular Innovation", 53.307594, -6.223812],
+                    ["Centre for Research in Infectious Diseases (CRID)", 53.308273, -6.219811],
+                    ["Centre for Synthesis and Chemical Biology (CSCB)", 53.307829, -6.223185],
+                    ["UCD Clinton Centre for American Studies", 53.306497, -6.215293],
+                    ["UCD Computer Science and Informatics Centre", 53.309294, -6.223747],
+                    ["UCD Charles Institute of Dermatology", 53.310111, -6.225585],
+                    ["UCD Computer Centre", 53.309482, -6.224118],
+                    ["UCD Conway Institute", 53.310869, -6.224472],
+                    ["Daedalus Building", 53.306321, -6.219598],
+                    ["Energy Centre", 53.308771, -6.232067],
+                    ["UCD Engineering & Materials Science Centre", 53.306425, -6.218109],
+                    ["Environmental Protection Agency", 53.311541, -6.234450],
+                    ["UCD Geary Institute (Arts Annexe)", 53.303754, -6.222005],
+                    ["Gerard Manley Hopkins Centre", 53.305436, -6.219770],
+                    ["Hanna Sheehy-Skeffington Building", 53.304117, -6.222479],
+                    ["Health Sciences Centre", 53.309373, -6.226163],
+                    ["UCD Humanities Institute Ireland", 53.303810, -6.222866],
+                    ];
+                
+                // Iterate through building list to place marker over each building
+                for (var i = 0; i < buildingList.length; i++){  
+                    var name = buildingList[i][0];
+                    var lat = buildingList[i][1];
+                    var long = buildingList[i][2];        
+                    var latlngset = new google.maps.LatLng(lat, long);
+
+                    // Create new marker
+                    var marker = new google.maps.Marker({  
+                        map: map, 
+                        title: name, 
+                        position: latlngset
+                    });
+
+
+                    // Add listener to marker
+//                    marker.addListener('click', function()        {});
+
+                    // Add marker to array
+                    markers.push(marker);
+                }
             }
             //]]>
         </script>
@@ -124,8 +176,6 @@
             });
             //]]>
         </script>
-        
-        
     </body>
 </html>
     
