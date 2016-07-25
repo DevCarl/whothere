@@ -17,7 +17,7 @@ server/Csi42001Vm1ServerFiles/src/main/resources/static/helpers/data_cleaning/__
 1.test_data/
 
 # Ignore server files
-server/Csi42001Vm1ServerFiles/target
+server/Csi42001Vm1ServerFiles/target/
 
 # Ignore contents of the following directories excpet the .gitkeep file
 
