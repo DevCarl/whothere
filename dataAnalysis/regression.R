@@ -8,8 +8,9 @@ library(RMySQL) #package for communicate with MySQL database
 library(ggplot2) #package for making graphs
 library(GGally)
 library(nlme)
-library(readr)
 library(caret) # for splitting the database
+library(DAAG)#for k-fold validation on linear and logistic
+library(boot)#for k-fold validation on glm
 source("http://peterhaschke.com/Code/multiplot.R") #for using multiplot
 
 #<-----------------------------SELECT THE DATA FROM THE DATABASE ---------------------------------->
@@ -56,7 +57,6 @@ AnalysisTable$Factor_Time <-cut(AnalysisTable$Time, breaks = 4, right=FALSE, lab
 str(AnalysisTable)
 
 #specifiy as factor: Module, Course_levels, Tutorial, Double Module and Class went ahead
-#AnalysisTable$Module <- factor(AnalysisTable$Module)
 AnalysisTable$Room <- factor(AnalysisTable$Room)
 AnalysisTable$Course_Level <- factor(AnalysisTable$Course_Level)
 AnalysisTable$Tutorial <- factor(AnalysisTable$Tutorial)
@@ -199,7 +199,7 @@ pair3 <-ggplot(AnalysisTable, aes(x = Factor_Time, y = Counted_client, fill = fa
 multiplot(pair1, pair2, pair3, cols=3)
 
 
-#<--------------------------- CREATION OF TRAINING AND TEST DATASET ------------------------>
+#<-----------------------The Validation Set Approach: training and test dataset ------------------->
 
 #declaring the sample size for the training set as 60% of the whole dataset
 smp_size <- floor(0.60 * nrow(AnalysisTable))
@@ -246,11 +246,6 @@ sqrt(mean(residuals(occupancy.lm.avg)^2))
 RMSE.avg <- function(predicted, true) mean((predicted-true)^2)^.5
 RMSE(predict(occupancy.lm.avg, test), test$Counted_client)
 
-#FUTURE WORK ON LINEAR REGRESSION: 
-#1)Re-run the previous models without outliers and see if there is an improvement
-#2)check if it is possible to normalise the data and re run the model
-#3)Understand how to interpret the Generalise linear model with Poisson distribution, see below:
-
 # Glm with poisson distribution
 occupancy.poisson1 = glm(Counted_client ~ Max_clients + Room + Factor_Time + Course_Level + Course_Level * Max_clients + Factor_Time * Course_Level, family = poisson, data=AnalysisTable)
 summary(occupancy.poisson1)
@@ -269,4 +264,91 @@ qqnorm(res)
 qqline(res)
 
 
+#<--------------------k -Fold Cross-Validation --------------------------------->
 
+#The k - fold method randomly removes k - folds for the testing set and models the remaining (training set) data. Here we use the commonly accepted (Harrell, 1998) 10 - fold application.  
+
+################################### LINEAR MODEL#################################
+
+#CASE1: Linear regression with Max_client
+xlm.occupancy <- CVlm (data=AnalysisTable, m= 10, form.lm = formula (Counted_client ~ Max_clients + Room + Factor_Time + Course_Level + Course_Level * Max_clients + Factor_Time * Course_Level))
+
+#Overall mean square = 412. Smaller is the mean square error, higher is the precision of our estimate. The model is pretty bad.
+
+#CASE2: Linear regression with Average_client
+xlm.occupancy2 <- CVlm (data=AnalysisTable, m= 10, form.lm = formula (Counted_client ~Average_clients + Room + Factor_Time + Course_Level + Course_Level * Average_clients + Factor_Time * Course_Level))
+
+#Overall mean square = 402. Smaller is the mean square error, higher is the precision of our estimate. The model is pretty bad.
+
+##############################GLM WITH POISSON DISTRIBUTION###################### 
+
+#This model suffer of overdispersion, therefore we corrected the standard errors using a quasi-GLM model. 
+
+occupancy.poisson <- glm(Counted_client ~ Max_clients + Room + Factor_Time + Course_Level + Course_Level * Max_clients + Factor_Time * Course_Level, family = quasipoisson, data=AnalysisTable)
+
+#k-fold cross validation
+k.occupancy <- cv.glm (data=AnalysisTable, glmfit= occupancy.poisson, K=10)
+k.occupancy$delta
+#raw cross validation estimate of prediction error = 1172 and the adjusted cross validation estimate = 1093, which it is pretty big.
+
+#<----------------------------------OUTLIERS ----------------------------------->
+#From the hist we could see that max_client and average_client has 2 bin that they seems to be outliers (150 and 200). I remove from the dataset all the rows where max_client is higher than 150.
+
+NoOutlierTable <- AnalysisTable[ AnalysisTable$Max_clients < 150,] 
+NoOutlierTable <- NoOutlierTable[ NoOutlierTable$Counted_client < 120,] 
+
+dim(NoOutlierTable) #only 3 observations were dropped, so we did not lose to much data
+summary(NoOutlierTable)
+
+#Recheching the hist
+
+#histogram for showing the count in each bin for the Maximum number of clients
+histo1 <- ggplot(NoOutlierTable, aes(x = Max_clients)) + geom_histogram(binwidth = 10,  col="red", aes(fill=..count..)) + scale_fill_gradient("Count", low = "yellow", high = "red") +theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+
+#histogram for showing the count in each bin for the Average number of clients
+histo2 <- ggplot(NoOutlierTable, aes(x = Average_clients)) + geom_histogram(binwidth = 10,  col="red", aes(fill=..count..)) + scale_fill_gradient("Count", low = "yellow", high = "red") +theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+
+#histogram for showing the count in each bin for the number of clients counted with the survey
+histo3 <- ggplot(NoOutlierTable, aes(x = Counted_client)) + geom_histogram(binwidth = 10,  col="red", aes(fill=..count..)) + scale_fill_gradient("Count", low = "yellow", high = "red") +theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+
+
+#plot all the histograms in one window
+multiplot(histo1, histo2, histo3, cols=2)
+#hist seems fine
+
+#<--------------------k -Fold Cross-Validation without outlier--------------------------------->
+
+#The k - fold method randomly removes k - folds for the testing set and models the remaining (training set) data. Here we use the commonly accepted (Harrell, 1998) 10 - fold application.  
+
+################################### LINEAR MODEL#################################
+
+#CASE1: Linear regression with Max_client
+xlm.occupancy.noOutlier1 <- CVlm (data=NoOutlierTable, m= 10, form.lm = formula (Counted_client ~ Max_clients + Room + Factor_Time + Course_Level + Course_Level * Max_clients + Factor_Time * Course_Level))
+
+#Overall mean square = 423. The model is still pretty bad.
+
+#Looking at the residuals on the model run on the whole data set
+
+occupancy.lm.test1 = lm(Counted_client ~ Max_clients + Room + Factor_Time + Course_Level + Course_Level * Max_clients + Factor_Time * Course_Level, data=NoOutlierTable)
+#print the summary of the model
+summary(occupancy.lm.test1)
+#plot the residual
+plot(occupancy.lm.test1)
+
+#CASE2: Linear regression with Average_client
+xlm.occupancy.noOutlier2 <- CVlm (data=NoOutlierTable, m= 10, form.lm = formula (Counted_client ~Average_clients + Room + Factor_Time + Course_Level + Course_Level * Average_clients + Factor_Time * Course_Level))
+
+#Overall mean square = 395. The model is still pretty bad.
+
+##############################GLM WITH POISSON DISTRIBUTION###################### 
+
+#This model suffer of overdispersion, therefore we corrected the standard errors using a quasi-GLM model. 
+
+occupancy.poisson.noOutlier <- glm(Counted_client ~ Max_clients + Room + Factor_Time + Course_Level + Course_Level * Max_clients + Factor_Time * Course_Level, family = quasipoisson, data=NoOutlierTable)
+
+#k-fold cross validation
+k.occupancy.noOutlier <- cv.glm (data=NoOutlierTable, glmfit= occupancy.poisson.noOutlier, K=10)
+occupancy.poisson.noOutlier$delta
+#warning!!
+
+#The Linear model seems to not be a good approach for these analyses. Looking at the histogram of the Counted client we can see that it is not normal distributed and this is causing problem.
