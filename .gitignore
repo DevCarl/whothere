@@ -36,3 +36,4 @@ server/Csi42001Vm1ServerFiles/target
 # Ignore metadata
 
 .metadata/
+server/.metadata/
