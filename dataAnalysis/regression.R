@@ -13,12 +13,12 @@ library(DAAG)#for k-fold validation on linear and logistic
 library(boot)#for k-fold validation on glm
 source("http://peterhaschke.com/Code/multiplot.R") #for using multiplot
 
-#<-----------------------------SELECT THE DATA FROM THE DATABASE ---------------------------------->
+#<-----------------------------SELECT THE DATA FROM THE DATABASE ------------------------------>
 
 #set up connection for server
 #connection <- dbConnect(MySQL(),user="student", password="goldilocks",dbname="who_there_db", host="localhost")
 #connect from xamp
-connection <- dbConnect(MySQL(),user="root", password="",dbname="mysql", host="localhost")
+connection <- dbConnect(MySQL(),user="root", password="",dbname="who_there_db", host="localhost")
 
 
 #for exploring tables present in the DB: dbListTables(nameOfConnection)
@@ -28,7 +28,7 @@ dbListTables(connection)
 dbListFields(connection, "Room")
 
 #create the query
-query <-"SELECT W.`Room_Room_id` as Room, W.`Date`, HOUR( W.Time ) as Time, T.`Module_Module_code` as Module, M.`Course_Level`,T.`Tutorial`, T.`Double_module`, T.`Class_went_ahead`, R.`Capacity`, G.`Percentage_room_full`, AVG(W.`Associated_client_counts`) as Average_clients, MAX(W.`Authenticated_client_counts`) as Max_clients FROM Room R, Wifi_log W, Ground_truth_data G, Time_table T, Module M WHERE W.Room_Room_id = R.Room_id AND G.Room_Room_id = W.Room_Room_id AND W.Date = G.Date AND HOUR( W.Time ) = HOUR( G.Time ) AND HOUR( W.Time ) = HOUR( T.Time_period ) AND T.Date = W.Date AND T.Room_Room_id = W.Room_Room_id AND M.`Module_code` = T.`Module_Module_code` GROUP BY W.Room_Room_id, HOUR( W.Time ) , W.Date"
+query <-"SELECT W.`Room_Room_id` as Room, W.`Date`, HOUR( W.Time ) as Time, T.`Module_Module_code` as Module, M.`Course_Level`,T.`Tutorial`, T.`Double_module`, T.`Class_went_ahead`, R.`Capacity`, G.`Percentage_room_full`, AVG(W.`Associated_client_counts`) as Wifi_Average_clients, MAX(W.`Authenticated_client_counts`) as Wifi_Max_clients FROM Room R, Wifi_log W, Ground_truth_data G, Time_table T, Module M WHERE W.Room_Room_id = R.Room_id AND G.Room_Room_id = W.Room_Room_id AND W.Date = G.Date AND HOUR( W.Time ) = HOUR( G.Time ) AND HOUR( W.Time ) = HOUR( T.Time_period ) AND T.Date = W.Date AND T.Room_Room_id = W.Room_Room_id AND M.`Module_code` = T.`Module_Module_code` GROUP BY W.Room_Room_id, HOUR( W.Time ) , W.Date"
 
 #select the data based on the query and store them in a dataframe called Analysis table
 AnalysisTable <-dbGetQuery(connection, query)
@@ -47,7 +47,7 @@ head(AnalysisTable)
 tail(AnalysisTable)
 
 #create the new column for getting number of people counted through ground truth data
-AnalysisTable$Counted_client <- AnalysisTable$Capacity * AnalysisTable$Percentage_room_full
+AnalysisTable$Survey_counted_clients <- AnalysisTable$Capacity * AnalysisTable$Percentage_room_full
 
 #bin time into a categorical variable for checking time of the day
 AnalysisTable$Factor_Time <-cut(AnalysisTable$Time, breaks = 4, right=FALSE, labels=c('Early Morning','Late Morning','Early Afternoon','Late Afternoon' ))
@@ -73,13 +73,13 @@ summary(AnalysisTable)
 
 
 #histogram for showing the count in each bin for the Maximum number of clients
-histo1 <- ggplot(AnalysisTable, aes(x = Max_clients)) + geom_histogram(binwidth = 10,  col="red", aes(fill=..count..)) + scale_fill_gradient("Count", low = "yellow", high = "red") +theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+histo1 <- ggplot(AnalysisTable, aes(x = Wifi_Max_clients)) + geom_histogram(binwidth = 10,  col="red", aes(fill=..count..)) + scale_fill_gradient("Count", low = "yellow", high = "red") +theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
 #histogram for showing the count in each bin for the Average number of clients
-histo2 <- ggplot(AnalysisTable, aes(x = Average_clients)) + geom_histogram(binwidth = 10,  col="red", aes(fill=..count..)) + scale_fill_gradient("Count", low = "yellow", high = "red") +theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+histo2 <- ggplot(AnalysisTable, aes(x = Wifi_Average_clients)) + geom_histogram(binwidth = 10,  col="red", aes(fill=..count..)) + scale_fill_gradient("Count", low = "yellow", high = "red") +theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
 #histogram for showing the count in each bin for the number of clients counted with the survey
-histo3 <- ggplot(AnalysisTable, aes(x = Counted_client)) + geom_histogram(binwidth = 10,  col="red", aes(fill=..count..)) + scale_fill_gradient("Count", low = "yellow", high = "red") +theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+histo3 <- ggplot(AnalysisTable, aes(x = Survey_counted_clients)) + geom_histogram(binwidth = 10,  col="red", aes(fill=..count..)) + scale_fill_gradient("Count", low = "yellow", high = "red") +theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
 #histogram for showing the count in each bin for each hour of the day
 histo4 <- ggplot(AnalysisTable, aes(x = Time)) + geom_histogram(binwidth = 2,  col="red", aes(fill=..count..)) + scale_fill_gradient("Count", low = "yellow", high = "red") +theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
@@ -88,16 +88,16 @@ histo4 <- ggplot(AnalysisTable, aes(x = Time)) + geom_histogram(binwidth = 2,  c
 multiplot(histo1, histo2, histo3, histo4, cols=2)
 
 #box plot for the counted client varable
-box1 <- ggplot(AnalysisTable, aes(x = factor(0), y = Counted_client)) + geom_boxplot() + xlab("Expected students") + scale_x_discrete(breaks = NULL) + coord_flip() + theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+box1 <- ggplot(AnalysisTable, aes(x = factor(0), y = Survey_counted_clients)) + geom_boxplot() + xlab("Counted clients with the survey") + ylab("")+ scale_x_discrete(breaks = NULL) + theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
 #box plot for the counted clients variable
-box2 <- ggplot(AnalysisTable, aes(x = factor(0), y = Average_clients)) + geom_boxplot() + xlab("Average counted students") + scale_x_discrete(breaks = NULL) + coord_flip() + theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+box2 <- ggplot(AnalysisTable, aes(x = factor(0), y = Wifi_Average_clients)) + geom_boxplot() + xlab("Average Maximum counted students with Wifi") + ylab("")+ scale_x_discrete(breaks = NULL)  + theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
 #box plot for the maximum number of clients variable
-box3 <- ggplot(AnalysisTable, aes(x = factor(0), y =Max_clients)) + geom_boxplot() + xlab("Maximum counted students") + scale_x_discrete(breaks = NULL) + coord_flip() + theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+box3 <- ggplot(AnalysisTable, aes(x = factor(0), y =Wifi_Max_clients)) + geom_boxplot() + xlab("Maximum counted students with Wifi") + ylab("")+ scale_x_discrete(breaks = NULL) + theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
 #box plot for the Time continuous variable
-box4 <- ggplot(AnalysisTable, aes(x = factor(0), y = Time)) + geom_boxplot() + xlab("Maximum counted students") + scale_x_discrete(breaks = NULL) + coord_flip() + theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+box4 <- ggplot(AnalysisTable, aes(x = factor(0), y = Time)) + geom_boxplot() + xlab("Maximum counted students") + ylab("")+ scale_x_discrete(breaks = NULL) + theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
 #plot all the boxplots in one window
 multiplot(box1, box2, box3, box4, cols=2)
@@ -105,23 +105,18 @@ multiplot(box1, box2, box3, box4, cols=2)
 ############################GRAPH FOR CATEGORICAL DATA##################################
 
 #bar plot for the categorical variable: Room
-bar1 <- ggplot(AnalysisTable, aes(x = Room)) + geom_bar(fill="seagreen4")+ theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+bar1 <- ggplot(AnalysisTable, aes(x = Room)) + geom_bar(fill="orangered2")+ theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
 #bar plot for the categorical variable: Course level
-bar2 <- ggplot(AnalysisTable, aes(x = Course_Level)) + geom_bar(fill="seagreen4")+ theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+bar2 <- ggplot(AnalysisTable, aes(x = Course_Level)) + geom_bar(fill="orangered2")+ theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
 #bar plot for the categorical variable: Time as factor
-bar3 <- ggplot(AnalysisTable, aes(x = Factor_Time)) + geom_bar(fill="seagreen4")+ theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
-
-#bar2 <- ggplot(AnalysisTable, aes(x = Module)) + geom_bar(fill="seagreen4")
-#bar3 <- ggplot(AnalysisTable, aes(x = Tutorial)) + geom_bar(fill="seagreen4")
-#bar4 <- ggplot(AnalysisTable, aes(x = Double_module)) + geom_bar(fill="seagreen4")
-#bar5 <- ggplot(AnalysisTable, aes(x = Class_went_ahead)) + geom_bar(fill="seagreen4
+bar3 <- ggplot(AnalysisTable, aes(x = Factor_Time)) + geom_bar(fill="orangered2")+ theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
 #plot all the barplots in one window
 multiplot(bar1, bar2, bar3, cols=2)
 
-#<---------------------------LOOKING AT THE FEATURES  FOR LINEAR MODEL---------------------------->
+#<---------------------------LOOKING AT THE FEATURES  FOR LINEAR MODEL----------------------->
 
 ##TARGET FEATURE = Counted_clients 
 
@@ -136,7 +131,7 @@ my_fn <- function(data, mapping, ...){
   p
 }
 
-ggpairs(AnalysisTable, columns = c('Counted_client','Max_clients', 'Average_clients', 'Time'), lower = list(continuous = my_fn)) + theme_bw()
+ggpairs(AnalysisTable, columns = c('Survey_counted_clients','Wifi_Max_clients', 'Wifi_Average_clients', 'Time'), lower = list(continuous = my_fn)) + theme_bw()
 
 #Counted  clients seems to have a good correlation with Avg and Max, therefore we are will try both the model. Time does not seems to be correlated and it seems more categorical.
 
