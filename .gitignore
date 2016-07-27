@@ -32,3 +32,7 @@ data_cleaning/data_storage/stored_data/
 # Ignore target folder contents
 
 server/Csi42001Vm1ServerFiles/target
+
+# Ignore metadata
+
+.metadata/
