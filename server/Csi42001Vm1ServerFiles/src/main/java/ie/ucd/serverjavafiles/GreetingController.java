@@ -38,4 +38,19 @@ public class GreetingController {
 	public String mainPage(Model model) {
 		return "main";
 	}
+	
+	@RequestMapping(value="/header", method=RequestMethod.GET)
+	public String headerPage(Model model) {
+		return "header";
+	}
+
+	@RequestMapping(value="/nav_bar", method=RequestMethod.GET)
+	public String navPage(Model model) {
+		return "nav_bar";
+	}
+
+	@RequestMapping(value="/footer", method=RequestMethod.GET)
+	public String footerPage(Model model) {
+		return "footer";
+	}
 }
