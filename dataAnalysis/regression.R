@@ -103,7 +103,7 @@ box4 <- ggplot(AnalysisTable, aes(x = factor(0), y = Time)) + geom_boxplot() + x
 multiplot(box1, box2, box3, box4, cols=2)
 
 
-############################GRAPH FOR CATEGORICAL DATA##################################
+############################GRAPHS FOR CATEGORICAL DATA##################################
 
 #bar plot for the categorical variable: Room
 bar1 <- ggplot(AnalysisTable, aes(x = Room)) + geom_bar(fill="orangered2")+ theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
