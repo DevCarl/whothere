@@ -13,6 +13,7 @@ library(DAAG)#for k-fold validation on linear and logistic
 library(boot)#for k-fold validation on glm
 library(plyr)
 library(reshape2)
+library(glmnet)
 source("http://peterhaschke.com/Code/multiplot.R") #for using multiplot
 
 #<-----------------------------SELECT THE DATA FROM THE DATABASE ------------------------------>
@@ -29,10 +30,8 @@ query <-"SELECT W.`Room_Room_id` as Room, W.`Date`, HOUR( W.Time ) as Time, T.`M
 AnalysisTable <-dbGetQuery(connection, query)
 
 # <--------------------------- EXPLORATORY ANALYSES --------------------------->
-#create the new column for creating the categorical target feature
-AnalysisTable$Binary_Occupancy[AnalysisTable$Percentage_room_full <= 0] <- "0"
-AnalysisTable$Binary_Occupancy[AnalysisTable$Percentage_room_full>0] <- "1"
-AnalysisTable$Binary_Occupancy <- factor(AnalysisTable$Binary_Occupancy)
+#bin percentage_room_full into a categorical variable
+AnalysisTable$Binned_Occupancy <-cut(AnalysisTable$Percentage_room_full, breaks = 4, right=FALSE, labels=c('Low','Mid_Low','Mid_High', 'High'))
 
 
 #bin time into a categorical variable for checking time of the day
@@ -86,7 +85,7 @@ multiplot(box1, box2, box3, cols=2)
 
 ############################GRAPH FOR CATEGORICAL DATA##################################
 #bar plot for the categorical variable: Room
-bar1 <- ggplot(AnalysisTable, aes(x =Binary_Occupancy)) + geom_bar(fill="orangered2")+ theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+bar1 <- ggplot(AnalysisTable, aes(x =Binned_Occupancy)) + geom_bar(fill="orangered2")+ theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
 
 #bar plot for the categorical variable: Room
 bar2 <- ggplot(AnalysisTable, aes(x = Room)) + geom_bar(fill="orangered2")+ theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
@@ -100,102 +99,57 @@ bar4 <- ggplot(AnalysisTable, aes(x = Factor_Time)) + geom_bar(fill="orangered2"
 #plot all the barplots in one window
 multiplot(bar1, bar2, bar3, bar4, cols=2)
 
-#<------------------------LOOKING AT THE FEATURES  FOR LOGISTIC MODEL--------------->
+#<------------------------LOOKING AT THE FEATURES  FOR MULTINOMIAL LOGISTIC MODEL--------------->
 
 ##TARGET FEATURE = Binary_Percentage
 #--> Relationship with continous variables
 
 #Box plot
 
-pairbox1 <- ggplot(AnalysisTable, aes(x = Binary_Occupancy, y =Wifi_Average_clients)) + geom_boxplot()+ theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+pairbox1 <- ggplot(AnalysisTable, aes(x = Binned_Occupancy, y =Wifi_Average_clients)) + geom_boxplot()+ theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
-pairbox2 <- ggplot(AnalysisTable, aes(x = Binary_Occupancy, y = Wifi_Max_clients)) + geom_boxplot() + theme_bw()+theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+pairbox2 <- ggplot(AnalysisTable, aes(x = Binned_Occupancy, y = Wifi_Max_clients)) + geom_boxplot() + theme_bw()+theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
-pairbox3 <- ggplot(AnalysisTable, aes(x =Binary_Occupancy, y = Time )) + geom_boxplot() + theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+pairbox3 <- ggplot(AnalysisTable, aes(x =Binned_Occupancy, y = Time )) + geom_boxplot() + theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
 multiplot(pairbox1, pairbox2, pairbox3, cols=3)
 
 ## Barplots 
 
-barpair1 <-ggplot(AnalysisTable, aes(x = Room, fill = Binary_Occupancy)) + geom_bar(position = "dodge")+ scale_fill_manual(values=c( "cyan4","orange"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+barpair1 <-ggplot(AnalysisTable, aes(x = Room, fill = Binned_Occupancy)) + geom_bar(position = "dodge")+ scale_fill_manual(values=c( "darkblue","cyan4","orange", "yellow"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
 
-barpair2 <-ggplot(AnalysisTable, aes(x = Factor_Time, fill =Binary_Occupancy)) + geom_bar(position = "dodge")+ scale_fill_manual(values=c( "cyan4","orange"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+barpair2 <-ggplot(AnalysisTable, aes(x = Factor_Time, fill =Binned_Occupancy)) + geom_bar(position = "dodge")+ scale_fill_manual(values=c( "darkblue","cyan4","orange", "yellow"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
 
-barpair3 <-ggplot(AnalysisTable, aes(x = Course_Level, fill = Binary_Occupancy)) + geom_bar(position = "dodge")+ scale_fill_manual(values=c( "cyan4","orange"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
-
+barpair3 <-ggplot(AnalysisTable, aes(x = Course_Level, fill = Binned_Occupancy)) + geom_bar(position = "dodge")+ scale_fill_manual(values=c( "darkblue","cyan4","orange", "yellow"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
 
 multiplot(barpair1, barpair2, barpair3, cols=2)
 
 #<--------Exploring interactions---------------------->
 
 #Graph exploring interactive effect between Wifi_Average_clients and Time on binary occupancy 
-pair1 <- ggplot(AnalysisTable, aes(x = Factor_Time, y =Wifi_Average_clients, fill = factor(Binary_Occupancy))) + geom_bar(position = "dodge", stat="identity")+ scale_fill_manual(values=c( "darkblue","cyan4", "yellow"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+pair1 <- ggplot(AnalysisTable, aes(x = Factor_Time, y =Wifi_Average_clients, fill = factor(Binned_Occupancy))) + geom_bar(position = "dodge", stat="identity")+ scale_fill_manual(values=c( "darkblue","cyan4","orange", "yellow"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
 
 #Graph exploring interactive effect between Wifi_Average_clients and Course level on binary occupancy 
-pair2 <- ggplot(AnalysisTable, aes(x = Course_Level, y =Wifi_Average_clients, fill = factor(Binary_Occupancy))) + geom_bar(position = "dodge", stat="identity")+ scale_fill_manual(values=c( "darkblue","cyan4", "yellow", "orange", "blue", "red"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+pair2 <- ggplot(AnalysisTable, aes(x = Course_Level, y =Wifi_Average_clients, fill = factor(Binned_Occupancy))) + geom_bar(position = "dodge", stat="identity")+ scale_fill_manual(values=c( "darkblue","cyan4", "yellow", "orange", "blue", "red"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
 #Graph exploring interactive effect between Wifi_Max_clients and Time on binary occupancy
-pair3 <- ggplot(AnalysisTable, aes(x = Factor_Time, y =Wifi_Max_clients, fill = factor(Binary_Occupancy))) + geom_bar(position = "dodge", stat="identity")+ scale_fill_manual(values=c( "darkblue","cyan4", "yellow"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+pair3 <- ggplot(AnalysisTable, aes(x = Factor_Time, y =Wifi_Max_clients, fill = factor(Binned_Occupancy))) + geom_bar(position = "dodge", stat="identity")+ scale_fill_manual(values=c( "darkblue","cyan4","orange", "yellow"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
 
 #Graph exploring interactive effect between Wifi_Max_clients and Course level on binary occupancy
-pair4 <- ggplot(AnalysisTable, aes(x = Course_Level, y =Wifi_Max_clients, fill = factor(Binary_Occupancy))) + geom_bar(position = "dodge", stat="identity")+ scale_fill_manual(values=c( "darkblue","cyan4", "yellow", "orange", "blue", "red"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+pair4 <- ggplot(AnalysisTable, aes(x = Course_Level, y =Wifi_Max_clients, fill = factor(Binned_Occupancy))) + geom_bar(position = "dodge", stat="identity")+ scale_fill_manual(values=c( "darkblue","cyan4", "yellow", "orange", "blue", "red"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
 
 #Graph exploring interactive effect between time and course level on binary occupancy 
-pair5 <-ggplot(AnalysisTable, aes(x=Factor_Time, fill = factor(Course_Level)) ) + facet_grid(Binary_Occupancy ~ .) + geom_bar(position = "dodge")+ scale_fill_manual(values=c( "darkblue","cyan4", "yellow", "orange", "blue", "red"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+pair5 <-ggplot(AnalysisTable, aes(x=Factor_Time, fill = factor(Course_Level)) ) + facet_grid(Binned_Occupancy ~ .) + geom_bar(position = "dodge")+ scale_fill_manual(values=c( "darkblue","cyan4", "yellow", "orange", "blue", "red"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
 multiplot(pair1, pair2, pair3, pair4, cols=2)
 pair5
 
-#<-----------------------The Validation Set Approach: training and test dataset ------------------->
-
-#declaring the sample size for the training set as 60% of the whole dataset
-smp_size <- floor(0.60 * nrow(AnalysisTable))
-
-## set the seed to make your partition reproductible
-set.seed(123)
-#select the 60% of the dataset
-train_ind <- sample(seq_len(nrow(AnalysisTable)), size = smp_size)
-
-#creating the training set with the 60% of the observation selected before
-train <-AnalysisTable[train_ind, ]
-#creating the test set with rest of the obervation - 60% 
-test <- AnalysisTable[-train_ind, ]
-
-##CASE 1: Wifi_Max_clients
-Logitmodel1 <- glm(Binary_Occupancy ~Wifi_Max_clients  + Factor_Time + Course_Level,family=binomial,data=train)
-summary(Logitmodel1)
-plot(Logitmodel1)
-
-
-fitted.results <- predict(Logitmodel1,test, type='response')
-fitted.results1 <- ifelse(fitted.results > 0.5,1,0)
-
-misClasificError <- mean(fitted.results1 != test$Binary_Occupancy)
-print(paste('Accuracy',1-misClasificError))
-
-#Accuracy of 79%
-
-##CASE 2: Wifi_AVERAGE_clients
-Logitmodel <- glm(Binary_Occupancy ~Wifi_Average_clients + Factor_Time + Course_Level,family=binomial,data=train)
-summary(Logitmodel)
-
-fitted.results2 <- predict(Logitmodel1,test, type='response')
-fitted.results3 <- ifelse(fitted.results2 > 0.5,1,0)
-
-misClasificError <- mean(fitted.results3 != test$Binary_Occupancy)
-print(paste('Accuracy',1-misClasificError))
-#Accuracy of 79%
 
 #<--------------------k -Fold Cross-Validation --------------------------------->
 
 ##CASE 1: Wifi_Max_clients
-Logitmodel1 <- glm(Binary_Occupancy ~Wifi_Max_clients  + Factor_Time + Course_Level,family=binomial,data =AnalysisTable)
+formula <- as.formula(Binned_Occupancy ~Wifi_Average_clients + Factor_Time + Course_Level)
+X <- model.matrix(formula, AnalysisTable)
+model <- cv.glmnet(X, AnalysisTable$Binned_Occupancy, standardize=FALSE, family='multinomial', alpha=1, nfolds=10,type.measure="class")
+plot(model)
 
-CVbinary (Logitmodel1, nfolds= 10)
-#Cross-validation estimate of accuracy = 0.778 
-
-##CASE 2: Wifi_AVERAGE_clients
-Logitmodel2 <- glm(Binary_Occupancy ~Wifi_Average_clients + Factor_Time + Course_Level,family=binomial,data =AnalysisTable)
-
-CVbinary (Logitmodel2, nfolds= 10)
-#Cross-validation estimate of accuracy = 0.78 
 

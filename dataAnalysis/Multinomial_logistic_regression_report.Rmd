@@ -1,11 +1,8 @@
 ---
-title: "Logistic_regression_report"
+title: "Multinomial logistic regression report"
 author: "Silvia Saloni"
 date: "Thursday, July 28, 2016"
-output:
-  pdf_document:
-    fig_height: 8
-    fig_width: 14
+output: pdf_document
 ---
 
 #Introduction
@@ -54,12 +51,15 @@ AnalysisTable <-dbGetQuery(connection, query)
 
 The dataset created had in total 216 rows and it will allow us to explore if Wi-Fi log can estimate precisely if a room is empty or occupied during a certain hour.
 
-As a **target features** for the logistic regression we decided to create a binary categorical features with 2 levels using the percentage of the room full. In particular, we consider as empty all the cases in which the occupancy of the room was 0 and occupied when the occupancy of the room was higher than 0. Empty was indicated as 0, while Occupied as one. 
+As a **target features** for the multinomial logistic regression we decided to create a categorical features with 4 levels using the percentage of the room full. In particular, the levels were:
+* Low occupancy with an occupancy between 0 and 25%;
+* Mid Low occupancy, which ranges from 25-50% of occupancy;
+* Mid High occupancy, which contain obeservation between 50-75%;
+* High Occupancy with an occupancy range between 75-100%.
+
 ```{r, echo=FALSE, warning=FALSE}
-#create the new column for creating the categorical target feature
-AnalysisTable$Binary_Occupancy[AnalysisTable$Percentage_room_full <= 0] <- "0"
-AnalysisTable$Binary_Occupancy[AnalysisTable$Percentage_room_full>0] <- "1"
-AnalysisTable$Binary_Occupancy <- factor(AnalysisTable$Binary_Occupancy)
+#bin percentage_room_full into a categorical variable
+AnalysisTable$Binned_Occupancy <-cut(AnalysisTable$Percentage_room_full, breaks = 4, right=FALSE, labels=c('Low','Mid_Low','Mid_High', 'High'))
 ```
 As response variables or feature we considered Wi-Fi logs, which were summarised either as average of the logs counted for each room and for each hour or as maximum of the logs measured for each room and for each hour. 
 
@@ -162,23 +162,20 @@ For categorical variables we plot bar plot graphs.
 #### Bar plots  
 
 ```{r, echo=FALSE, warning=FALSE}
-#bar plot for the categorical variable: Room
-bar1 <- ggplot(AnalysisTable, aes(x =Binary_Occupancy)) + geom_bar(fill="orangered2")+ theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
 
-#bar plot for the categorical variable: Room
-bar2 <- ggplot(AnalysisTable, aes(x = Room)) + geom_bar(fill="orangered2")+ theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+bar1 <- ggplot(AnalysisTable, aes(x = Room)) + geom_bar(fill="orangered2")+ theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
 #bar plot for the categorical variable: Course level
-bar3 <- ggplot(AnalysisTable, aes(x = Course_Level)) + geom_bar(fill="orangered2")+ theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+bar2 <- ggplot(AnalysisTable, aes(x = Course_Level)) + geom_bar(fill="orangered2")+ theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
 #bar plot for the categorical variable: Time as factor
-bar4 <- ggplot(AnalysisTable, aes(x = Factor_Time)) + geom_bar(fill="orangered2")+ theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+bar3 <- ggplot(AnalysisTable, aes(x = Factor_Time)) + geom_bar(fill="orangered2")+ theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
 #plot all the barplots in one window
-multiplot(bar1, bar2, bar3, bar4, cols=2)
+multiplot(bar1, bar2, bar3, cols=2)
 ```
 <br><br>
-From the barplots, we could see that observations were equally distributed across all the levels of the feature Room and Factor Time. On the contrary, there were more observations for non lectures and level 3 courses and classes was observed mostly occupied. No issues were detected for those features.  
+From the barplots, we could see that observations were equally distributed across all the levels of the feature Room and Factor Time. On the contrary, there were more observations for level3 and 4 courses and no lecture. The majority of the classes resulted to have an occupancy around 25-50%. No issues were detected for those features.  
 
 #### Summary
 <br><br>
@@ -194,7 +191,7 @@ Double Module          |Uneven representation of the level        |Discarded fro
 Class went ahead       |Uneven representation of the level        |Discarded from the analysis
 Wifi Average clients   |Distibution skewed to the left \& outliers|To solve during analysis
 Wifi Maximum clients   |Distibution skewed to the left \& outliers|To solve during analysis
-Binary Occupancy       |None                                      |None
+Binned Occupancy       |None                                      |None
 
 <br><br>
 
@@ -204,35 +201,34 @@ The next step of the analysis was to see which feature really affect the target 
  
 For the continuous features we used box plots, while for categorical we use bar plots.
 
-```{r, echo=FALSE, warning=FALSE}
-pairbox1 <- ggplot(AnalysisTable, aes(x = Binary_Occupancy, y =Wifi_Average_clients)) + geom_boxplot()+ theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+### Boxplots
+```{r,echo=FALSE,warning=FALSE}
+pairbox1 <- ggplot(AnalysisTable, aes(x = Binned_Occupancy, y =Wifi_Average_clients)) + geom_boxplot()+ theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
-pairbox2 <- ggplot(AnalysisTable, aes(x = Binary_Occupancy, y = Wifi_Max_clients)) + geom_boxplot() + theme_bw()+theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+pairbox2 <- ggplot(AnalysisTable, aes(x = Binned_Occupancy, y = Wifi_Max_clients)) + geom_boxplot() + theme_bw()+theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
-pairbox3 <- ggplot(AnalysisTable, aes(x =Binary_Occupancy, y = Time )) + geom_boxplot() + theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+pairbox3 <- ggplot(AnalysisTable, aes(x =Binned_Occupancy, y = Time )) + geom_boxplot() + theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
 multiplot(pairbox1, pairbox2, pairbox3, cols=3)
 ```
 <br><br><br>
 
-From the boxplots we could see that when the room was indicated as empty either the average and the maximum Wi-Fi logs were close to zero. On the contrary, when the room was occupied the average and the maximum Wi-Fi logs were different from zero. The difference between the 2 levels will probably be higher without the outliers. Therefore, we can conclude that either average Binary_Occupancy and maximum wifi counted clients are a good predictor of the binary occupancy and we are going to run 2 models: one for exploring the relationship between Binary_Occupancy and Average counted clients and another for Survey counted clients and Maximum counted clients. 
+From the boxplots we could see that when the room was indicated as empty either the average and the maximum Wi-Fi logs were close to zero and they were increasing across the level of the binned occupancy, showing that either average Binary_Occupancy and maximum wifi counted clients are a good predictor of the binary occupancy and we are going to run 2 models: one for exploring the relationship between Binary_Occupancy and Average counted clients and another for Survey counted clients and Maximum counted clients. The difference between the levels will probably be higher without the outliers and we might run the model without them to see if the accuracy will increase.
+The occupacy seems to not change with the time, so were not going to explore it.
 
 ## Barplots 
 
-```{r, echo=FALSE,warning=FALSE}
-barpair1 <-ggplot(AnalysisTable, aes(x = Room, fill = Binary_Occupancy)) + geom_bar(position = "dodge")+ scale_fill_manual(values=c( "cyan4","orange"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+```{r,echo=TRUE,warning=FALSE}
+barpair1 <-ggplot(AnalysisTable, aes(x = Room, fill = Binned_Occupancy)) + geom_bar(position = "dodge")+ scale_fill_manual(values=c( "darkblue","cyan4","orange", "yellow"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
 
-barpair2 <-ggplot(AnalysisTable, aes(x = Factor_Time, fill =Binary_Occupancy)) + geom_bar(position = "dodge")+ scale_fill_manual(values=c( "cyan4","orange"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+barpair2 <-ggplot(AnalysisTable, aes(x = Factor_Time, fill =Binned_Occupancy)) + geom_bar(position = "dodge")+ scale_fill_manual(values=c( "darkblue","cyan4","orange", "yellow"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
 
-barpair3 <-ggplot(AnalysisTable, aes(x = Course_Level, fill = Binary_Occupancy)) + geom_bar(position = "dodge")+ scale_fill_manual(values=c( "cyan4","orange"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
-
+barpair3 <-ggplot(AnalysisTable, aes(x = Course_Level, fill = Binned_Occupancy)) + geom_bar(position = "dodge")+ scale_fill_manual(values=c( "darkblue","cyan4","orange", "yellow"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
 
 multiplot(barpair1, barpair2, barpair3, cols=2)
 ```
-
-From the barplots, we could see that the occupancy was not affected by the time of room. On the contrary, the occupancy of the room increase for level3 and 4 courses, while was lower for level1, 2 and 5, which in our case represents career talk or CS meeting.
-The occupancy of the room in late monrning and late afternoon seemed to be higher.
-Therefore, in our model we are going to explore whether course level and time of the day affect the chance of a room to be empty or occupied.
+All the ranges of occupancy were equally represented in all the three rooms, indicating that room was not affecting the ocuupancy.
+The occupancy level tend to change across the levels of course levels. Level1 and level2 courses had an higher Mid-low and Mid-high occupancy, while all the other levels had a higher low and mid-low occupancy. This was expected for level 0, where we expect no lecture is running. Therefore, we are considering all those features in the model.
 
 ### Interacting effect on the target feature  
 The last step before the regression was to explore the interacting effect of the features on the target features. 
@@ -241,29 +237,23 @@ First of all we explore the interactive effect between Average conted clients wi
 
 ```{r, echo=FALSE,warning=FALSE}
 #Graph exploring interactive effect between Wifi_Average_clients and Time on binary occupancy 
-pair1 <- ggplot(AnalysisTable, aes(x = Factor_Time, y =Wifi_Average_clients, fill = factor(Binary_Occupancy))) + geom_bar(position = "dodge", stat="identity")+ scale_fill_manual(values=c( "darkblue","cyan4", "yellow"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+pair1 <- ggplot(AnalysisTable, aes(x = Factor_Time, y =Wifi_Average_clients, fill = factor(Binned_Occupancy))) + geom_bar(position = "dodge", stat="identity")+ scale_fill_manual(values=c( "darkblue","cyan4","orange", "yellow"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
 
 #Graph exploring interactive effect between Wifi_Average_clients and Course level on binary occupancy 
-pair2 <- ggplot(AnalysisTable, aes(x = Course_Level, y =Wifi_Average_clients, fill = factor(Binary_Occupancy))) + geom_bar(position = "dodge", stat="identity")+ scale_fill_manual(values=c( "darkblue","cyan4", "yellow", "orange", "blue", "red"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+pair2 <- ggplot(AnalysisTable, aes(x = Course_Level, y =Wifi_Average_clients, fill = factor(Binned_Occupancy))) + geom_bar(position = "dodge", stat="identity")+ scale_fill_manual(values=c( "darkblue","cyan4", "yellow", "orange", "blue", "red"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
 #Graph exploring interactive effect between Wifi_Max_clients and Time on binary occupancy
-pair3 <- ggplot(AnalysisTable, aes(x = Factor_Time, y =Wifi_Max_clients, fill = factor(Binary_Occupancy))) + geom_bar(position = "dodge", stat="identity")+ scale_fill_manual(values=c( "darkblue","cyan4", "yellow"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+pair3 <- ggplot(AnalysisTable, aes(x = Factor_Time, y =Wifi_Max_clients, fill = factor(Binned_Occupancy))) + geom_bar(position = "dodge", stat="identity")+ scale_fill_manual(values=c( "darkblue","cyan4","orange", "yellow"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
 
 #Graph exploring interactive effect between Wifi_Max_clients and Course level on binary occupancy
-pair4 <- ggplot(AnalysisTable, aes(x = Course_Level, y =Wifi_Max_clients, fill = factor(Binary_Occupancy))) + geom_bar(position = "dodge", stat="identity")+ scale_fill_manual(values=c( "darkblue","cyan4", "yellow", "orange", "blue", "red"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+pair4 <- ggplot(AnalysisTable, aes(x = Course_Level, y =Wifi_Max_clients, fill = factor(Binned_Occupancy))) + geom_bar(position = "dodge", stat="identity")+ scale_fill_manual(values=c( "darkblue","cyan4", "yellow", "orange", "blue", "red"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
 
 multiplot(pair1, pair2, pair3, pair4, cols=2)
 ```
 
-From the graphs we could see that the average and the maximum number of devices counted with the Wifi-logs were lower in rooms indicated as empty by the survey across all the level of the time factor, indicating that there was not an interaction between Wifi average count and time and between Wifi maximum count and time.
-Similar pattern was found across all the levels of course level, suggesting that there was not interaction between Wifi average count and course levels and between Wifi maximum count and course levels.
 
-For exploring the interaction between Time and course level we did the following bar plot:
-
-```{r, echo=FALSE, warning=FALSE}
-#Graph exploring interactive effect between time and course level on binary occupancy 
-ggplot(AnalysisTable, aes(x=Factor_Time, fill = factor(Course_Level)) ) + facet_grid(Binary_Occupancy ~ .) + geom_bar(position = "dodge")+ scale_fill_manual(values=c( "darkblue","cyan4", "yellow", "orange", "blue", "red"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+```{r, echo=FALSE,warning=FALSE}
+ggplot(AnalysisTable, aes(x=Factor_Time, fill = factor(Course_Level)) ) + facet_grid(Binned_Occupancy ~ .) + geom_bar(position = "dodge")+ scale_fill_manual(values=c( "darkblue","cyan4", "yellow", "orange", "blue", "red"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 ```
-From this graph we cannot detect any clear pattern, therefore, we are not going to explore the interactive effect between Time and course level.
 
 Consequently we are going to explore the following 2 models:
 * $Binary_Occupancy ~ Average Wifi occupancy + Time + Course_Level$
@@ -277,19 +267,5 @@ In particular in this analysis we are going to perform a 10 fold cross validatio
 <br>
 
 # Results
-The model $Binary_Occupancy ~ Maximum Wifi occupancy + Time + Course_Level$ was very accurate, as showed below:
-```{r, warning=FALSE}
-Logitmodel1 <- glm(Binary_Occupancy ~Wifi_Max_clients  + Factor_Time + Course_Level,family=binomial,data =AnalysisTable)
 
-CVbinary (Logitmodel1, nfolds= 10)
-```
 
-Also the second model, $Binary_Occupancy ~ Average Wifi occupancy + Time + Course_Level$ had a good accuracy, but lower than the previous one. 
-
-```{r,  warning=FALSE}
-Logitmodel2 <- glm(Binary_Occupancy ~Wifi_Average_clients + Factor_Time + Course_Level,family=binomial,data =AnalysisTable)
-
-CVbinary (Logitmodel2, nfolds= 10)
-```
-
-Therefore, we selected as best logistic model the first one, which suggested that Max Wifi occupancy, Time and Course_Level were good predictor of the occupancy of the room.
