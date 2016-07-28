@@ -1,3 +1,9 @@
+/*     FONT     */
+@font-face {
+    font-family: Merriweather;
+    src: url(http://fonts.gstatic.com/s/merriweather/v13/RFda8w1V0eDZheqfcyQ4EOgdm0LZdjqr5-oayXSOefg.woff2);
+}
+
 /*     BODY     */
 html, body { height: 100%; margin: 0; padding: 0;}
 
@@ -34,7 +40,8 @@ header{
 }
 #title{
     text-align:left;
-    font: bold 45px "Lato", sans-serif;
+    font-family: Merriweather, sans-serif;
+    font-size: 45px;
     color: white;
     margin-top: 5px;
     margin-bottom: 5px;
@@ -71,7 +78,7 @@ header{
 }
 input.login{
     color: #595959;
-    font-family: sans-serif;
+    font-family: Merriweather, sans-serif;
     font-size: 14px;
 }
 ::-webkit-input-placeholder {
@@ -95,7 +102,7 @@ input.login{
 #login_btn{
     background-color: darkcyan;
     margin-bottom: 0px;
-    font-family: sans-serif;
+    font-family: Merriweather, sans-serif;
     color: white;
 }
 
@@ -120,7 +127,8 @@ input.login{
     height: 40px;
     width: 250px; 
     background-color: darkcyan;
-    font-family: sans-serif;
+    font-family: Merriweather, sans-serif;
+    font-size: 16px;
     color: white;
     border: none;
 }
@@ -139,34 +147,26 @@ nav {
     top: 5px;
     left: 10px; 
     z-index: 99; 
-    padding-top:5px;
+    padding-top: 5px;
     text-align: center;
     align-content: center;
-    font-family: sans-serif;
+    font-family: Merriweather, sans-serif;
+    font-size: 15px;
     color: white;
 }
 
 nav ul {
-/*
-    display: inline-block;
-    list-style-type: none;
-*/
     margin: 0;
     padding:0;
     align-content: center;
     align-items:center;
     overflow: hidden;
-    
 }
 
 nav li {
-/*
-    float: left;
-    display:inline-block;
-*/
     align-content: center;
     text-align: left;
-    font-family: sans-serif;
+    font-family: Merriweather, sans-serif;
     color: white;
 }
 
@@ -179,7 +179,6 @@ nav li a {
     padding: 10px 30px 10px 30px;
    
 }
-
 nav li a:hover:not(.active) {
     background-color: #ff6e21;
 }
@@ -191,12 +190,12 @@ nav li a:hover:not(.active) {
 }
 
 /*    FOOTER    */
-
 footer {
     background-color: rgba(255,255,240, 0.5);
     overflow: auto;
-    height: 20px; 
-    padding: 10px; 
+    height: 40px; 
+    padding-top: 5px; 
+    padding-right: 10px;
 }
 
 footer ul {
@@ -208,17 +207,15 @@ footer ul {
     align-items:center;
     overflow: auto;
 }
-
-
 footer li {
     float: left;
     display:inline-block;
     align-content: center;
     text-align: center;
-    font: normal 12px sans-serif;
+    font-family: Merriweather, sans-serif;
+    font-size: 12px;
 }
-
-footer li a {
+footer li a{
     display: block;
     color: white;
     text-align: center;
@@ -226,14 +223,19 @@ footer li a {
     overflow:auto;
     padding: 10px;
 }
+#copyright{
+    color: white;
+    float: right;
+    font-family: Merriweather, sans-serif;
+    font-size: 12px;
+}
 
 /*    CONTACT US PAGE    */
-
 /*    TITLE    */
 .title{
     padding:5px;
     color: #ff6e21;
-    font-family: sans-serif;
+    font-family: Merriweather, sans-serif;
     font-size: 30px;
     text-align: center;
     margin-top: 0px; 
@@ -348,14 +350,14 @@ footer li a {
 }
 input.login{
     color: #595959;
-    font-family: sans-serif;
+    font-family: Merriweather, sans-serif;
     font-size: 14px;
 }
 
 #contact_btn{
     background-color: darkcyan;
     margin-bottom: 0px;
-    font-family: sans-serif;
+    font-family: Merriweather, sans-serif;
     color: white;
 }
 
