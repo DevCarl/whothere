@@ -2,8 +2,12 @@
 title: "Linear Regression analysis"
 author: "Silvia Saloni"
 date: "Monday, July 25, 2016"
-output: pdf_document
+output:
+  pdf_document:
+    fig_height: 8
+    fig_width: 14
 ---
+
 #Introduction
 
 The aim of the project was to be able to find a model that best predict the relationship between:
@@ -15,6 +19,10 @@ This will allow to see whether Wi-Fi log is a good predictor for estimating occu
 We first tried to see if the relationship between this two variables was linear. To do so we run a linear regression.
 
 Below we describes step by step all the analysis performed.
+
+## ANALYSIS
+
+### DATABASE CONNECTION AND DATASET
 
 ```{r, echo=FALSE, warning=FALSE}
 #load all the libraries needed
@@ -28,56 +36,55 @@ source("http://peterhaschke.com/Code/multiplot.R")
 First of all, we set up the connection to the database, using the following code:
 
 ```{r}
-connection <- dbConnect(MySQL(),user="root", password="",dbname="mysql", host="localhost")
-```
+connection <- dbConnect(MySQL(),user="root", password="",dbname="who_there_db", host="localhost")
+```  
 Then we made a query to the database, in order to get all the groundth truth data collected in room B.002, B.004 and B.006 from 9 to 17 and the correspondent Wi-Fi Log measured in that time frame and rooms. 
 
 ```{r, echo=FALSE, warning=FALSE}
-query <-"SELECT W.`Room_Room_id` as Room, W.`Date`, HOUR( W.Time ) as Time, T.`Module_Module_code` as Module, M.`Course_Level`,T.`Tutorial`, T.`Double_module`, T.`Class_went_ahead`, R.`Capacity`, G.`Percentage_room_full`, AVG(W.`Associated_client_counts`) as Average_clients, MAX(W.`Authenticated_client_counts`) as Max_clients FROM Room R, Wifi_log W, Ground_truth_data G, Time_table T, Module M WHERE W.Room_Room_id = R.Room_id AND G.Room_Room_id = W.Room_Room_id AND W.Date = G.Date AND HOUR( W.Time ) = HOUR( G.Time ) AND HOUR( W.Time ) = HOUR( T.Time_period ) AND T.Date = W.Date AND T.Room_Room_id = W.Room_Room_id AND M.`Module_code` = T.`Module_Module_code` GROUP BY W.Room_Room_id, HOUR( W.Time ) , W.Date"
+query <-"SELECT W.`Room_Room_id` as Room, W.`Date`, HOUR( W.Time ) as Time, T.`Module_Module_code` as Module, M.`Course_Level`,T.`Tutorial`, T.`Double_module`, T.`Class_went_ahead`, R.`Capacity`, G.`Percentage_room_full`, AVG(W.`Associated_client_counts`) as Wifi_Average_clients, MAX(W.`Authenticated_client_counts`) as Wifi_Max_clients FROM Room R, Wifi_log W, Ground_truth_data G, Time_table T, Module M WHERE W.Room_Room_id = R.Room_id AND G.Room_Room_id = W.Room_Room_id AND W.Date = G.Date AND HOUR( W.Time ) = HOUR( G.Time ) AND HOUR( W.Time ) = HOUR( T.Time_period ) AND T.Date = W.Date AND T.Room_Room_id = W.Room_Room_id AND M.`Module_code` = T.`Module_Module_code` GROUP BY W.Room_Room_id, HOUR( W.Time ) , W.Date"
 
 #select the data based on the query and store them in a dataframe called Analysis table
-AnalysisTable <-dbGetQuery(connection, query)
+AnalysisTable <-dbGetQuery(connection, query)  
 ```
 
-The dataset created had in total 216 rows and it will allow us to explore if Wi-Fi log is a good predictor of the observed occupancy of the room in that particular hour.
+The dataset created had in total 216 rows and it will allow us to explore if Wi-Fi log is a good predictor of the observed occupancy of the room in a certain hour.
 
-As a target features for our linear regression we decided to use the number of associated client, calculated multiplying the percentage of the room full with the capacity of the room.
+As a **target features** for our linear regression we decided to use the number of associated client, calculated multiplying the percentage of the room full with the capacity of the room.
 ```{r, echo=FALSE,warning=FALSE}
 #create the new column for getting number of people counted through ground truth data
-AnalysisTable$Counted_client <- AnalysisTable$Capacity * AnalysisTable$Percentage_room_full
+AnalysisTable$Survey_counted_clients <- AnalysisTable$Capacity * AnalysisTable$Percentage_room_full
 ```
 As response variables or feature we considered Wi-Fi logs, which were summarised either as average of the logs counted for each room and for each hour or as maximum of the logs measured for each room and for each hour. 
 
 Together with the Wi-Fi log, we included in the data set the following features: 
 
-* Date, which we did not use in this analysis, because they just cover 2 weeks of Novemeber, but for future analyses they can be used to group observations by seasons or semesters or to finds seasonal trends for time series analyses.
+* **Date**, which we did not use in this analysis, because they just cover 2 weeks of Novemeber, but for future analyses they can be used to group observations by seasons or semesters or to finds seasonal trends for time series analyses.
 
-* Time, which will be explored either as continous variable and as categorical to explore if the time of the day can have an affect on the Wi-Fi log. To do so we, bin the time in 4 ranges: early morning (9-11), late morning (11-13), early afternoon (13-15) and late afternoon (15-17). 
+* **Time**, which will be explored either as continous variable and as categorical to explore if the time of the day can have an affect on the Wi-Fi log. To do so we, bin the time in 4 ranges: early morning (9-11), late morning (11-13), early afternoon (13-15) and late afternoon (15-17). This will allow us to see if the Wi-Fi log accuracy was changing during the day. For example, it is more likely that all the elctronic devices are fully powered early in the morning and consequently the Wi-fi log data can be more accurate or overestimating the occupancy of the room (i.e. more than one device per person). On the contrary in the afternoon, the devices may be more likely to be out of battery and it is possible that there are less devices in the room.
 ```{r, echo=FALSE, warning=FALSE}
 AnalysisTable$Factor_Time <-cut(AnalysisTable$Time, breaks = 4, right=FALSE, labels=c('Early Morning','Late Morning','Early Afternoon','Late Afternoon' ))
 ```
-This will allow us to see if the Wi-Fi log accuracy was changing during the day. For example, it is more likely that early morning all the elctronic devices are fully powered and consequently the Wi-fi log data can be more accurate or overestimating the occupancy of the room (i.e. more than one device per person). On the contrary in the afternoon, the devices may be more likely to be out of battery and it is possible that there are less devices in the room. 
 
-* Module, which we are not going to include in the analysis because the majority of the module present are for computer science, but for future analyses it will be possible to explore if the Wi-fi log accuracy in predicting the occupancy change acroos the courses. Science course or computer science course will more likely to use electronic devices during lecture than art students.
+* **Module**, which we are not going to include in the analysis because the majority of the module present are for computer science, but for future analyses it will be possible to explore if the Wi-fi log accuracy in predicting the occupancy change acroos the courses. Science course or computer science course will more likely to use electronic devices during lecture than art students.
 
-* Course level, which can indicate us whether electronic devices will be less used during different course level. For example, first and second level course can be less practical and therefore laptop are not needed and that can decrease the number of devices connected. On the other hand, undergraduate might be more distracted during lecture and look at their phones during lectures. This will result in an increase of connection in that hour.
+* **Course level**, which can indicate us whether electronic devices will be less used during different course level. For example, first and second level courses can be less practical and therefore laptop are not needed and that can decrease the number of devices connected. On the other hand, undergraduate might be more distracted during lecture and look at their phones during lectures. This will result in an increase of connection in that hour.
 
 ```{r, echo=FALSE, warning=FALSE}
 AnalysisTable$Course_Level <- factor(AnalysisTable$Course_Level)
 ```
 
-* Tutorial, which can affect the number of logged people. First of all, because tutorial divided the room in 2 and therefore there will be measured less people than expected. 
+* **Tutorial**, which can affect the number of logged people. First of all, because tutorial divided the room in 2 and therefore there will be measured less people than expected. 
 ```{r, echo=FALSE, warning=FALSE}
 AnalysisTable$Double_module <- factor(AnalysisTable$Double_module)
 AnalysisTable$Class_went_ahead <- factor(AnalysisTable$Class_went_ahead)
 ```
 
-* Double_module, categorical variable indicating wether in the class there are more than one module, increasing the number of people expected in the room.
+* **Double_module**, categorical variable indicating wether in the class there are more than one module, increasing the number of people expected in the room.
 ```{r, echo=FALSE}
 AnalysisTable$Double_module <- factor(AnalysisTable$Double_module)
 ```
 
-* Double_module, categorical variable indicating wether in the class went ahead to correct the .
+* **Double_module**, categorical variable indicating wether in the class went ahead to check for false positive.
 ```{r, echo=FALSE}
 AnalysisTable$Class_went_ahead <- factor(AnalysisTable$Class_went_ahead)
 ```
@@ -91,77 +98,111 @@ head(AnalysisTable)
 
 Before running any analyses, we carried out the data quality report to check for any issue related to the variable (e.g. outlier, skewed distribution, NaN values) and solutions we will implement to solve them.
 
-Initially we printed the descriptive statistic for all the features and the presence of NaN values.
+Initially set all the categorical variables as factors and then we printed the descriptive statistic for all the features.
 ```{r}
 summary(AnalysisTable)
 ```
-From this we could see that NaN values were not present in the data set. Furthermore, we could notice that the observations for the features Tutorials and Double_model were not even didtributed across the 2 levels of the variables. In fact, only 6 observation were present for tutorial class and for double module class. Therefore, we decided to discard both the features, because they will be not informative for the analysis. Similarly for the feature class_went_ahead, it results that the majority of the lectures did occur and we decided to discard it.
+From this we could see that NaN values were not present in the data set. 
+We could notice that the observations for the features Tutorials and Double_model were not even distributed across the 2 levels of the variables. In fact, only 6 observations were present for tutorial class and for double module class. Therefore, we decided to discard both the features, because they will be not informative for the analysis. Similarly for the feature class_went_ahead the majority of the lectures did occur and we decided to discard it.
+Furthermore, for the variables Wifi_Average_clients, Wifi_Max_clients and Survey_counted_clients it seems that there are few outliers, since the median is lower than the mean and the max values are far higher than the mean values. We will going to explore this issues with histogram and boxplots.
 
-For the remaining variables we decided to plot:
+### Exploratory graphs
 
-* histograms and boxplots for continuous variables for exploring their distributions and check for outliers.
-
-* bar plot for categorical features.
+For exploring possible issues related with the continuous variables we plotted histograms and boxplots.
 
 ### Histograms
 
 ```{r, echo=FALSE,warning=FALSE}
-histo1 <- ggplot(AnalysisTable, aes(x = Max_clients)) + geom_histogram(binwidth = 10,  col="red", aes(fill=..count..)) + scale_fill_gradient("Count", low = "yellow", high = "red") +theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+histo1 <- ggplot(AnalysisTable, aes(x = Wifi_Max_clients)) + geom_histogram(binwidth = 10,  col="red", aes(fill=..count..)) + scale_fill_gradient("Count", low = "yellow", high = "red") +theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
-histo2 <- ggplot(AnalysisTable, aes(x = Average_clients)) + geom_histogram(binwidth = 10,  col="red", aes(fill=..count..)) + scale_fill_gradient("Count", low = "yellow", high = "red") +theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+#histogram for showing the count in each bin for the Average number of clients
+histo2 <- ggplot(AnalysisTable, aes(x = Wifi_Average_clients)) + geom_histogram(binwidth = 10,  col="red", aes(fill=..count..)) + scale_fill_gradient("Count", low = "yellow", high = "red") +theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
+#histogram for showing the count in each bin for the number of clients counted with the survey
+histo3 <- ggplot(AnalysisTable, aes(x = Survey_counted_clients)) + geom_histogram(binwidth = 10,  col="red", aes(fill=..count..)) + scale_fill_gradient("Count", low = "yellow", high = "red") +theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
-histo3 <- ggplot(AnalysisTable, aes(x = Counted_client)) + geom_histogram(binwidth = 10,  col="red", aes(fill=..count..)) + scale_fill_gradient("Count", low = "yellow", high = "red") +theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
-
+#histogram for showing the count in each bin for each hour of the day
 histo4 <- ggplot(AnalysisTable, aes(x = Time)) + geom_histogram(binwidth = 2,  col="red", aes(fill=..count..)) + scale_fill_gradient("Count", low = "yellow", high = "red") +theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+
 #plot all the histograms in one window
 multiplot(histo1, histo2, histo3, histo4, cols=2)
-```
-\n
-Form the histograms we could see that the distribution of the feature Maximum_client (i.e. the Maximum number of devices logged in one hour lecture) was skewed to the left, indicating that the in the majority of the lecture were counted no more than 40 people. Similar was the case for the Average_client (i.e. average number of devices logged in one hour lecture), which indicated that in the class there were no more than 40 people.
-Different was the situation of the target feature, Counted client, which showed a skewed distribution, but more scattered, similar to a Poisson distribution. This can cause a problem in running a linear regression and more likely we have have to run a generalise linear model with a Poisson distribution. This is not surprising, since we are dealing with count data (Zuur et al. 2009).
+```  
+<br><br>
+Form the histograms we could see that the distribution of the feature Wifi Maximum_client (i.e. the Maximum number of devices logged in one hour lecture) was skewed to the left, indicating that the in the majority of the lecture were counted no more than 40 people. Furthermore, we could see that there are potential outliers (values > 150). Similar pattern was observed for the feature Wifi_Average_clients.
+Different was the situation of the target feature, Survey_counted client, which showed a skewed distribution, but more scattered, similar to a Poisson distribution. This can cause a problem in running a linear regression and more likely we have have to run a generalise linear model with a Poisson distribution. This is not surprising, since we are dealing with count data (Zuur et al. 2009).
 Feature times had as well a skewed distribution, suggesting that the majority of the lectures were concentrating during the early morning and they were decreasing towards the afternoon.
+<br><br>
 
-### Boxplots
-
+#### Boxplots
+<br>
+  
 ```{r, echo=FALSE, warning=FALSE}
 #make the boxplot for continuous variable
-box1 <- ggplot(AnalysisTable, aes(x = factor(0), y = Counted_client)) + geom_boxplot() + xlab("Expected students") + scale_x_discrete(breaks = NULL) + coord_flip() + theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+#box plot for the counted client varable
+box1 <- ggplot(AnalysisTable, aes(x = factor(0), y = Survey_counted_clients)) + geom_boxplot() + xlab("Counted clients") + ylab("")+ scale_x_discrete(breaks = NULL) + theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
-box2 <- ggplot(AnalysisTable, aes(x = factor(0), y = Average_clients)) + geom_boxplot() + xlab("Average counted students") + scale_x_discrete(breaks = NULL) + coord_flip() + theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+#box plot for the counted clients variable
+box2 <- ggplot(AnalysisTable, aes(x = factor(0), y = Wifi_Average_clients)) + geom_boxplot() + xlab("Average counted clients") + ylab("")+ scale_x_discrete(breaks = NULL)  + theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
-box3 <- ggplot(AnalysisTable, aes(x = factor(0), y =Max_clients)) + geom_boxplot() + xlab("Maximum counted students") + scale_x_discrete(breaks = NULL) + coord_flip() + theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+#box plot for the maximum number of clients variable
+box3 <- ggplot(AnalysisTable, aes(x = factor(0), y =Wifi_Max_clients)) + geom_boxplot() + xlab("Maximum counted clients") + ylab("")+ scale_x_discrete(breaks = NULL) + theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
-box4 <- ggplot(AnalysisTable, aes(x = factor(0), y = Time)) + geom_boxplot() + xlab("Maximum counted students") + scale_x_discrete(breaks = NULL) + coord_flip() + theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+#box plot for the Time continuous variable
+box4 <- ggplot(AnalysisTable, aes(x = factor(0), y = Time)) + geom_boxplot() + xlab("Time") + ylab("")+ scale_x_discrete(breaks = NULL) + theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 #plot all the boxplots in one window
 multiplot(box1, box2, box3, box4, cols=2)
+```  
+<br><br>
+
+From the boxplots, all the trends observed in the histograms were confirmed.
+
+For categorical variables we plot bar plot graphs.  
+
+#### Bar plots  
+
+```{r, echo=FALSE, warning=FALSE}
+
+bar1 <- ggplot(AnalysisTable, aes(x = Room)) + geom_bar(fill="orangered2")+ theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+
+#bar plot for the categorical variable: Course level
+bar2 <- ggplot(AnalysisTable, aes(x = Course_Level)) + geom_bar(fill="orangered2")+ theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+
+#bar plot for the categorical variable: Time as factor
+bar3 <- ggplot(AnalysisTable, aes(x = Factor_Time)) + geom_bar(fill="orangered2")+ theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+
+#plot all the barplots in one window
+multiplot(bar1, bar2, bar3, cols=2)
 ```
+<br><br>
+From the barplots, we could see that observations were equally distributed across all the levels of the feature Room and Factor Time. On the contrary, there were more observations for non lectures and level 3 courses. No issues were detected for those features.  
 
-From the boxplots, we can see that: 
-############################GRAPH FOR CATEGORICAL DATA##################################
+#### Summary
+<br><br>
 
-bar1 <- ggplot(AnalysisTable, aes(x = Room)) + geom_bar(fill="seagreen4")+ theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+Features               | Issues                                   | Planned Solution             
+-----------------------|------------------------------------------|----------------------------
+Room                   |None                                      |None
+Time                   |Distibution skewed to the left            |To solve during analysis 
+Factor Time            |None                                      |None
+Course level           |None                                      |None
+Tutorial               |Uneven representation of the level        |Discarded from the analysis
+Double Module          |Uneven representation of the level        |Discarded from the analysis
+Class went ahead       |Uneven representation of the level        |Discarded from the analysis
+Wifi Average clients   |Distibution skewed to the left \& outliers|To solve during analysis
+Wifi Maximum clients   |Distibution skewed to the left \& outliers|To solve during analysis
+Survey Counted clients |Distibution skewed to the left \& outliers|To solve during analysis
 
-bar2 <- ggplot(AnalysisTable, aes(x = Course_Level)) + geom_bar(fill="seagreen4")+ theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+<br><br>
 
-bar3 <- ggplot(AnalysisTable, aes(x = Binned_Percentage)) + geom_bar(fill="seagreen4")+ theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+## FEATURES AFFECTING THE TARGET FEATURE  
 
-bar4 <- ggplot(AnalysisTable, aes(x = Binned_Time)) + geom_bar(fill="seagreen4")+ theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+The next step of the analysis was to see which feature really affect the target feature for deciding which features we would include into the model.  
+For the continuous features we explored the effects on the target features using a correlation matrix, while for the categorical features we used box plots. 
 
-#bar2 <- ggplot(AnalysisTable, aes(x = Module)) + geom_bar(fill="seagreen4")
-#bar3 <- ggplot(AnalysisTable, aes(x = Tutorial)) + geom_bar(fill="seagreen4")
-#bar4 <- ggplot(AnalysisTable, aes(x = Double_module)) + geom_bar(fill="seagreen4")
-#bar5 <- ggplot(AnalysisTable, aes(x = Class_went_ahead)) + geom_bar(fill="seagreen4
-
-multiplot(bar1, bar2, bar3, bar4, cols=2)
-
-#######RELATIONSHIP BETWEEN Variables #############################
-
-##CASE 1: TARGET FEATURE = Counted_clients 
-#--> Relationship with continous variables
-
+### Correlation matrix for continuous variables.  
+<br>
+```{r, echo=FALSE, warning=FALSE}
 # Correlation Matrix
-ggpairs(AnalysisTable, columns = c('Counted_client','Max_clients', 'Average_clients', 'Time'))+ geom_point() +  geom_smooth(method=lm, fill="blue", color="blue", ...)
 
 my_fn <- function(data, mapping, ...){
   p <- ggplot(data = data, mapping = mapping) + 
@@ -170,131 +211,176 @@ my_fn <- function(data, mapping, ...){
   p
 }
 
-ggpairs(AnalysisTable, columns = c('Counted_client','Max_clients', 'Average_clients', 'Time'), lower = list(continuous = my_fn)) + theme_bw()
+ggpairs(AnalysisTable, columns = c('Survey_counted_clients','Wifi_Max_clients', 'Wifi_Average_clients', 'Time'), lower = list(continuous = my_fn)) + theme_bw()
+```  
+<br><br>
+From the correlation matrix Survey counted  clients seems to have a good correlation with Wifi Average counted clients and Maximum counted clients, therefore we are will try to run 2 models: one for exploring the relationship between Survey counted clients and Average counted clients and another for Survey counted clients and Maximum counted clients. However, from this graphs we can see that there is one point that is clearly two outliers. Therefore, we are going to run the analyses with and without them.
 
-#--> Relationship with categorical variables
+From the graphs we can see that Average counted clients and Maximum counted clients are highly correlated showing that both of them are not so different. Therefore we will not expect too much difference among the 2 models.
 
-#Box plot
-pairbox1 <- ggplot(AnalysisTable, aes(x = Room, y =Counted_client)) + geom_boxplot()+ theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+Time does not seems to be correlated with the target features Survey counted clients and it seems more categorical.  
 
-pairbox2 <- ggplot(AnalysisTable, aes(x = Binned_Time , y = Counted_client)) + geom_boxplot() + theme_bw()+theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+### Box plots for categorical variables.  
+``` {r, echo=FALSE, warning=FALSE}
+#Box plot for exploring relationship between Room and Client count
+pairbox1 <- ggplot(AnalysisTable, aes(x = Room, y = Survey_counted_clients)) + geom_boxplot() + theme_bw()+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
 
-pairbox3 <- ggplot(AnalysisTable, aes(x = Course_Level , y = Counted_client )) + geom_boxplot() + theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+#Box plot for exploring relationship between Room and time as a factor
+pairbox2 <- ggplot(AnalysisTable, aes(x = Factor_Time, y =Survey_counted_clients)) + geom_boxplot() + theme_bw()+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+
+#Box plot for exploring relationship between Room and course level
+pairbox3 <- ggplot(AnalysisTable, aes(x = Course_Level, y =Survey_counted_clients)) + geom_boxplot()+  theme_bw()+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+
+#plot all the boxplots in one window
+multiplot(pairbox1, pairbox2, pairbox3, cols=2)
+``` 
+<br><br>
+From the boxplot plotting the counted people in the different room, it can be observed that the average of the counted people in room 1 was not different from room2. Room3 had an higher number of people on average, but this can be due to the outlier. For this reasons we are going to consider its effect.
+The average number of counted people, instead, changed across the different level of the course and it will be worth to explore if the occupancy of the room was affected by the course level.
+The highest average number of counted people was in the late morning around 50, while it was around 30 for the rest of the day. Therefore it will be interesting to explore the effect of the time on the occupancy.  
+
+### Interacting effect on the target feature  
+The last step before the regression was to explore the interacting effect of the features on the target features. 
+
+First of all we explore the interactive effect between Average conted clients with all the other features using trellis graphs.
+<br>
+
+```{r, echo=FALSE, warning=FALSE}
+#Graph exploring interactive effect between Average clients and Room on counted client 
+trellis1 <- qplot(Wifi_Average_clients, Survey_counted_clients, data = AnalysisTable, facets = . ~ Room) + geom_smooth(method=lm, fill="orangered3", color="orangered3") + theme_bw()
+
+#Graph exploring interactive effect between Average clients and Time counted client 
+trellis2 <- qplot(Wifi_Average_clients, Survey_counted_clients, data = AnalysisTable, facets = . ~ Factor_Time) + geom_smooth(method=lm, fill="orangered3", color="orangered3")+ theme_bw()
+
+#Graph exploring interactive effect between Average clients and course level on counted client 
+trellis3 <- qplot(Wifi_Average_clients, Survey_counted_clients, data = AnalysisTable, facets = . ~ Course_Level) + geom_smooth(method=lm, fill="orangered3", color="orangered3")+ theme_bw()
+
+#plot all the graphs on the interactive effect in one window
+multiplot(trellis1, trellis2, trellis3, cols=2)
+``` 
+<br><br>
+From all the graphs we could see that the positive correlation between the survey occupancy and the average wi-fi occupancy did not change either across the three room, the course levels and the time of the day, indicating that there was not interaction between these features and the average wi-fi occupancy.
+Similar trends were found for the same features with the maximum wi-fi occupancy (see below).
+<br>
+```{r, echo=FALSE, warning=FALSE}
+#Graph exploring interactive effect between Maximum clients and room on counted client 
+trellis4 <-qplot(Wifi_Max_clients, Survey_counted_clients, data = AnalysisTable, facets = . ~ Room) + geom_smooth(method=lm, fill="orangered3", color="orangered3")+ theme_bw()
+
+#Graph exploring interactive effect between Maximum clients and time on counted client 
+trellis5 <-qplot(Wifi_Max_clients, Survey_counted_clients, data = AnalysisTable, facets = . ~ Factor_Time) + geom_smooth(method=lm, fill="orangered3", color="orangered3")+ theme_bw()
+
+#Graph exploring interactive effect between Maximum clients and course level on counted client 
+trellis6 <-qplot(Wifi_Max_clients, Survey_counted_clients, data = AnalysisTable, facets = . ~ Course_Level) + geom_smooth(method=lm, fill="orangered3", color="orangered3")+ theme_bw()
+
+#plot all the graphs on the interactive effect in one window
+multiplot(trellis4, trellis5, trellis6, cols=2)
+```
+<br><br>
+Then we explore whether categorical features were interactingly effecting the target feature using bar plots.
+<br><br>
+```{r, echo=FALSE, warning=FALSE}
+#Graph exploring interactive effect between Time and Room on Counted client 
+pair1 <- ggplot(AnalysisTable, aes(x = Factor_Time, y =Survey_counted_clients, fill = factor(Room))) + geom_bar(position = "dodge", stat="identity")+ scale_fill_manual(values=c( "darkblue","cyan4", "yellow"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+
+#Graph exploring interactive effect between Course level and Room on Counted client 
+pair2 <- ggplot(AnalysisTable, aes(x = Course_Level, y = Survey_counted_clients, fill = factor(Room))) + geom_bar(position = "dodge", stat="identity")+ scale_fill_manual(values=c( "darkblue","cyan4", "yellow", "orange", "blue", "red"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+
+#Graph exploring interactive effect between Course level and Time on Counted client 
+pair3 <-ggplot(AnalysisTable, aes(x = Factor_Time, y =Survey_counted_clients, fill = factor(Course_Level))) + geom_bar(position = "dodge", stat="identity")+ scale_fill_manual(values=c( "blueviolet","darkblue","cyan4", "yellow", "orange", "red"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+
+multiplot(pair1, pair2, pair3, cols=2)
+```
+
+From the bar plots we could see that the occupancy of each room did not change across the time of the day and course level. Therefore, we are not going to consider either the interactive effect between Room and time and Course level and room.
+The occupancy of the different level of the courses was changing across the time of the day, suggesting a possible interaction between the course level and the time of the day.
+
+Consequently we are going to explore the following 2 models:
+* $Survey occupancy ~ Average Wifi occupancy + Room + Time + Course_Level + Time * Course_Level$
+* $Survey occupancy ~ Maximum Wifi occupancy + Room + Time + Course_Level + Time * Course_Level$
+<br>
+
+# Analysis
+<br>
+For running the linear regression we performed k-fold cross validation with the aim of testing how well the model was performing on new data or testing data. Mean Square error was used to estimate the accuracy of the models. K-fold validations was preferred over the validation set approach and the Leave-One-Out Cross-Validation (LOOCV), because it is more robust. The Validation set estimate of the test error rate is dependent on the observations selected to be included in the training and test set and tend to be higher than it should be. Furthermore, the of k-fold cross validadion is more accurate than the LOOCV, because the variance of the estimate of the test error is lower.
+In particular in this analysis, we are going to perform a 10-fold cross validation, which is pretty standard and its test error rate estimates has been proved to not su???er neither from excessively high bias nor from very high variance.
+<br>
+#CASE1: Linear regression with Max_client
+xlm.occupancy <- CVlm (data=AnalysisTable, m= 10, form.lm = formula (Survey_counted_clients ~ Wifi_Max_clients + Room + Factor_Time + Course_Level  + Factor_Time * Course_Level))
+
+#Overall mean square = 435. Smaller is the mean square error, higher is the precision of our estimate. The model is pretty bad.
+
+#CASE2: Linear regression with Average_client
+xlm.occupancy2 <- CVlm (data=AnalysisTable, m= 10, form.lm = formula (Survey_counted_clients ~Wifi_Average_clients + Room + Factor_Time + Course_Level + Factor_Time * Course_Level))
+
+#Overall mean square = 411. Smaller is the mean square error, higher is the precision of our estimate. The model is pretty bad.
+
+##############################GLM WITH POISSON DISTRIBUTION###################### 
+
+#This model suffer of overdispersion, therefore we corrected the standard errors using a quasi-GLM model. 
+
+occupancy.poisson <- glm(Survey_counted_clients ~ Wifi_Max_clients + Room + Factor_Time + Course_Level  + Factor_Time * Course_Level, family = quasipoisson, data=AnalysisTable)
+
+#k-fold cross validation
+k.occupancy <- cv.glm (data=AnalysisTable, glmfit= occupancy.poisson, K=10)
+k.occupancy$delta
+#raw cross validation estimate of prediction error = 734 and the adjusted cross validation estimate = 706, which it is pretty big.
+
+#k-fold cross validation
+k.occupancy2 <- cv.glm (data=AnalysisTable, glmfit= occupancy.poisson, K=10)
+k.occupancy2$delta
+#raw cross validation estimate of prediction error = 894 and the adjusted cross validation estimate = 851, which it is pretty big.
+#<--------------------k -Fold Cross-Validation without outlier--------------------------------->
+
+#The k - fold method randomly removes k - folds for the testing set and models the remaining (training set) data. Here we use the commonly accepted (Harrell, 1998) 10 - fold application.  
+
+################################### LINEAR MODEL#################################
+
+#CASE1: Linear regression with Max_client
+xlm.occupancy.noOutlier1 <- CVlm (data=NoOutlierTable, m= 10, form.lm = formula (Survey_counted_clients ~ Wifi_Max_clients + Room + Factor_Time + Course_Level  + Factor_Time * Course_Level))
+
+#Overall mean square = 393. The model is still pretty bad.
+
+#Looking at the residuals on the model run on the whole data set
+
+occupancy.lm.test1 = lm(Survey_counted_clients ~ Wifi_Max_clients + Room + Factor_Time + Course_Level  + Factor_Time * Course_Level, data=NoOutlierTable)
+#print the summary of the model
+summary(occupancy.lm.test1)
+#plot the residual
+plot(occupancy.lm.test1)
+
+#CASE2: Linear regression with Average_client
+xlm.occupancy.noOutlier2 <- CVlm (data=NoOutlierTable, m= 10, form.lm = formula (Survey_counted_clients ~ Wifi_Average_clients + Room + Factor_Time + Course_Level  + Factor_Time * Course_Level))
+
+#Overall mean square = 370. The model is still pretty bad.
+
+##############################GLM WITH POISSON DISTRIBUTION###################### 
+
+#This model suffer of overdispersion, therefore we corrected the standard errors using a quasi-GLM model. 
+
+occupancy.poisson.noOutlier <- glm(Survey_counted_clients ~ Wifi_Max_clients + Room + Factor_Time + Course_Level  + Factor_Time * Course_Level, family = quasipoisson, data=NoOutlierTable)
+
+#k-fold cross validation
+k.occupancy.noOutlier <- cv.glm (data=NoOutlierTable, glmfit= occupancy.poisson.noOutlier, K=10)
+occupancy.poisson.noOutlier$delta
+#warning!!
+
+occupancy.poisson.noOutlier <- glm(Survey_counted_clients ~ Wifi_Average_clients + Room + Factor_Time + Course_Level  + Factor_Time * Course_Level, family = quasipoisson, data=NoOutlierTable)
+
+#k-fold cross validation
+k.occupancy.noOutlier <- cv.glm (data=NoOutlierTable, glmfit= occupancy.poisson.noOutlier, K=10)
+occupancy.poisson.noOutlier$delta
+#warning!!
+
+#The Linear model seems to not be a good approach for these analyses. Looking at the histogram of the Counted client we can see that it is not normal distributed and this is causing problem.
 
 
-multiplot(pairbox1, pairbox2, pairbox3, cols=3)
-
-#######RELETIONSHIP BETWEEN TARGET FEATURE AND CATEGORICAL VARIABLE##############################
-
-##CASE 1: TARGET FEATURE = Counted_clients
-
-#Box plot
-
-pairbox4 <- ggplot(AnalysisTable, aes(x = Binned_Capacity, y =Average_clients)) + geom_boxplot()+ theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
-
-pairbox5 <- ggplot(AnalysisTable, aes(x = Binned_Capacity, y = Max_clients)) + geom_boxplot() + theme_bw()+theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
-
-pairbox6 <- ggplot(AnalysisTable, aes(x =Binned_Capacity, y = Time )) + geom_boxplot() + theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
-
-multiplot(pairbox4, pairbox5, pairbox6, cols=3)
-
-##CASE 2: TARGET FEATURE IS CATEGORICAL 
-
-barpair1 <- ggplot(AnalysisTable, aes(x = Binned_Percentage, fill = Room)) + geom_bar(position = "dodge")+ scale_fill_manual(values=c( "cyan4","yellow","orange"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
-
-barpair2 <- ggplot(AnalysisTable, aes(x = Binned_Percentage, fill = Binned_Time)) + geom_bar(position = "dodge")+ scale_fill_manual(values=c("blue", "cyan4","yellow","orange"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
-
-barpair3 <- ggplot(AnalysisTable, aes(x = Binned_Percentage, fill = Course_Level)) + geom_bar(position = "dodge")+ scale_fill_manual(values=c( "darkblue","blue","cyan4","yellow","orange"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
-
-multiplot(barpair1, barpair2, barpair3, cols=3)
-
-ggplot(cabbage_exp, aes(x=Date, y=Weight, fill=Cultivar)) + 
-  geom_bar(position='dodge', stat='identity')
-
-ggplot(AnalysisTable, aes(x = Binned_Percentage, y =Counted_client, fill = Room)) + geom_bar(position = "dodge", stat='identity')+ scale_fill_manual(values=c( "cyan4","yellow","orange"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
-
-occupancy.lm = lm(Counted_client ~ Max_clients + Room + Binned_Time + Course_Level + Course_Level * Max_clients + Binned_Time*Course_Level, data=AnalysisTable)
-summary(occupancy.lm)
-plot(occupancy.lm)
-
-
-
-plot(occupancy.lm, which = c(1), col = 1, add.smooth = FALSE, caption)
-
-plot(AnalysisTable$Max_clients, resid(occupancy.lm), xlab = "Max_clients", ylab = "Residuals")
-plot(AnalysisTable$Room, resid(occupancy.lm), xlab = "Room", ylab = "Residuals")
-plot(AnalysisTable$Binned_Time, resid(occupancy.lm), xlab = "Binned_Time", ylab = "Residuals")
-plot(AnalysisTable$Course_Level, resid(occupancy.lm), xlab = "Course_Level", ylab = "Residuals")
-
-
-#Trellis
-qplot(Average_clients, Counted_client, data = AnalysisTable, facets = . ~ Room) + geom_smooth(method=lm, fill="orangered3", color="orangered3")
-
-qplot(Average_clients, Counted_client, data = AnalysisTable, facets = . ~ Binned_Time) + geom_smooth(method=lm, fill="orangered3", color="orangered3")
-
-qplot(Average_clients, Counted_client, data = AnalysisTable, facets = . ~ Course_Level) + geom_smooth(method=lm, fill="orangered3", color="orangered3")
-
-qplot(Max_clients, Counted_client, data = AnalysisTable, facets = . ~ Room) + geom_smooth(method=lm, fill="orangered3", color="orangered3")
-
-qplot(Max_clients, Counted_client, data = AnalysisTable, facets = . ~ Binned_Time) + geom_smooth(method=lm, fill="orangered3", color="orangered3")
-
-qplot(Max_clients, Counted_client, data = AnalysisTable, facets = . ~ Course_Level) + geom_smooth(method=lm, fill="orangered3", color="orangered3")
-
-# Bar plots
-ggplot(AnalysisTable, aes(x = Binned_Time, y = Counted_client, fill = factor(Room))) + geom_bar(position = "dodge", stat="identity")+ scale_fill_manual(values=c( "darkblue","cyan4", "yellow"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
-
-ggplot(AnalysisTable, aes(x = Course_Level, y = Counted_client, fill = factor(Room))) + geom_bar(position = "dodge", stat="identity")+ scale_fill_manual(values=c( "darkblue","cyan4", "yellow", "orange", "blue"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
-
-ggplot(AnalysisTable, aes(x = Binned_Time, y = Counted_client, fill = factor(Course_Level))) + geom_bar(position = "dodge", stat="identity")+ scale_fill_manual(values=c( "darkblue","cyan4", "yellow", "orange", "blue"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
-
-ggplot(AnalysisTable, aes(x = Binned_Time, y = Average_clients, fill = factor(Room))) + geom_bar(position = "dodge", stat="identity")+ scale_fill_manual(values=c( "darkblue","cyan4", "yellow", "orange"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
-
-ggplot(AnalysisTable, aes(x = Binned_Time, y = Average_clients, fill = factor(Course_Level))) + geom_bar(position = "dodge", stat="identity")+ scale_fill_manual(values=c( "darkblue","cyan4", "yellow", "orange"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
-
-ggplot(AnalysisTable, aes(x = Room, y = Average_clients, fill = factor(Course_Level))) + geom_bar(position = "dodge", stat="identity")+ scale_fill_manual(values=c( "darkblue","cyan4", "yellow", "orange", "blue"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
-
-# Linear Regression
-
-occupancy.lm = lm(Counted_client ~ Max_clients + Room + Binned_Time + Course_Level + Course_Level * Max_clients + Binned_Time * Course_Level, data=AnalysisTable)
-summary(occupancy.lm)
-plot(occupancy.lm)
-
-occupancy.glm = lm(Counted_client ~ Max_clients + Room + Binned_Time + Course_Level + Course_Level * Max_clients + Binned_Time * Course_Level, data=AnalysisTable)
-
-# Glm with poisson distribution
-occupancy.poisson1 = glm(Counted_client ~ Max_clients + Room + Binned_Time + Course_Level + Course_Level * Max_clients + Binned_Time * Course_Level, family = poisson, data=AnalysisTable)
-summary(occupancy.poisson1)
-plot(occupancy.poisson1)
-
-occupancy.poisson2 = glm(Counted_client ~ Max_clients + Room + Binned_Time + Course_Level + Course_Level * Max_clients + Binned_Time * Course_Level, family = quasipoisson, data=AnalysisTable)
-summary(occupancy.poisson2)
-plot(occupancy.poisson2)
-
-
-
-library(MASS)
-occupancy.negbinomial <- glm.nb(Counted_client ~ Max_clients + Room + Binned_Time + Course_Level + Course_Level * Max_clients + Binned_Time * Course_Level, link = "log", data=AnalysisTable)
-
-plot(occupancy.negbinomial)
-warnings()
-
-
-# Logistic Regression
-library(nnet)
-
-glm.fit=multinom(Binary_Percentage ~ Max_clients + Room + Binned_Time + Course_Level, family = binomial, data=AnalysisTable)
-summary(glm.fit)
-#Prediction
-predict(glm.fit, AnalysisTable, "probs")
 
 
 
 
-vf5 <- varExp(form =~ Max_clients)
-M.gls5 <- gls(Counted_client ~ Max_clients + Room + Binned_Time + Course_Level + Course_Level * Max_clients + Binned_Time*Course_Level, weights = vf5, data=AnalysisTable)
 
 
 
 
-vf1<- varFixed(~ Max_clients)
-M.gls <- gls(Counted_client ~ Max_clients + Room + Course_Level , weights = vf1, data=AnalysisTable)  
+
+
