@@ -87,20 +87,21 @@ histo4 <- ggplot(AnalysisTable, aes(x = Time)) + geom_histogram(binwidth = 2,  c
 #plot all the histograms in one window
 multiplot(histo1, histo2, histo3, histo4, cols=2)
 
+#make the boxplot for continuous variable
 #box plot for the counted client varable
-box1 <- ggplot(AnalysisTable, aes(x = factor(0), y = Survey_counted_clients)) + geom_boxplot() + xlab("Counted clients with the survey") + ylab("")+ scale_x_discrete(breaks = NULL) + theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+box1 <- ggplot(AnalysisTable, aes(x = factor(0), y = Survey_counted_clients)) + geom_boxplot() + xlab("Counted clients") + ylab("")+ scale_x_discrete(breaks = NULL) + theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
 #box plot for the counted clients variable
-box2 <- ggplot(AnalysisTable, aes(x = factor(0), y = Wifi_Average_clients)) + geom_boxplot() + xlab("Average Maximum counted students with Wifi") + ylab("")+ scale_x_discrete(breaks = NULL)  + theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+box2 <- ggplot(AnalysisTable, aes(x = factor(0), y = Wifi_Average_clients)) + geom_boxplot() + xlab("Average counted clients") + ylab("")+ scale_x_discrete(breaks = NULL)  + theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
 #box plot for the maximum number of clients variable
-box3 <- ggplot(AnalysisTable, aes(x = factor(0), y =Wifi_Max_clients)) + geom_boxplot() + xlab("Maximum counted students with Wifi") + ylab("")+ scale_x_discrete(breaks = NULL) + theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+box3 <- ggplot(AnalysisTable, aes(x = factor(0), y =Wifi_Max_clients)) + geom_boxplot() + xlab("Maximum counted clients") + ylab("")+ scale_x_discrete(breaks = NULL) + theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
 #box plot for the Time continuous variable
-box4 <- ggplot(AnalysisTable, aes(x = factor(0), y = Time)) + geom_boxplot() + xlab("Maximum counted students") + ylab("")+ scale_x_discrete(breaks = NULL) + theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
-
+box4 <- ggplot(AnalysisTable, aes(x = factor(0), y = Time)) + geom_boxplot() + xlab("Time") + ylab("")+ scale_x_discrete(breaks = NULL) + theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 #plot all the boxplots in one window
 multiplot(box1, box2, box3, box4, cols=2)
+
 
 ############################GRAPH FOR CATEGORICAL DATA##################################
 
@@ -138,16 +139,16 @@ ggpairs(AnalysisTable, columns = c('Survey_counted_clients','Wifi_Max_clients', 
 #--> Relationship with categorical variables
 
 #Box plot for exploring relationship between Room and Client count
-pairbox1 <- ggplot(AnalysisTable, aes(x = Room, y =Counted_client)) + geom_boxplot() + theme_bw()+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+pairbox1 <- ggplot(AnalysisTable, aes(x = Room, y = Survey_counted_clients)) + geom_boxplot() + theme_bw()+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
 
 #Box plot for exploring relationship between Room and time as a factor
-pairbox2 <- ggplot(AnalysisTable, aes(x = Factor_Time, y =Counted_client)) + geom_boxplot() + theme_bw()+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+pairbox2 <- ggplot(AnalysisTable, aes(x = Factor_Time, y =Survey_counted_clients)) + geom_boxplot() + theme_bw()+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
 
 #Box plot for exploring relationship between Room and course level
-pairbox3 <- ggplot(AnalysisTable, aes(x = Course_Level, y =Counted_client)) + geom_boxplot()+  theme_bw()+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+pairbox3 <- ggplot(AnalysisTable, aes(x = Course_Level, y =Survey_counted_clients)) + geom_boxplot()+  theme_bw()+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
 
 #plot all the boxplots in one window
-multiplot(pairbox1, pairbox2, pairbox3, cols=3)
+multiplot(pairbox1, pairbox2, pairbox3, cols=2)
 
 
 #EXPLORING INTERACTION
@@ -155,43 +156,43 @@ multiplot(pairbox1, pairbox2, pairbox3, cols=3)
 #<--- CASE 1: Average client --->
 
 #Graph exploring interactive effect between Average clients and Room on counted client 
-trellis1 <- qplot(Average_clients, Counted_client, data = AnalysisTable, facets = . ~ Room) + geom_smooth(method=lm, fill="orangered3", color="orangered3") + theme_bw()
+trellis1 <- qplot(Wifi_Average_clients, Survey_counted_clients, data = AnalysisTable, facets = . ~ Room) + geom_smooth(method=lm, fill="orangered3", color="orangered3") + theme_bw()
 
 #Graph exploring interactive effect between Average clients and Time counted client 
-trellis2 <- qplot(Average_clients, Counted_client, data = AnalysisTable, facets = . ~ Factor_Time) + geom_smooth(method=lm, fill="orangered3", color="orangered3")+ theme_bw()
+trellis2 <- qplot(Wifi_Average_clients, Survey_counted_clients, data = AnalysisTable, facets = . ~ Factor_Time) + geom_smooth(method=lm, fill="orangered3", color="orangered3")+ theme_bw()
 
 #Graph exploring interactive effect between Average clients and course level on counted client 
-trellis3 <- qplot(Average_clients, Counted_client, data = AnalysisTable, facets = . ~ Course_Level) + geom_smooth(method=lm, fill="orangered3", color="orangered3")+ theme_bw()
+trellis3 <- qplot(Wifi_Average_clients, Survey_counted_clients, data = AnalysisTable, facets = . ~ Course_Level) + geom_smooth(method=lm, fill="orangered3", color="orangered3")+ theme_bw()
 
 #plot all the graphs on the interactive effect in one window
-multiplot(trellis1, trellis2, trellis3, cols=3)
+multiplot(trellis1, trellis2, trellis3, cols=2)
 
 #<--- CASE 2: Maximum client --->
 
 #Graph exploring interactive effect between Maximum clients and room on counted client 
-trellis4 <-qplot(Max_clients, Counted_client, data = AnalysisTable, facets = . ~ Room) + geom_smooth(method=lm, fill="orangered3", color="orangered3")+ theme_bw()
+trellis4 <-qplot(Wifi_Max_clients, Survey_counted_clients, data = AnalysisTable, facets = . ~ Room) + geom_smooth(method=lm, fill="orangered3", color="orangered3")+ theme_bw()
 
 #Graph exploring interactive effect between Maximum clients and time on counted client 
-trellis5 <-qplot(Max_clients, Counted_client, data = AnalysisTable, facets = . ~ Factor_Time) + geom_smooth(method=lm, fill="orangered3", color="orangered3")+ theme_bw()
+trellis5 <-qplot(Wifi_Max_clients, Survey_counted_clients, data = AnalysisTable, facets = . ~ Factor_Time) + geom_smooth(method=lm, fill="orangered3", color="orangered3")+ theme_bw()
 
 #Graph exploring interactive effect between Maximum clients and course level on counted client 
-trellis6 <-qplot(Max_clients, Counted_client, data = AnalysisTable, facets = . ~ Course_Level) + geom_smooth(method=lm, fill="orangered3", color="orangered3")+ theme_bw()
+trellis6 <-qplot(Wifi_Max_clients, Survey_counted_clients, data = AnalysisTable, facets = . ~ Course_Level) + geom_smooth(method=lm, fill="orangered3", color="orangered3")+ theme_bw()
 
 #plot all the graphs on the interactive effect in one window
-multiplot(trellis4, trellis5, trellis6, cols=3)
+multiplot(trellis4, trellis5, trellis6, cols=2)
 
 # Bar plots for exploring interactions with categorical variables 
 
 #Graph exploring interactive effect between Time and Room on Counted client 
-pair1 <- ggplot(AnalysisTable, aes(x = Factor_Time, y = Counted_client, fill = factor(Room))) + geom_bar(position = "dodge", stat="identity")+ scale_fill_manual(values=c( "darkblue","cyan4", "yellow"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+pair1 <- ggplot(AnalysisTable, aes(x = Factor_Time, y =Survey_counted_clients, fill = factor(Room))) + geom_bar(position = "dodge", stat="identity")+ scale_fill_manual(values=c( "darkblue","cyan4", "yellow"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
 
 #Graph exploring interactive effect between Course level and Room on Counted client 
-pair2 <- ggplot(AnalysisTable, aes(x = Course_Level, y = Counted_client, fill = factor(Room))) + geom_bar(position = "dodge", stat="identity")+ scale_fill_manual(values=c( "darkblue","cyan4", "yellow", "orange", "blue"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+pair2 <- ggplot(AnalysisTable, aes(x = Course_Level, y = Survey_counted_clients, fill = factor(Room))) + geom_bar(position = "dodge", stat="identity")+ scale_fill_manual(values=c( "darkblue","cyan4", "yellow", "orange", "blue", "red"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
 
 #Graph exploring interactive effect between Course level and Time on Counted client 
-pair3 <-ggplot(AnalysisTable, aes(x = Factor_Time, y = Counted_client, fill = factor(Course_Level))) + geom_bar(position = "dodge", stat="identity")+ scale_fill_manual(values=c( "darkblue","cyan4", "yellow", "orange", "red"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+pair3 <-ggplot(AnalysisTable, aes(x = Factor_Time, y =Survey_counted_clients, fill = factor(Course_Level))) + geom_bar(position = "dodge", stat="identity")+ scale_fill_manual(values=c( "blueviolet","darkblue","cyan4", "yellow", "orange", "red"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
 
-multiplot(pair1, pair2, pair3, cols=3)
+multiplot(pair1, pair2, pair3, cols=2)
 
 
 #<-----------------------The Validation Set Approach: training and test dataset ------------------->
@@ -266,31 +267,38 @@ qqline(res)
 ################################### LINEAR MODEL#################################
 
 #CASE1: Linear regression with Max_client
-xlm.occupancy <- CVlm (data=AnalysisTable, m= 10, form.lm = formula (Counted_client ~ Max_clients + Room + Factor_Time + Course_Level + Course_Level * Max_clients + Factor_Time * Course_Level))
+xlm.occupancy <- CVlm (data=AnalysisTable, m= 10, form.lm = formula (Survey_counted_clients ~ Wifi_Max_clients + Room + Factor_Time + Course_Level  + Factor_Time * Course_Level))
 
-#Overall mean square = 412. Smaller is the mean square error, higher is the precision of our estimate. The model is pretty bad.
+#Overall mean square = 435. Smaller is the mean square error, higher is the precision of our estimate. The model is pretty bad.
 
 #CASE2: Linear regression with Average_client
-xlm.occupancy2 <- CVlm (data=AnalysisTable, m= 10, form.lm = formula (Counted_client ~Average_clients + Room + Factor_Time + Course_Level + Course_Level * Average_clients + Factor_Time * Course_Level))
+xlm.occupancy2 <- CVlm (data=AnalysisTable, m= 10, form.lm = formula (Survey_counted_clients ~Wifi_Average_clients + Room + Factor_Time + Course_Level + Factor_Time * Course_Level))
 
-#Overall mean square = 402. Smaller is the mean square error, higher is the precision of our estimate. The model is pretty bad.
+#Overall mean square = 411. Smaller is the mean square error, higher is the precision of our estimate. The model is pretty bad.
 
 ##############################GLM WITH POISSON DISTRIBUTION###################### 
 
 #This model suffer of overdispersion, therefore we corrected the standard errors using a quasi-GLM model. 
 
-occupancy.poisson <- glm(Counted_client ~ Max_clients + Room + Factor_Time + Course_Level + Course_Level * Max_clients + Factor_Time * Course_Level, family = quasipoisson, data=AnalysisTable)
+occupancy.poisson <- glm(Survey_counted_clients ~ Wifi_Max_clients + Room + Factor_Time + Course_Level  + Factor_Time * Course_Level, family = quasipoisson, data=AnalysisTable)
 
 #k-fold cross validation
 k.occupancy <- cv.glm (data=AnalysisTable, glmfit= occupancy.poisson, K=10)
 k.occupancy$delta
-#raw cross validation estimate of prediction error = 1172 and the adjusted cross validation estimate = 1093, which it is pretty big.
+#raw cross validation estimate of prediction error = 734 and the adjusted cross validation estimate = 706, which it is pretty big.
+
+occupancy.poisson2 <- glm(Survey_counted_clients ~ Wifi_Average_clients + Room + Factor_Time + Course_Level  + Factor_Time * Course_Level, family = quasipoisson, data=AnalysisTable)
+
+#k-fold cross validation
+k.occupancy2 <- cv.glm (data=AnalysisTable, glmfit= occupancy.poisson, K=10)
+k.occupancy2$delta
+#raw cross validation estimate of prediction error = 894 and the adjusted cross validation estimate = 851, which it is pretty big.
 
 #<----------------------------------OUTLIERS ----------------------------------->
 #From the hist we could see that max_client and average_client has 2 bin that they seems to be outliers (150 and 200). I remove from the dataset all the rows where max_client is higher than 150.
 
-NoOutlierTable <- AnalysisTable[ AnalysisTable$Max_clients < 150,] 
-NoOutlierTable <- NoOutlierTable[ NoOutlierTable$Counted_client < 120,] 
+NoOutlierTable <- AnalysisTable[ AnalysisTable$Wifi_Max_clients < 150,] 
+NoOutlierTable <- NoOutlierTable[ NoOutlierTable$Survey_counted_client < 120,] 
 
 dim(NoOutlierTable) #only 3 observations were dropped, so we did not lose to much data
 summary(NoOutlierTable)
@@ -298,18 +306,18 @@ summary(NoOutlierTable)
 #Recheching the hist
 
 #histogram for showing the count in each bin for the Maximum number of clients
-histo1 <- ggplot(NoOutlierTable, aes(x = Max_clients)) + geom_histogram(binwidth = 10,  col="red", aes(fill=..count..)) + scale_fill_gradient("Count", low = "yellow", high = "red") +theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+histo1 <- ggplot(NoOutlierTable, aes(x = Wifi_Max_clients)) + geom_histogram(binwidth = 10,  col="red", aes(fill=..count..)) + scale_fill_gradient("Count", low = "yellow", high = "red") +theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
 #histogram for showing the count in each bin for the Average number of clients
-histo2 <- ggplot(NoOutlierTable, aes(x = Average_clients)) + geom_histogram(binwidth = 10,  col="red", aes(fill=..count..)) + scale_fill_gradient("Count", low = "yellow", high = "red") +theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+histo2 <- ggplot(NoOutlierTable, aes(x = Wifi_Average_clients)) + geom_histogram(binwidth = 10,  col="red", aes(fill=..count..)) + scale_fill_gradient("Count", low = "yellow", high = "red") +theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
 #histogram for showing the count in each bin for the number of clients counted with the survey
-histo3 <- ggplot(NoOutlierTable, aes(x = Counted_client)) + geom_histogram(binwidth = 10,  col="red", aes(fill=..count..)) + scale_fill_gradient("Count", low = "yellow", high = "red") +theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+histo3 <- ggplot(NoOutlierTable, aes(x = Survey_counted_clients)) + geom_histogram(binwidth = 10,  col="red", aes(fill=..count..)) + scale_fill_gradient("Count", low = "yellow", high = "red") +theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
 
 #plot all the histograms in one window
 multiplot(histo1, histo2, histo3, cols=2)
-#hist seems fine
+#hist seems fine for avg and max, but not for Wifi avg clients
 
 #<--------------------k -Fold Cross-Validation without outlier--------------------------------->
 
@@ -318,28 +326,35 @@ multiplot(histo1, histo2, histo3, cols=2)
 ################################### LINEAR MODEL#################################
 
 #CASE1: Linear regression with Max_client
-xlm.occupancy.noOutlier1 <- CVlm (data=NoOutlierTable, m= 10, form.lm = formula (Counted_client ~ Max_clients + Room + Factor_Time + Course_Level + Course_Level * Max_clients + Factor_Time * Course_Level))
+xlm.occupancy.noOutlier1 <- CVlm (data=NoOutlierTable, m= 10, form.lm = formula (Survey_counted_clients ~ Wifi_Max_clients + Room + Factor_Time + Course_Level  + Factor_Time * Course_Level))
 
-#Overall mean square = 423. The model is still pretty bad.
+#Overall mean square = 393. The model is still pretty bad.
 
 #Looking at the residuals on the model run on the whole data set
 
-occupancy.lm.test1 = lm(Counted_client ~ Max_clients + Room + Factor_Time + Course_Level + Course_Level * Max_clients + Factor_Time * Course_Level, data=NoOutlierTable)
+occupancy.lm.test1 = lm(Survey_counted_clients ~ Wifi_Max_clients + Room + Factor_Time + Course_Level  + Factor_Time * Course_Level, data=NoOutlierTable)
 #print the summary of the model
 summary(occupancy.lm.test1)
 #plot the residual
 plot(occupancy.lm.test1)
 
 #CASE2: Linear regression with Average_client
-xlm.occupancy.noOutlier2 <- CVlm (data=NoOutlierTable, m= 10, form.lm = formula (Counted_client ~Average_clients + Room + Factor_Time + Course_Level + Course_Level * Average_clients + Factor_Time * Course_Level))
+xlm.occupancy.noOutlier2 <- CVlm (data=NoOutlierTable, m= 10, form.lm = formula (Survey_counted_clients ~ Wifi_Average_clients + Room + Factor_Time + Course_Level  + Factor_Time * Course_Level))
 
-#Overall mean square = 395. The model is still pretty bad.
+#Overall mean square = 370. The model is still pretty bad.
 
 ##############################GLM WITH POISSON DISTRIBUTION###################### 
 
 #This model suffer of overdispersion, therefore we corrected the standard errors using a quasi-GLM model. 
 
-occupancy.poisson.noOutlier <- glm(Counted_client ~ Max_clients + Room + Factor_Time + Course_Level + Course_Level * Max_clients + Factor_Time * Course_Level, family = quasipoisson, data=NoOutlierTable)
+occupancy.poisson.noOutlier <- glm(Survey_counted_clients ~ Wifi_Max_clients + Room + Factor_Time + Course_Level  + Factor_Time * Course_Level, family = quasipoisson, data=NoOutlierTable)
+
+#k-fold cross validation
+k.occupancy.noOutlier <- cv.glm (data=NoOutlierTable, glmfit= occupancy.poisson.noOutlier, K=10)
+occupancy.poisson.noOutlier$delta
+#warning!!
+
+occupancy.poisson.noOutlier <- glm(Survey_counted_clients ~ Wifi_Average_clients + Room + Factor_Time + Course_Level  + Factor_Time * Course_Level, family = quasipoisson, data=NoOutlierTable)
 
 #k-fold cross validation
 k.occupancy.noOutlier <- cv.glm (data=NoOutlierTable, glmfit= occupancy.poisson.noOutlier, K=10)
