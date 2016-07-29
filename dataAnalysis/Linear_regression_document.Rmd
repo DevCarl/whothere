@@ -127,11 +127,11 @@ histo4 <- ggplot(AnalysisTable, aes(x = Time)) + geom_histogram(binwidth = 2,  c
 #plot all the histograms in one window
 multiplot(histo1, histo2, histo3, histo4, cols=2)
 ```  
-<br><br>
+<br><br><br>
 Form the histograms we could see that the distribution of the feature Wifi Maximum_client (i.e. the Maximum number of devices logged in one hour lecture) was skewed to the left, indicating that the in the majority of the lecture were counted no more than 40 people. Furthermore, we could see that there are potential outliers (values > 150). Similar pattern was observed for the feature Wifi_Average_clients.
 Different was the situation of the target feature, Survey_counted client, which showed a skewed distribution, but more scattered, similar to a Poisson distribution. This can cause a problem in running a linear regression and more likely we have have to run a generalise linear model with a Poisson distribution. This is not surprising, since we are dealing with count data (Zuur et al. 2009).
 Feature times had as well a skewed distribution, suggesting that the majority of the lectures were concentrating during the early morning and they were decreasing towards the afternoon.
-<br><br>
+<br><br><br>
 
 #### Boxplots
 <br>
@@ -301,8 +301,8 @@ Consequently we are going to explore the following 2 models:
 
 # Analysis
 <br>
-For running the linear regression we performed k-fold cross validation with the aim of testing how well the model was performing on new data or testing data. Mean Square error was used to estimate the accuracy of the models. K-fold validations was preferred over the validation set approach and the Leave-One-Out Cross-Validation (LOOCV), because it is more robust. The Validation set estimate of the test error rate is dependent on the observations selected to be included in the training and test set and tend to be higher than it should be. Furthermore, the of k-fold cross validadion is more accurate than the LOOCV, because the variance of the estimate of the test error is lower.
-In particular in this analysis, we are going to perform a 10-fold cross validation, which is pretty standard and its test error rate estimates has been proved to not su???er neither from excessively high bias nor from very high variance.
+For running the logistic regression we performed k fold cross validation with the aim of testing if the selected model can be applied to new datasets. K fold validation was preferred over the validationset approach and the Leave Out Cross Validation (LOOCV), because it is more robust and more accurate in estimating the test error. The Validation set approach tends to give an over estimate of the test error and the test error is dependent on the observations included randomly in the test set. Furthermore, the LOOCV tends to provide a test error with a high variance, because the folds used to calculating it are correlated among each other. 
+In particular in this analysis we are going to perform a 10 fold cross validation, which is pretty standard.
 <br>
 #CASE1: Linear regression with Max_client
 xlm.occupancy <- CVlm (data=AnalysisTable, m= 10, form.lm = formula (Survey_counted_clients ~ Wifi_Max_clients + Room + Factor_Time + Course_Level  + Factor_Time * Course_Level))
