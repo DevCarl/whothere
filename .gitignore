@@ -34,6 +34,6 @@ data_cleaning/data_storage/stored_data/
 server/Csi42001Vm1ServerFiles/target
 
 # Ignore metadata
-
-.metadata/
+	
+**/.metadata/
 server/.metadata/
