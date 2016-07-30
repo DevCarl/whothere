@@ -16,6 +16,16 @@ public class GreetingController {
 	public String indexPage(Model model) {
 		return "index";
 	}
+	
+	@RequestMapping(value="/", method=RequestMethod.GET)
+	public String indexPageFromLocalhost(Model model) {
+		return "index";
+	}
+	
+	@RequestMapping(value="/upload", method=RequestMethod.GET)
+	public String uploadPage(Model model) {
+		return "upload";
+	}
 
     @RequestMapping(value="/greeting", method=RequestMethod.GET)
     public String greetingForm(Model model) {
