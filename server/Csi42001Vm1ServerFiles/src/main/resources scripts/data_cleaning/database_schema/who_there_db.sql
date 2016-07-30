@@ -153,9 +153,9 @@ DEFAULT CHARACTER SET = utf8;
 
 
 -- -----------------------------------------------------
--- Table `who_there_db`.`input_logs`
+-- Table `who_there_db`.`Input_logs`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `who_there_db`.`input_logs` (
+CREATE TABLE IF NOT EXISTS `who_there_db`.`Input_logs` (
   `Input_id` INT(11) NOT NULL AUTO_INCREMENT,
   `Input_timestamp` DATETIME NULL DEFAULT NULL,
   `Success` TINYINT(1) NULL DEFAULT NULL,
