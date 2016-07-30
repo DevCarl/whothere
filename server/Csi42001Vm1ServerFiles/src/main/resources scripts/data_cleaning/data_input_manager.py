@@ -14,6 +14,7 @@ import zipfile
 import pymysql
 import calendar
 import shutil
+import datetime
 
 # module imports
 from wifi_log_phraser import phrase_csv_file_and_return_array_of_dicts
@@ -68,6 +69,36 @@ def phrase_data_and_input_into_database(db_host_name, db_user_name, db_password,
             # If not successfully input into DB
             else:
                 shutil.move(new_data_directory+file_name, "data_storage/failed_to_store_data/")
+
+    # Store input logs
+    store_input_logs(results, db_tuple)
+
+
+def store_input_logs(input_results, database_tuple):
+
+    # unpack db tuple
+    db_host_name, db_user_name, db_password, database_name, db_port = database_tuple
+
+    # Open database connection and prepare cursor object
+    db = pymysql.connect(host=db_host_name, user=db_user_name, password=db_password, database=database_name,
+                         port=db_port, autocommit=True)
+    cursor = db.cursor()
+
+    for result in input_results:
+        # print(result)
+        file_name = result.get("file_name")
+        if result.get("data_input") == True:
+            success = 1
+        else:
+            success = 0
+
+        error = result.get("error")
+        time_stamp = str(datetime.datetime.today())
+
+        cursor.execute("insert ignore into Input_logs (File_name,Success,Error_report,Input_timestamp) values "
+                       "('"+file_name+"','"+str(success)+"','"+error+"','"+time_stamp+"');")
+
+    db.close()
 
 
 def unzip_files_and_remove_zip(directory):
