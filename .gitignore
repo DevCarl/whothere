@@ -22,11 +22,11 @@ server/Csi42001Vm1ServerFiles/target/
 # Ignore contents of the following directories excpet the .gitkeep file
 
 !data_cleaning/data_storage/failed_to_store_data/.gitkeep
-!data_cleaning/data_storage/new_data/.gitkeep
+!server/Csi42001Vm1ServerFiles/src/main/resources scripts/data_cleaning/data_storage/new_data/.gitkeep
 !data_cleaning/data_storage/stored_data/.gitkeep
 
 data_cleaning/data_storage/failed_to_store_data/
-data_cleaning/data_storage/new_data/
+server/Csi42001Vm1ServerFiles/src/main/resources scripts/data_cleaning/data_storage/new_data/
 data_cleaning/data_storage/stored_data/
 
 # Ignore target folder contents

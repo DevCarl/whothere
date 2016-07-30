@@ -82,7 +82,7 @@ def store_input_logs(input_results, database_tuple):
     # Open database connection and prepare cursor object
     db = pymysql.connect(host=db_host_name, user=db_user_name, password=db_password, database=database_name,
                          port=db_port, autocommit=True)
-    cursor = db.cursor()
+    cursor = db.cursor() 
 
     for result in input_results:
         # print(result)
