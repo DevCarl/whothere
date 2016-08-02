@@ -3,8 +3,8 @@
     <head>
         <title>Who's there - Login</title>
 
-<!--        <link rel="stylesheet" type="text/css" href="../static/css/style.css" th:attr="href=@{/css/style.css}" />-->
-        <link rel="stylesheet" type="text/css" href="/css/style.css" th:attr="href=@{/css/style.css}" />
+        <link rel="stylesheet" type="text/css" href="../static/css/style.css" th:attr="href=@{/css/style.css}" />
+<!--        <link rel="stylesheet" type="text/css" href="/css/style.css" th:attr="href=@{/css/style.css}" />-->
                 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
         
@@ -54,107 +54,127 @@
             </form>
         </section>
         
-        <!-- Map - using Google Maps for now -->
-        <main id="map"></main>
-        
-        <script>
-            //<![CDATA[
-            var x = document.getElementById("building");
-                for (var buildingkey in dataResponse){
-                    var option = document.createElement("option");
-                    option.text = dataResponse[buildingkey][0]["Building"];
-                    x.add(option);
-                }
-                
-                var classroom = document.getElementById("classroom");
-                building.addEventListener("change", function() {
-                    classroom.innerHTML = "";
-                    var option = document.createElement("option");
-                    option.text = "Select a classroom";
-                    classroom.add(option);
-                    var optionList = building.querySelectorAll("option");
-                    var selected = building.options[building.selectedIndex].text;
-                    if (typeof dataResponse[selected] !== "undefined") {
-                        for (var i = 0; i < dataResponse[selected].length; i++){
-                            var option = document.createElement("option");
-                            option.text = dataResponse[selected][i]["Room_no"];
-                            classroom.add(option);
-                        }
-                    }
-                });            
-            //]]>
-        </script>
-        
-        <script>
-            //<![CDATA[
-            var map;
-            function initMap() {
-                map = new google.maps.Map(document.getElementById('map'), {
-                center: {lat: 53.307722, lng: -6.222274},
-                zoom: 15,
-                    //silvia: for moving the map controller on the right, so I can put nav bar on the left 
-                mapTypeControl: true,
-                mapTypeControlOptions: {
-                    style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
-                    position: google.maps.ControlPosition.TOP_RIGHT
-                    },
-                });
-                setMarkers();
-            }
-            
-            // Place markers on the map over each building
-            function setMarkers(){
-                var markers = [];
-                var marker;
-                
-                // Coordinates for some buildings -  hardcoded for now - needs to be discussed
-                var buildingList = [
-                    ["O’Brien Centre for Science (Hub)", 53.308274, -6.224443],
-                    ["O’Brien Centre for Science (North)", 53.308970, -6.224218],
-                    ["O’Brien Centre for Science (East)", 53.308470, -6.223633],
-                    ["O’Brien Centre for Science (West)", 53.308265, -6.225269],
-                    ["Computer Science and Informatics Centre", 53.309294, -6.223747],
-                    ];
-                
-                // Iterate through building list to place marker over each building
-                for (var i = 0; i < buildingList.length; i++){  
-                    var name = buildingList[i][0];
-                    var lat = buildingList[i][1];
-                    var long = buildingList[i][2];        
-                    var latlngset = new google.maps.LatLng(lat, long);
-
-                    // Create new marker
-                    var marker = new google.maps.Marker({  
-                        map: map, 
-                        title: name, 
-                        position: latlngset
+        <main id="main">
+            <!-- Insert navigation bar -->
+            <aside id="nav_bar"></aside>
+<!--                <div id="nav_bar"></div>-->
+                <script> 
+                    //<![CDATA[
+                    $(function(){
+                        $("#nav_bar").load("nav_bar.html");
                     });
+                    //]]>
+                </script>
+<!--            </aside>-->
+            
+            <!-- Map - using Google Maps for now -->
+            <section id="map"></section>
+            
+            <!-- Section for floor plan and classroom info  -->
+            <section id="info_section">
+                <button id="to_map_btn">Back to map</button>
+            </section>
+            
+            
+            <script>
+            document.getElementById("to_map_btn").addEventListener("click", showMap);
 
-
-                    // Add listener to marker
-//                    marker.addListener('click', function()        {});
-
-                    // Add marker to array
-                    markers.push(marker);
-                }
+            function showMap() {
+                document.getElementById("map").style.display = 'block';
+                document.getElementById("info_section").style.display = 'none';
             }
-            //]]>
-        </script>
-        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAysaK-xaVpMze3R5nJp1hniuflmN0tCfY&amp;callback=initMap"
-        async = "async" defer = "defer"></script>
-        
-         <!-- Insert navigation bar -->
-        <aside>
-            <div id="nav_bar"></div>
-            <script> 
+            </script>
+
+            <script>
                 //<![CDATA[
-                $(function(){
-                    $("#nav_bar").load("nav_bar.html");
-                });
+                var x = document.getElementById("building");
+                    for (var buildingkey in dataResponse){
+                        var option = document.createElement("option");
+                        option.text = dataResponse[buildingkey][0]["Building"];
+                        x.add(option);
+                    }
+
+                    var classroom = document.getElementById("classroom");
+                    building.addEventListener("change", function() {
+                        classroom.innerHTML = "";
+                        var option = document.createElement("option");
+                        option.text = "Select a classroom";
+                        classroom.add(option);
+                        var optionList = building.querySelectorAll("option");
+                        var selected = building.options[building.selectedIndex].text;
+                        if (typeof dataResponse[selected] !== "undefined") {
+                            for (var i = 0; i < dataResponse[selected].length; i++){
+                                var option = document.createElement("option");
+                                option.text = dataResponse[selected][i]["Room_no"];
+                                classroom.add(option);
+                            }
+                        }
+                    });            
                 //]]>
             </script>
-        </aside>
-        
+
+            <script>
+                //<![CDATA[
+                var map;
+                function initMap() {
+                    map = new google.maps.Map(document.getElementById('map'), {
+                    center: {lat: 53.307722, lng: -6.222274},
+                    zoom: 15,
+                        //silvia: for moving the map controller on the right, so I can put nav bar on the left 
+                    mapTypeControl: true,
+                    mapTypeControlOptions: {
+                        style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+                        position: google.maps.ControlPosition.TOP_RIGHT
+                        },
+                    });
+                    setMarkers();
+                }
+
+                // Place markers on the map over each building
+                function setMarkers(){
+                    var markers = [];
+                    var marker;
+
+                    // Coordinates for some buildings -  hardcoded for now - needs to be discussed
+                    var buildingList = [
+                        ["O’Brien Centre for Science (Hub)", 53.308274, -6.224443],
+                        ["O’Brien Centre for Science (North)", 53.308970, -6.224218],
+                        ["O’Brien Centre for Science (East)", 53.308470, -6.223633],
+                        ["O’Brien Centre for Science (West)", 53.308265, -6.225269],
+                        ["Computer Science and Informatics Centre", 53.309294, -6.223747],
+                        ];
+
+                    // Iterate through building list to place marker over each building
+                    for (var i = 0; i < buildingList.length; i++){  
+                        var name = buildingList[i][0];
+                        var lat = buildingList[i][1];
+                        var long = buildingList[i][2];        
+                        var latlngset = new google.maps.LatLng(lat, long);
+
+                        // Create new marker
+                        var marker = new google.maps.Marker({  
+                            map: map, 
+                            title: name, 
+                            position: latlngset
+                        });
+
+
+                        // Add listener to marker: show info section
+                        marker.addListener('click', function(){
+                            document.getElementById("info_section").style.display = 'block';
+                            document.getElementById("map").style.display = 'none';
+                        });
+
+                        // Add marker to array
+                        markers.push(marker);
+                    }
+                }
+                //]]>
+            </script>
+            <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAysaK-xaVpMze3R5nJp1hniuflmN0tCfY&amp;callback=initMap"
+            async = "async" defer = "defer"></script>
+
+        </main>
          <!-- Insert footer -->
         <div id="footer"></div>
         <script> 
