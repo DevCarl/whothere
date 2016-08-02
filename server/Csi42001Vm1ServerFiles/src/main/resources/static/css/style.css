@@ -193,11 +193,26 @@ nav li a:hover:not(.active) {
 
 
 /*    MAP    */
-#map{
+#map, #info_section{
     height: 600px;
     width: 85%;
     float: left;
     display: inline;
+}
+
+/*    INFO SECTION    */
+#info_section{
+    display: none;
+    background: white;
+}
+
+#to_map_btn{
+    margin: 5px;
+    padding: 10px;
+    background-color: darkcyan;
+    border: none;
+    color: white;
+    font-family: Merriweather, sans-serif;
 }
 
 /*    FOOTER    */

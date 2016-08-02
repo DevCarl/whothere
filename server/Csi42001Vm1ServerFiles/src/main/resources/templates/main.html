@@ -69,6 +69,21 @@
             
             <!-- Map - using Google Maps for now -->
             <section id="map"></section>
+            
+            <!-- Section for floor plan and classroom info  -->
+            <section id="info_section">
+                <button id="to_map_btn">Back to map</button>
+            </section>
+            
+            
+            <script>
+            document.getElementById("to_map_btn").addEventListener("click", showMap);
+
+            function showMap() {
+                document.getElementById("map").style.display = 'block';
+                document.getElementById("info_section").style.display = 'none';
+            }
+            </script>
 
             <script>
                 //<![CDATA[
@@ -144,8 +159,11 @@
                         });
 
 
-                        // Add listener to marker
-    //                    marker.addListener('click', function()        {});
+                        // Add listener to marker: show info section
+                        marker.addListener('click', function(){
+                            document.getElementById("info_section").style.display = 'block';
+                            document.getElementById("map").style.display = 'none';
+                        });
 
                         // Add marker to array
                         markers.push(marker);
