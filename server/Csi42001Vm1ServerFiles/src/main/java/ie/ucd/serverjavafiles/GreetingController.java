@@ -24,7 +24,7 @@ public class GreetingController {
 	
 	@RequestMapping(value="/upload", method=RequestMethod.GET)
 	public String uploadPage(Model model) {
-		return "upload";
+		return "uploadForm";
 	}
 
     @RequestMapping(value="/greeting", method=RequestMethod.GET)

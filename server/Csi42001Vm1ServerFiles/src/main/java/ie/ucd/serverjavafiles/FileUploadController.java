@@ -5,7 +5,10 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -42,9 +45,24 @@ public class FileUploadController {
 	public String provideUploadInfo(Model model) throws IOException {
 
 		model.addAttribute("files", Files.walk(Paths.get(ROOT))
-				.filter(path -> !path.equals(Paths.get(ROOT)))
-				.map(path -> Paths.get(ROOT).relativize(path))
-				.map(path -> linkTo(methodOn(FileUploadController.class).getFile(path.toString())).withRel(path.toString()))
+				.filter(new Predicate<Path>() {
+					@Override
+					public boolean test(Path path) {
+						return !path.equals(Paths.get(ROOT));
+					}
+				})
+				.map(new Function<Path, Object>() {
+					@Override
+					public Object apply(Path path) {
+						return Paths.get(ROOT).relativize(path);
+					}
+				})
+				.map(new Function<Object, Object>() {
+					@Override
+					public Object apply(Object path) {
+						return linkTo(methodOn(FileUploadController.class).getFile(path.toString())).withRel(path.toString());
+					}
+				})
 				.collect(Collectors.toList()));
 
 		return "uploadForm";
