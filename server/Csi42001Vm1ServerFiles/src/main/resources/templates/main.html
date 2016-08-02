@@ -57,7 +57,6 @@
         <main id="main">
             <!-- Insert navigation bar -->
             <aside id="nav_bar"></aside>
-<!--                <div id="nav_bar"></div>-->
                 <script> 
                     //<![CDATA[
                     $(function(){
@@ -65,14 +64,18 @@
                     });
                     //]]>
                 </script>
-<!--            </aside>-->
             
-            <!-- Map - using Google Maps for now -->
+            <!-- Map -->
             <section id="map"></section>
             
             <!-- Section for floor plan and classroom info  -->
             <section id="info_section">
                 <button id="to_map_btn">Back to map</button>
+                <h3 id="building_title"></h3>
+                <p id="no_info_error"></p>
+                <div id="floor_plan_wrap">
+                    <img id="floor_plan"/>
+                </div>
             </section>
             
             
@@ -157,20 +160,38 @@
                             title: name, 
                             position: latlngset
                         });
-
+                        
+                        // Give an id for marker matching building name in order to load 
+                        // corresponding building information on click
+                        marker.metadata = {type: "point", id: name};
 
                         // Add listener to marker: show info section
                         marker.addListener('click', function(){
                             document.getElementById("info_section").style.display = 'block';
                             document.getElementById("map").style.display = 'none';
+                            displayBuildingInfo(this);
                         });
 
                         // Add marker to array
                         markers.push(marker);
                     }
+                    
+                    function displayBuildingInfo(marker){
+                        document.getElementById("building_title").innerHTML = marker.metadata.id;
+                        if(marker.metadata.id == "Computer Science and Informatics Centre"){
+                            document.getElementById("floor_plan").src = "../static/img/CSI_floor_0.png";
+                           document.getElementById("floor_plan").style.display = 'block'; document.getElementById("no_info_error").style.display = 'none';
+                        }else{
+                            document.getElementById("no_info_error").innerHTML = "Sorry, no information for this building yet"
+                            document.getElementById("no_info_error").style.display = 'block';
+                            document.getElementById("floor_plan").style.display = 'none';
+                        }
+                    }
                 }
+                
                 //]]>
             </script>
+            
             <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAysaK-xaVpMze3R5nJp1hniuflmN0tCfY&amp;callback=initMap"
             async = "async" defer = "defer"></script>
 
