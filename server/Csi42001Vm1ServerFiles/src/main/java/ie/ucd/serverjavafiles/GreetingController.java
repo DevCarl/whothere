@@ -22,10 +22,10 @@ public class GreetingController {
 		return "index";
 	}
 	
-	@RequestMapping(value="/upload", method=RequestMethod.GET)
-	public String uploadPage(Model model) {
-		return "uploadForm";
-	}
+//	@RequestMapping(value="/upload", method=RequestMethod.GET)
+//	public String uploadPage(Model model) {
+//		return "uploadForm";
+//	}
 
     @RequestMapping(value="/greeting", method=RequestMethod.GET)
     public String greetingForm(Model model) {
