@@ -41,7 +41,7 @@ public class FileUploadController {
 		this.resourceLoader = resourceLoader;
 	}
 
-	@RequestMapping(method = RequestMethod.GET, value = "/form")
+	@RequestMapping(method = RequestMethod.GET, value = "/upload")
 	public String provideUploadInfo(Model model) throws IOException {
 
 		model.addAttribute("files", Files.walk(Paths.get(ROOT))
@@ -95,7 +95,7 @@ public class FileUploadController {
 			redirectAttributes.addFlashAttribute("message", "Failed to upload " + file.getOriginalFilename() + " because it was empty");
 		}
 
-		return "redirect:/form";
+		return "redirect:/upload";
 	}
 
 }
