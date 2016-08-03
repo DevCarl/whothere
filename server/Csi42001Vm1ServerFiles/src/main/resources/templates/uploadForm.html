@@ -1,20 +1,66 @@
 <html>
-<body>
-
-	<div th:if="${message}">
-		<h2 th:text="${message}"/>
-	</div>
-
-	<div>
+    <head>
         
-		<form method="POST" enctype="multipart/form-data" action="/">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-			<table>
-				<tr><td>File to upload here:</td><td><input type="file" name="file" /></td></tr>
-				<tr><td></td><td><input type="submit" value="Upload" /></td></tr>
-			</table>
-		</form>
-	</div>
+        <link rel="stylesheet" type="text/css" href="../static/css/style.css" th:attr="href=@{/css/style.css}" />
+<!--        <link rel="stylesheet" type="text/css" href="/css/style.css" th:attr="href=@{/css/style.css}" />-->
+                
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    
+    </head>
+    <body>
+        
+        <!-- Insert header -->
+        <div id="header"></div>
+        <script> 
+            //<![CDATA[
+            $(function(){
+                $("#header").load("header.html");
+            });
+            //]]>
+        </script>
+        
+        <!-- Insert navigation bar -->
+        <aside id="nav_bar"></aside>
+            <script> 
+                //<![CDATA[
+                $(function(){
+                    $("#nav_bar").load("nav_bar.html");
+                });
+                //]]>
+            </script>
+        
+        <!--  Templates for uploading data  -->
+        <div>
+        
+        </div>
 
-</body>
+        <!--  Upload form  -->
+        <div>
+            <div th:if="${message}">
+                <h2 th:text="${message}"/>
+            </div>
+
+            <div>
+
+                <form method="POST" enctype="multipart/form-data" action="/">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <table>
+                        <tr><td>File to upload here:</td><td><input type="file" name="file" /></td></tr>
+                        <tr><td></td><td><input type="submit" value="Upload" /></td></tr>
+                    </table>
+                </form>
+            </div>
+        </div>
+
+        <!-- Insert footer -->
+            <div id="footer"></div>
+            <script> 
+                //<![CDATA[
+                $(function(){
+                    $("#footer").load("footer.html");
+                });
+                //]]>
+            </script>
+
+    </body>
 </html>
