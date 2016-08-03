@@ -206,6 +206,11 @@ nav li a:hover:not(.active) {
     background: white;
 }
 
+/*    FLOOR PLAN    */
+#floor_plan_wrap{
+    margin: 0 auto;
+    width: 80%;
+}
 #to_map_btn{
     margin: 5px;
     padding: 10px;
@@ -214,7 +219,21 @@ nav li a:hover:not(.active) {
     color: white;
     font-family: Merriweather, sans-serif;
 }
-
+#floor_plan{
+    width: 100%;
+}
+#building_title{
+    margin: 0 auto;
+    font-family: Merriweather, sans-serif;
+    text-align: center;
+    margin-bottom: 10px;
+}
+#no_info_error{
+    margin: 0 auto;
+    text-align: center;
+    font-family: Merriweather, sans-serif;
+    margin-top: 100px;
+}
 /*    FOOTER    */
 footer {
     background-color: rgba(255,255,240, 0.5);
