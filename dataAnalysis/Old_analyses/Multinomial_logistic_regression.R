@@ -146,10 +146,23 @@ pair5
 
 #<--------------------k -Fold Cross-Validation --------------------------------->
 
-##CASE 1: Wifi_Max_clients
+##CASE 1: Multinomial logistic regression
 formula <- as.formula(Binned_Occupancy ~Wifi_Average_clients + Factor_Time + Course_Level)
 X <- model.matrix(formula, AnalysisTable)
-model <- cv.glmnet(X, AnalysisTable$Binned_Occupancy, standardize=FALSE, family='multinomial', alpha=1, nfolds=10,type.measure="class")
+model <- cv.glmnet(X, AnalysisTable$Binned_Occupancy, standardize=FALSE, family='multinomial',type.measure="mse")
+model$mae
+
+predicted_class<-predict(model, newx = X, s = "lambda.min", type = "class")
+mean(as.character(predicted_class) != as.character(AnalysisTable$Binned_Occupancy))
+
+mse.min1 <- model$cvm[model1$lambda == model$lambda.min]
 plot(model)
+
+##CASE 1:Ordinal logistic regression
+library(MASS)
+library(rms)
+m <- polr(Binned_Occupancy ~Wifi_Average_clients + Factor_Time + Course_Level, data = AnalysisTable, Hess=TRUE)
+
+cal <- calibrate(m, method = "cross validation", B=10) 
 
 

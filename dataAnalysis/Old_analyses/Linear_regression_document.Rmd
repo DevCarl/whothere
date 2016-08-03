@@ -295,70 +295,97 @@ From the bar plots we could see that the occupancy of each room did not change a
 The occupancy of the different level of the courses was changing across the time of the day, suggesting a possible interaction between the course level and the time of the day.
 
 Consequently we are going to explore the following 2 models:
-* $Survey occupancy ~ Average Wifi occupancy + Room + Time + Course_Level + Time * Course_Level$
-* $Survey occupancy ~ Maximum Wifi occupancy + Room + Time + Course_Level + Time * Course_Level$
+* $Survey occupancy \~ Average Wifi occupancy + Room + Time + Course_Level + Time * Course_Level$
+* $Survey occupancy \~ Maximum Wifi occupancy + Room + Time + Course_Level + Time * Course_Level$
 <br>
 
 # Analysis
 <br>
-For running the logistic regression we performed k fold cross validation with the aim of testing if the selected model can be applied to new datasets. K fold validation was preferred over the validationset approach and the Leave Out Cross Validation (LOOCV), because it is more robust and more accurate in estimating the test error. The Validation set approach tends to give an over estimate of the test error and the test error is dependent on the observations included randomly in the test set. Furthermore, the LOOCV tends to provide a test error with a high variance, because the folds used to calculating it are correlated among each other. 
+
+For running the linear regression we performed k fold cross validation with the aim of testing if the selected model can be applied to new datasets. K fold validation was preferred over the validation set approach and the Leave Out Cross Validation (LOOCV), because it is more robust and more accurate in estimating the test error. The Validation set approach tends to give an over estimate of the test error and the test error is dependent on the observations included randomly in the test set. Furthermore, the LOOCV tends to provide a test error with a high variance, because the folds used to calculating it are correlated among each other. 
 In particular in this analysis we are going to perform a 10 fold cross validation, which is pretty standard.
+
+## Results
+
+We run the first model, $Survey occupancy \~ Average Wifi occupancy + Room + Time + Course_Level + Time * Course_Level$, and it did not perform well
 <br>
-#CASE1: Linear regression with Max_client
+```{r, echo= TRUE}
 xlm.occupancy <- CVlm (data=AnalysisTable, m= 10, form.lm = formula (Survey_counted_clients ~ Wifi_Max_clients + Room + Factor_Time + Course_Level  + Factor_Time * Course_Level))
+```
 
-#Overall mean square = 435. Smaller is the mean square error, higher is the precision of our estimate. The model is pretty bad.
+As we can see from the results the overall mean square error was 435. Smaller is the mean square error, higher is the precision of our estimate. Therefore, this model does not fit the data.
+Similar results were found when running the same model, but with Wifi_Average counted clients.
 
-#CASE2: Linear regression with Average_client
+```{r, echo= TRUE}
 xlm.occupancy2 <- CVlm (data=AnalysisTable, m= 10, form.lm = formula (Survey_counted_clients ~Wifi_Average_clients + Room + Factor_Time + Course_Level + Factor_Time * Course_Level))
+```
 
-#Overall mean square = 411. Smaller is the mean square error, higher is the precision of our estimate. The model is pretty bad.
+The overall mean square was 411, suggesting that the model was giving accurate predictions.
 
-##############################GLM WITH POISSON DISTRIBUTION###################### 
-
-#This model suffer of overdispersion, therefore we corrected the standard errors using a quasi-GLM model. 
-
+For this reasons, we tried to fit a generalised linear model with a Poisson distribution, which is usually used for count data. Count data, in fact, they do not assume negative value and they do not take all the possible values of the real number. Consequently they follow a Poisson distribution.
+Since the model suffer of overdispersion we corrected the standard errors using a quasi-GLM model and perform a 10 fold cross validation and we got the following results.
+```{r, echo=FALSE, warning=FALSE}
 occupancy.poisson <- glm(Survey_counted_clients ~ Wifi_Max_clients + Room + Factor_Time + Course_Level  + Factor_Time * Course_Level, family = quasipoisson, data=AnalysisTable)
-
-#k-fold cross validation
+```
+```{r, echo=TRUE}
 k.occupancy <- cv.glm (data=AnalysisTable, glmfit= occupancy.poisson, K=10)
 k.occupancy$delta
-#raw cross validation estimate of prediction error = 734 and the adjusted cross validation estimate = 706, which it is pretty big.
-
-#k-fold cross validation
+```
+The raw cross validation estimate of prediction error was 868 and the adjusted cross validation estimate was 826, which it is pretty high, suggesting that also this model was not accurately predicting the occupancy of the room.
+Similar results were found for the average counted client. 
+```{r,echo=TRUE,warning=FALSE}
+occupancy.poisson2 <- glm(Survey_counted_clients ~ Wifi_Average_clients + Room + Factor_Time + Course_Level  + Factor_Time * Course_Level, family = quasipoisson, data=AnalysisTable)
+```
+```{r, echo=TRUE}
 k.occupancy2 <- cv.glm (data=AnalysisTable, glmfit= occupancy.poisson, K=10)
 k.occupancy2$delta
-#raw cross validation estimate of prediction error = 894 and the adjusted cross validation estimate = 851, which it is pretty big.
-#<--------------------k -Fold Cross-Validation without outlier--------------------------------->
+```
+The raw cross validation estimate of prediction error was 734 and the adjusted cross validation estimate 706.
 
-#The k - fold method randomly removes k - folds for the testing set and models the remaining (training set) data. Here we use the commonly accepted (Harrell, 1998) 10 - fold application.  
+To improve the analysis we tried to remove the outliers, even though it should not make much of a difference given the distribution of the target feature. 
+From the hist we could see that max_client and average_client has 2 bin that they seems to be outliers (150 and 200). I remove from the dataset all the rows where max_client is higher than 120.
+```{r, echo=FALSE, warning=FALSE}
+NoOutlierTable <- AnalysisTable[ AnalysisTable$Wifi_Max_clients < 150,] 
+NoOutlierTable <- NoOutlierTable[ NoOutlierTable$Survey_counted_client < 120,] 
+```
+Only 3 observations were removed, so only 3 observations were dropped. Looking histograms improved the distribution of average client and maximum client, but not of the counted clients (see below).
+```{r, echo=FALSE, warning=FALSE}
+#histogram for showing the count in each bin for the Maximum number of clients
+histo1 <- ggplot(NoOutlierTable, aes(x = Wifi_Max_clients)) + geom_histogram(binwidth = 10,  col="red", aes(fill=..count..)) + scale_fill_gradient("Count", low = "yellow", high = "red") +theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
-################################### LINEAR MODEL#################################
+#histogram for showing the count in each bin for the Average number of clients
+histo2 <- ggplot(NoOutlierTable, aes(x = Wifi_Average_clients)) + geom_histogram(binwidth = 10,  col="red", aes(fill=..count..)) + scale_fill_gradient("Count", low = "yellow", high = "red") +theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
-#CASE1: Linear regression with Max_client
+#histogram for showing the count in each bin for the number of clients counted with the survey
+histo3 <- ggplot(NoOutlierTable, aes(x = Survey_counted_clients)) + geom_histogram(binwidth = 10,  col="red", aes(fill=..count..)) + scale_fill_gradient("Count", low = "yellow", high = "red") +theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+#plot all the histograms in one window
+multiplot(histo1, histo2, histo3, cols=2)
+```
+At this point we re-run all the analyses.
+```{r, echo=TRUE, warning=FALSE}
 xlm.occupancy.noOutlier1 <- CVlm (data=NoOutlierTable, m= 10, form.lm = formula (Survey_counted_clients ~ Wifi_Max_clients + Room + Factor_Time + Course_Level  + Factor_Time * Course_Level))
-
-#Overall mean square = 393. The model is still pretty bad.
-
-#Looking at the residuals on the model run on the whole data set
-
+```
+The overall mean square of the linear model with the wifi max ount was 393, which is still pretty high.
+We run the model to the whole dataset to see the residuals and we could see that the graphs plotting the residual againist the fitted values display strange pattern. The normality was accettable, while the variance was not homogeneus.
+```{r, echo=TRUE}
 occupancy.lm.test1 = lm(Survey_counted_clients ~ Wifi_Max_clients + Room + Factor_Time + Course_Level  + Factor_Time * Course_Level, data=NoOutlierTable)
 #print the summary of the model
 summary(occupancy.lm.test1)
 #plot the residual
 plot(occupancy.lm.test1)
-
+```
+Similar results were found for the second model with the average counted clients as response variable. 
+```{r, echo=TRUE}
 #CASE2: Linear regression with Average_client
 xlm.occupancy.noOutlier2 <- CVlm (data=NoOutlierTable, m= 10, form.lm = formula (Survey_counted_clients ~ Wifi_Average_clients + Room + Factor_Time + Course_Level  + Factor_Time * Course_Level))
+````
+ The overall mean square was 370 and the model was still pretty bad.
 
-#Overall mean square = 370. The model is still pretty bad.
-
-##############################GLM WITH POISSON DISTRIBUTION###################### 
-
-#This model suffer of overdispersion, therefore we corrected the standard errors using a quasi-GLM model. 
-
+Also the generalise linear model with poisson distribution did not give satisfying results.
+```{r,echo=FALSE, warning=FALSE}
 occupancy.poisson.noOutlier <- glm(Survey_counted_clients ~ Wifi_Max_clients + Room + Factor_Time + Course_Level  + Factor_Time * Course_Level, family = quasipoisson, data=NoOutlierTable)
-
+```
+```{r,echo=TRUE, warning=FALSE}
 #k-fold cross validation
 k.occupancy.noOutlier <- cv.glm (data=NoOutlierTable, glmfit= occupancy.poisson.noOutlier, K=10)
 occupancy.poisson.noOutlier$delta
@@ -372,14 +399,6 @@ occupancy.poisson.noOutlier$delta
 #warning!!
 
 #The Linear model seems to not be a good approach for these analyses. Looking at the histogram of the Counted client we can see that it is not normal distributed and this is causing problem.
-
-
-
-
-
-
-
-
 
 
 
