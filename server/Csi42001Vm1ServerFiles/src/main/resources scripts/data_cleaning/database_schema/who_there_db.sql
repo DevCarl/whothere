@@ -5,9 +5,6 @@ SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
 
 -- -----------------------------------------------------
--- Schema mydb
--- -----------------------------------------------------
--- -----------------------------------------------------
 -- Schema who_there_db
 -- -----------------------------------------------------
 
@@ -32,7 +29,7 @@ CREATE TABLE IF NOT EXISTS `who_there_db`.`Room` (
   PRIMARY KEY (`Room_id`),
   UNIQUE INDEX `Room_id_UNIQUE` (`Room_id` ASC))
 ENGINE = InnoDB
-AUTO_INCREMENT = 7
+AUTO_INCREMENT = 13
 DEFAULT CHARACTER SET = utf8;
 
 
@@ -56,6 +53,21 @@ CREATE TABLE IF NOT EXISTS `who_there_db`.`Ground_truth_data` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `who_there_db`.`Input_logs`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `who_there_db`.`Input_logs` (
+  `Input_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `Input_timestamp` DATETIME NULL DEFAULT NULL,
+  `File_name` VARCHAR(1000) NULL DEFAULT NULL,
+  `Success` TINYINT(1) NULL DEFAULT NULL,
+  `Error_report` VARCHAR(1000) NULL DEFAULT NULL,
+  PRIMARY KEY (`Input_id`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 1056
 DEFAULT CHARACTER SET = utf8;
 
 
@@ -123,11 +135,12 @@ CREATE TABLE IF NOT EXISTS `who_there_db`.`Users` (
   `Users_id` INT(11) NOT NULL AUTO_INCREMENT,
   `User_name` VARCHAR(45) NOT NULL,
   `Password` VARCHAR(45) NOT NULL,
-  `Admin` TINYINT(1) NOT NULL DEFAULT 0,
-  `Acount_active` TINYINT(1) NULL DEFAULT 1,
+  `Admin` TINYINT(1) NOT NULL DEFAULT '0',
+  `Acount_active` TINYINT(1) NULL DEFAULT '1',
   `Ground_truth_access_code` VARCHAR(45) NULL DEFAULT NULL,
   PRIMARY KEY (`Users_id`))
 ENGINE = InnoDB
+AUTO_INCREMENT = 2
 DEFAULT CHARACTER SET = utf8;
 
 
@@ -140,30 +153,28 @@ CREATE TABLE IF NOT EXISTS `who_there_db`.`Wifi_log` (
   `Time` TIME NOT NULL,
   `Associated_client_counts` INT(11) NULL DEFAULT NULL,
   `Authenticated_client_counts` INT(11) NULL DEFAULT NULL,
-  INDEX `fk_wifi_log_Room1_idx` (`Room_Room_id` ASC),
   PRIMARY KEY (`Room_Room_id`, `Date`, `Time`),
+  INDEX `fk_wifi_log_Room1_idx` (`Room_Room_id` ASC),
   CONSTRAINT `fk_wifi_log_Room1`
     FOREIGN KEY (`Room_Room_id`)
     REFERENCES `who_there_db`.`Room` (`Room_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
-AUTO_INCREMENT = 86920
 DEFAULT CHARACTER SET = utf8;
 
 
 -- -----------------------------------------------------
--- Table `who_there_db`.`Input_logs`
+-- Table `who_there_db`.`Buildings`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `who_there_db`.`Input_logs` (
-  `Input_id` INT(11) NOT NULL AUTO_INCREMENT,
-  `Input_timestamp` DATETIME NULL DEFAULT NULL,
-  `File_name` VARCHAR(1000) NULL,
-  `Success` TINYINT(1) NULL DEFAULT NULL,
-  `Error_report` VARCHAR(1000) NULL DEFAULT NULL,
-  PRIMARY KEY (`Input_id`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8;
+CREATE TABLE IF NOT EXISTS `who_there_db`.`Buildings` (
+  `Building_id` INT NOT NULL AUTO_INCREMENT,
+  `Building_name` VARCHAR(45) NOT NULL,
+  `Building_info` VARCHAR(400) NULL,
+  `Longitude` FLOAT NOT NULL,
+  `Latitude` FLOAT NOT NULL,
+  PRIMARY KEY (`Building_id`))
+ENGINE = InnoDB;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
