@@ -32,7 +32,7 @@ public class FileUploadController {
 
 	private static final Logger log = LoggerFactory.getLogger(FileUploadController.class);
 
-	public static final String ROOT = "uploads";
+	public static final String ROOT = "src/main/resources_scripts/data_cleaning/data_storage/new_data";
 
 	private final ResourceLoader resourceLoader;
 
@@ -41,7 +41,7 @@ public class FileUploadController {
 		this.resourceLoader = resourceLoader;
 	}
 
-	@RequestMapping(method = RequestMethod.GET, value = "src/main/resources_scripts/data_cleaning/data_storage/new_data")
+	@RequestMapping(method = RequestMethod.GET, value = "upload")
 	public String provideUploadInfo(Model model) throws IOException {
 
 		model.addAttribute("files", Files.walk(Paths.get(ROOT))
@@ -57,12 +57,12 @@ public class FileUploadController {
 						return Paths.get(ROOT).relativize(path);
 					}
 				})
-				.map(new Function<Object, Object>() {
-					@Override
-					public Object apply(Object path) {
-						return linkTo(methodOn(FileUploadController.class).getFile(path.toString())).withRel(path.toString());
-					}
-				})
+//				.map(new Function<Object, Object>() {
+//					@Override
+//					public Object apply(Object path) {
+//						return linkTo(methodOn(FileUploadController.class).getFile(path.toString())).withRel(path.toString());
+//					}
+//				})
 				.collect(Collectors.toList()));
 
 		return "uploadForm";

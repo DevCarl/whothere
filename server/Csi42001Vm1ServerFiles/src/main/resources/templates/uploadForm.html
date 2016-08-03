@@ -16,13 +16,5 @@
 		</form>
 	</div>
 
-	<div>
-		<ul>
-			<li th:each="file : ${files}">
-				<a th:href="${file.href}" th:text="${file.rel}" />
-			</li>
-		</ul>
-	</div>
-
 </body>
 </html>
