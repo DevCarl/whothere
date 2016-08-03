@@ -33,7 +33,8 @@ def phrase_data_and_input_into_database(db_host_name, db_user_name, db_password,
     db_tuple = (db_host_name, db_user_name, db_password, database_name, db_port)
 
     # Get directory abs path
-    new_data_directory = os.path.abspath(new_data_directory)
+    base_data_directory = os.path.abspath(os.path.dirname(__file__))
+    new_data_directory = base_data_directory + "/" + new_data_directory
 
     # Check directory path ends with "/". If not add it.
     if new_data_directory.endswith("/") == False:
@@ -64,11 +65,11 @@ def phrase_data_and_input_into_database(db_host_name, db_user_name, db_password,
             # print(file_report)
             # If successfully input into DB
             if success == True:
-                shutil.move(new_data_directory+file_name, "data_storage/stored_data/")
+                shutil.move(new_data_directory+file_name, base_data_directory + "/data_storage/stored_data/")
 
             # If not successfully input into DB
             else:
-                shutil.move(new_data_directory+file_name, "data_storage/failed_to_store_data/")
+                shutil.move(new_data_directory+file_name, base_data_directory + "/data_storage/failed_to_store_data/")
 
     # Store input logs
     store_input_logs(results, db_tuple)
@@ -125,7 +126,9 @@ def check_database_exists_if_not_create(db_tuple):
     cursor = db_1.cursor()
 
     # Load sql creation info from file
-    sql_file = open("database_schema/who_there_db.sql", "r")
+    base_data_directory = os.path.abspath(os.path.dirname(__file__))
+    sql_location = base_data_directory + "/database_schema/who_there_db.sql"
+    sql_file = open(sql_location, "r")
     # print(sql_file.read())
 
     cursor.execute(sql_file.read())
