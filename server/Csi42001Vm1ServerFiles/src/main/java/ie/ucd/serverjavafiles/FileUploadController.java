@@ -68,16 +68,17 @@ public class FileUploadController {
 		return "uploadForm";
 	}
 
-	@RequestMapping(method = RequestMethod.GET, value = "/{filename:.+}")
-	@ResponseBody
-	public ResponseEntity<?> getFile(@PathVariable String filename) {
-
-		try {
-			return ResponseEntity.ok(resourceLoader.getResource("file:" + Paths.get(ROOT, filename).toString()));
-		} catch (Exception e) {
-			return ResponseEntity.notFound().build();
-		}
-	}
+	
+//	@RequestMapping(method = RequestMethod.GET, value = "/{filename:.+}")
+//	@ResponseBody
+//	public ResponseEntity<?> getFile(@PathVariable String filename) {
+//
+//		try {
+//			return ResponseEntity.ok(resourceLoader.getResource("file:" + Paths.get(ROOT, filename).toString()));
+//		} catch (Exception e) {
+//			return ResponseEntity.notFound().build();
+//		}
+//	}
 
 	@RequestMapping(method = RequestMethod.POST, value = "/")
 	public String handleFileUpload(@RequestParam("file") MultipartFile file,

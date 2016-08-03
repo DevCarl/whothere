@@ -12,7 +12,7 @@ body{
     background-color: black;
     background-repeat: no-repeat;
     background-size: cover;
-}
+} 
 
 /*    HEADER    */
 header{
@@ -324,7 +324,7 @@ footer li a{
     padding-top: 40px;
     padding-bottom: 40px;
     width: 1200px;
-    height:400px;
+height:80%;
     align-content: center;
 }
 
@@ -377,8 +377,8 @@ footer li a{
 /*    CONTACT US MAP   */
 
 #contact_map {
-    width: 250px;
-    height: 250px;
+    width: 50%;
+    height: 60%;
     float:left;
     padding:10px;
     margin-left: 30px;
