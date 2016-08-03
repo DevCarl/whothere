@@ -41,7 +41,7 @@ public class FileUploadController {
 		this.resourceLoader = resourceLoader;
 	}
 
-	@RequestMapping(method = RequestMethod.GET, value = "/upload")
+	@RequestMapping(method = RequestMethod.GET, value = "src/main/resources_scripts/data_cleaning/data_storage/new_data")
 	public String provideUploadInfo(Model model) throws IOException {
 
 		model.addAttribute("files", Files.walk(Paths.get(ROOT))
