@@ -58,6 +58,11 @@ public class GreetingController {
 	public String navPage(Model model) {
 		return "nav_bar";
 	}
+	
+	@RequestMapping(value="/admin_nav_bar", method=RequestMethod.GET)
+	public String adminNavPage(Model model) {
+		return "admin_nav_bar";
+	}
 
 	@RequestMapping(value="/footer", method=RequestMethod.GET)
 	public String footerPage(Model model) {

@@ -24,7 +24,7 @@
             <script> 
                 //<![CDATA[
                 $(function(){
-                    $("#nav_bar").load("nav_bar.html");
+                    $("#nav_bar").load("admin_nav_bar.html");
                 });
                 //]]>
             </script>
@@ -33,23 +33,36 @@
         <div>
         
         </div>
+        <div class="holder_box">
+            <p class="title">Upload data</p>
+            <!--      Upload instruciton      -->
+            <p style="align:center;">
+                To upload data please use the format as specified in the templates show below. <br/>
+                To upload multiple files first zip them.
+            </p>
+            
+            <!--      Templaes for donwload      -->
+            
+            <!--  Upload form  -->
+            <div class="upload_form">
+                <div th:if="${message}">
+                    <h2 th:text="${message}"/>
+                </div>
 
-        <!--  Upload form  -->
-        <div>
-            <div th:if="${message}">
-                <h2 th:text="${message}"/>
+                <div>
+
+                    <form method="POST" enctype="multipart/form-data" action="/">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <table>
+                            <tr><td>File to upload here:</td><td><input type="file" name="file" /></td></tr>
+                            <tr><td></td><td><input type="submit" value="Upload" /></td></tr>
+                        </table>
+                    </form>
+                </div>
             </div>
-
-            <div>
-
-                <form method="POST" enctype="multipart/form-data" action="/">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                    <table>
-                        <tr><td>File to upload here:</td><td><input type="file" name="file" /></td></tr>
-                        <tr><td></td><td><input type="submit" value="Upload" /></td></tr>
-                    </table>
-                </form>
-            </div>
+            
+            <!--      Uplaod report messages      -->
+            
         </div>
 
         <!-- Insert footer -->
@@ -61,6 +74,7 @@
                 });
                 //]]>
             </script>
+        
 
     </body>
 </html>
