@@ -55,6 +55,12 @@
 		    <artifactId>spring-hateoas</artifactId>
 		    <version>0.15.0.RELEASE</version>
 		</dependency>
+		<dependency>
+		    <groupId>org.mindrot</groupId>
+		    <artifactId>jbcrypt</artifactId>
+		    <version>0.3m</version>
+		</dependency>
+		<!-- Dev tools to refresh running server -->
 	    <dependency>
 	        <groupId>org.springframework.boot</groupId>
 	        <artifactId>spring-boot-devtools</artifactId>
