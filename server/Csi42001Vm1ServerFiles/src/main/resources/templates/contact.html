@@ -12,7 +12,7 @@
     <body>
         
         <!-- Insert header -->
-        <div id="header"></div>
+        <div id="header">
         <script> 
             //<![CDATA[
             $(function(){
@@ -20,9 +20,10 @@
             });
             //]]>
         </script>
+            </div>
         
         <!-- Insert navigation bar -->
-        <aside id="nav_bar"></aside>
+        <aside id="nav_bar">
             <script> 
                 //<![CDATA[
                 $(function(){
@@ -30,21 +31,35 @@
                 });
                 //]]>
             </script>
+        </aside>
         
         <!--    Contact us form    -->
-        <section id="contact_box">
+        <div id="contact_box">
             <p class="title">Contact us</p>
-            <div id="icons">
-                <img id="iconad" src="img/address.png" alt="Address"/>
-                <img class="icons" src="img/phone.png" alt="Phone"/> 
-                <img class="icons" src="img/mail.png" alt="E-mail"/>
-            </div>   
-            <div id="contacts">
-                <p class="input">School of Computer Science &amp; Informatics,<br/> University College Dublin,<br/>Belfield,<br/>Dublin 4,<br/> Ireland</p>
-                <p class="input">+353 1 716 2483</p>
-                <p class="input">emailaddress@gmail.com</p>
+            <div>
+                <br/>
+                <div>
+                    <div id="icons">
+                        <img id="iconad" src="img/address.png" alt="Address"/>
+                        <img class="icons" src="img/phone.png" alt="Phone"/> 
+                        <img class="icons" src="img/mail.png" alt="E-mail"/>
+                    </div>   
+                    <div id="contacts">
+                        <p class="input">School of Computer Science &amp; Informatics,<br/> University College Dublin,<br/>Belfield,<br/>Dublin 4,<br/> Ireland</p>
+                        <p class="input">+353 1 716 2483</p>
+                        <p class="input">emailaddress@gmail.com</p>
+                    </div>
+                </div>
+                
+                <form id="contact_form">
+                    <input type="text" class="login" placeholder="Your name"/>
+                    <input type="email" class="login" placeholder="E-mail"/>
+                    <input type="text" id="textarea" placeholder="Message"/>
+                    <button type="submit" id="contact_btn" class="login">SUBMIT</button>
+                </form>
             </div>
-            <div id="contact_map"></div>
+            
+        <div id="contact_map"></div>
                 <script>
                     //<![CDATA[
                   function initMap() {
@@ -56,14 +71,8 @@
                   }
                     //]]>
                 </script>
-            
-            <form id="contact_form">
-                <input type="text" class="login" placeholder="Your name"/>
-                <input type="email" class="login" placeholder="E-mail"/>
-                <input type="text" id="textarea" placeholder="Message"/>
-                <button type="submit" id="contact_btn" class="login">SUBMIT</button>
-            </form>
-        </section>
+        </div>
+        
         
          <!-- Insert footer -->
         <div id="footer"></div>
