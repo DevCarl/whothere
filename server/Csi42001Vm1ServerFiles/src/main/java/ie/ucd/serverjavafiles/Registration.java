@@ -4,24 +4,17 @@ import org.mindrot.jbcrypt.BCrypt;
 
 public class Registration {
     
-    private int UsersId;
     private String UserName;
     private String Password;
     private boolean Admin;
     private boolean AccountActive;
     private String GroundTruthAccessCode;
+    private String RegistrationCode;
     
-    public Registration(int id, String name, String Password, boolean Admin, boolean Active, String Ground) {
-        this.UsersId = id;
-        this.UserName = name;
-        this.Admin = Admin;
-        this.AccountActive = Active;
-        this.GroundTruthAccessCode = Ground;
-        this.Password = passwordEncryptor(Password);
-    }
-    
-    public int getUsersId() {
-        return this.UsersId;
+    public Registration() {
+        this.Admin = false;
+        this.AccountActive = true;
+        this.GroundTruthAccessCode = "Test";
     }
     
     public String getUserName() {
@@ -44,8 +37,8 @@ public class Registration {
         return this.GroundTruthAccessCode;
     }
     
-    public void setUsersId(int UsersId) {
-        this.UsersId = UsersId;
+    public String getRegistrationCode() {
+        return this.RegistrationCode;
     }
     
     public void setUserName(String UserName) {
@@ -66,6 +59,10 @@ public class Registration {
     
     public void setGroundTruthAccessCode(String GroundTruthAccessCode) {
         this.GroundTruthAccessCode = GroundTruthAccessCode;
+    }
+    
+    public void setRegistrationCode(String RegistrationCode) {
+        this.RegistrationCode = RegistrationCode;
     }
     
     public String passwordEncryptor(String Password){

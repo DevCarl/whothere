@@ -5,6 +5,9 @@ SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
 
 -- -----------------------------------------------------
+-- Schema mydb
+-- -----------------------------------------------------
+-- -----------------------------------------------------
 -- Schema who_there_db
 -- -----------------------------------------------------
 
@@ -13,6 +16,20 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
 -- -----------------------------------------------------
 CREATE SCHEMA IF NOT EXISTS `who_there_db` DEFAULT CHARACTER SET utf8 ;
 USE `who_there_db` ;
+
+-- -----------------------------------------------------
+-- Table `who_there_db`.`Buildings`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `who_there_db`.`Buildings` (
+  `Building_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `Building_name` VARCHAR(45) NOT NULL,
+  `Building_info` VARCHAR(400) NULL DEFAULT NULL,
+  `Longitude` FLOAT NOT NULL,
+  `Latitude` FLOAT NOT NULL,
+  PRIMARY KEY (`Building_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
 
 -- -----------------------------------------------------
 -- Table `who_there_db`.`Room`
@@ -29,7 +46,7 @@ CREATE TABLE IF NOT EXISTS `who_there_db`.`Room` (
   PRIMARY KEY (`Room_id`),
   UNIQUE INDEX `Room_id_UNIQUE` (`Room_id` ASC))
 ENGINE = InnoDB
-AUTO_INCREMENT = 13
+AUTO_INCREMENT = 19
 DEFAULT CHARACTER SET = utf8;
 
 
@@ -67,7 +84,7 @@ CREATE TABLE IF NOT EXISTS `who_there_db`.`Input_logs` (
   `Error_report` VARCHAR(1000) NULL DEFAULT NULL,
   PRIMARY KEY (`Input_id`))
 ENGINE = InnoDB
-AUTO_INCREMENT = 1056
+AUTO_INCREMENT = 2849
 DEFAULT CHARACTER SET = utf8;
 
 
@@ -86,20 +103,6 @@ DEFAULT CHARACTER SET = utf8;
 
 
 -- -----------------------------------------------------
--- Table `who_there_db`.`Processed_data`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `who_there_db`.`Processed_data` (
-  `Data_input_id` INT(11) NOT NULL,
-  `Time_stamp` DATETIME NULL DEFAULT NULL,
-  `Devices_ratio` FLOAT NULL DEFAULT NULL,
-  `Model_type` VARCHAR(400) NULL DEFAULT NULL,
-  `Model_info` VARCHAR(400) NULL DEFAULT NULL,
-  PRIMARY KEY (`Data_input_id`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8;
-
-
--- -----------------------------------------------------
 -- Table `who_there_db`.`Time_table`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `who_there_db`.`Time_table` (
@@ -111,7 +114,7 @@ CREATE TABLE IF NOT EXISTS `who_there_db`.`Time_table` (
   `Tutorial` TINYINT(1) NULL DEFAULT NULL,
   `Double_module` TINYINT(1) NULL DEFAULT '0',
   `Class_went_ahead` TINYINT(1) NULL DEFAULT NULL,
-  PRIMARY KEY (`Date`, `Time_period`, `Room_Room_id`, `Module_Module_code`),
+  PRIMARY KEY (`Date`, `Time_period`, `Room_Room_id`),
   INDEX `fk_time_table_Room1_idx` (`Room_Room_id` ASC),
   INDEX `fk_time_table_Module1_idx` (`Module_Module_code` ASC),
   CONSTRAINT `fk_time_table_Module1`
@@ -129,18 +132,44 @@ DEFAULT CHARACTER SET = utf8;
 
 
 -- -----------------------------------------------------
+-- Table `who_there_db`.`Processed_data`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `who_there_db`.`Processed_data` (
+  `Data_input_id` INT(11) NOT NULL,
+  `Time_table_Date` DATE NOT NULL,
+  `Time_table_Time_period` TIME NOT NULL,
+  `Time_table_Room_Room_id` INT(11) NOT NULL,
+  `Time_stamp` DATETIME NOT NULL,
+  `People_estimate` FLOAT NULL COMMENT '			\n',
+  `Min_people_estimate` FLOAT NULL,
+  `Max_people_estimate` FLOAT NULL,
+  `Logistic_occupancy` VARCHAR(45) NULL,
+  `Model_type` VARCHAR(400) NULL DEFAULT NULL,
+  `Model_info` VARCHAR(400) NULL DEFAULT NULL,
+  PRIMARY KEY (`Data_input_id`, `Time_table_Date`, `Time_table_Time_period`, `Time_table_Room_Room_id`),
+  INDEX `fk_Processed_data_Time_table1_idx` (`Time_table_Date` ASC, `Time_table_Time_period` ASC, `Time_table_Room_Room_id` ASC),
+  CONSTRAINT `fk_Processed_data_Time_table1`
+    FOREIGN KEY (`Time_table_Date` , `Time_table_Time_period` , `Time_table_Room_Room_id`)
+    REFERENCES `who_there_db`.`Time_table` (`Date` , `Time_period` , `Room_Room_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
 -- Table `who_there_db`.`Users`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `who_there_db`.`Users` (
   `Users_id` INT(11) NOT NULL AUTO_INCREMENT,
   `User_name` VARCHAR(45) NOT NULL,
-  `Password` VARCHAR(45) NOT NULL,
+  `Password` CHAR(75) NOT NULL,
   `Admin` TINYINT(1) NOT NULL DEFAULT '0',
   `Acount_active` TINYINT(1) NULL DEFAULT '1',
   `Ground_truth_access_code` VARCHAR(45) NULL DEFAULT NULL,
   PRIMARY KEY (`Users_id`))
 ENGINE = InnoDB
-AUTO_INCREMENT = 2
+AUTO_INCREMENT = 3
 DEFAULT CHARACTER SET = utf8;
 
 
@@ -162,19 +191,6 @@ CREATE TABLE IF NOT EXISTS `who_there_db`.`Wifi_log` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
-
-
--- -----------------------------------------------------
--- Table `who_there_db`.`Buildings`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `who_there_db`.`Buildings` (
-  `Building_id` INT NOT NULL AUTO_INCREMENT,
-  `Building_name` VARCHAR(45) NOT NULL,
-  `Building_info` VARCHAR(400) NULL,
-  `Longitude` FLOAT NOT NULL,
-  `Latitude` FLOAT NOT NULL,
-  PRIMARY KEY (`Building_id`))
-ENGINE = InnoDB;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;

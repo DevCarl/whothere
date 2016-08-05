@@ -178,6 +178,7 @@ nav {
     font-size: 15px;
     color: white;
     background-color: #1f7b6c;
+/*    position: fixed;*/
 }
 
 #nav_list {

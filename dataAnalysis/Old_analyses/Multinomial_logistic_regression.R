@@ -154,8 +154,8 @@ plot(model)
 ##CASE 1:Ordinal logistic regression
 library(MASS)
 library(rms)
-m <- polr(Binned_Occupancy ~Wifi_Average_clients + Factor_Time + Course_Level, data = AnalysisTable, Hess=TRUE)
+m <- polr(Binned_Occupancy ~Wifi_Average_logs + Factor_Time + Course_Level, data = AnalysisTable, Hess=TRUE)
 
-cal <- calibrate(m, method = "cross validation", B=10) 
+cal <- calibrate(m, method = "crossvalidation", B=10) 
 
 
