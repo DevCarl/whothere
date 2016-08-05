@@ -2,23 +2,9 @@
     <string name="app_name">WhosThereMobile</string>
     <string name="edit_message">Enter a number</string>
     <string name="button_send">Submit</string>
+    <string name="access_code">Access code</string>
     <string name="buildings_spinner_title">Select a building</string>
     <string name="classrooms_spinner_title">Select a classroom</string>
-    <string-array name="buildings_array">
-        <item>Select a building</item>
-        <item>Computer Science and Informatics</item>
-        <item>Science East</item>
-        <item>Science Hub</item>
-        <item>Science North</item>
-        <item>Science South</item>
-        <item>Science West</item>
-    </string-array>
-    <string-array name="classrooms_array">
-        <item>Select a classroom</item>
-        <item>B001</item>
-        <item>B002</item>
-        <item>B003</item>
-        <item>B004</item>
-        <item>B005</item>
-    </string-array>
+    <string name="select_date">Select a date</string>
+    <string name="occupancy_default">0</string>
 </resources>
