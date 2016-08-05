@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Who's there - Contact us</title>
+        <link rel="stylesheet" type="text/css" href="../static/css/style.css"></link>
+                
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?callback=initMap" async='defer'> </script>
+         
+    </head>
+        
+    <body>
+        
+        <!-- Insert header -->
+        <div id="header">
+        <script> 
+            //<![CDATA[
+            $(function(){
+                $("#header").load("header.html");
+            });
+            //]]>
+        </script>
+            </div>
+        
+        <!-- Insert navigation bar -->
+        <aside id="nav_bar">
+            <script> 
+                //<![CDATA[
+                $(function(){
+                    $("#nav_bar").load("admin_nav_bar.html");
+                });
+                //]]>
+            </script>
+        </aside>
+        
+        <!--    Content section    -->
+        <div id="contact_box">
+            <p class="title">PDF reports</p>
+
+        </div>
+        
+        
+         <!-- Insert footer -->
+        <div id="footer"></div>
+        <script> 
+            //<![CDATA[
+            $(function(){
+                $("#footer").load("footer.html");
+            });
+            //]]>
+        </script>
+        
+    </body>
+</html>
