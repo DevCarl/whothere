@@ -79,4 +79,20 @@ public class DataSourceConnection {
             String result = convert.convertJsonFull(resultSet);
             return result;
         }
+
+        public static Boolean setUsers(Registration register) throws SQLException {
+            String sql = "INSERT INTO Users VALUES(?, ?, ?, ?, ?, ?)";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, register.getUsersId());
+            statement.setString(2, register.getUserName());
+            statement.setString(3, register.getPassword());
+            statement.setBoolean(4, register.getAdmin());
+            statement.setBoolean(5, register.getAccountActive());
+            statement.setString(6, register.getGroundTruthAccessCode());
+            statement.execute();
+            sql = "PRINT @@ROWCOUNT";
+            statement = connection.prepareStatement(sql);
+            ResultSet resultSet = statement.executeQuery();
+            return resultSet.getBoolean(1);
+        }
 }

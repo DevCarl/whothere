@@ -12,41 +12,41 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class GreetingController {
 	
-	@RequestMapping(value="/index", method=RequestMethod.GET)
-	public String indexPage(Model model) {
-		return "index";
-	}
+//	@RequestMapping(value="/index", method=RequestMethod.GET)
+//	public String indexPage(Model model) {
+//		return "main";
+//	}
 	
 	@RequestMapping(value="/", method=RequestMethod.GET)
 	public String indexPageFromLocalhost(Model model) {
-		return "index";
+		return "main";
 	}
 	
-//	@RequestMapping(value="/upload", method=RequestMethod.GET)
-//	public String uploadPage(Model model) {
-//		return "uploadForm";
-//	}
+//    @RequestMapping(value="/greeting", method=RequestMethod.GET)
+//    public String greetingForm(Model model) {
+//        model.addAttribute("testsearch", new Search());
+//        System.out.println("testsearch");
+//        return "greeting";
+//    }
 
-    @RequestMapping(value="/greeting", method=RequestMethod.GET)
-    public String greetingForm(Model model) {
-        model.addAttribute("testsearch", new Search());
-        System.out.println("testsearch");
-        return "greeting";
-    }
-
-    @RequestMapping(value="/greeting", method=RequestMethod.POST)
-    public String greetingSubmit(@ModelAttribute Search search, Model model) throws SQLException {
-    	DataSourceConnection test = new DataSourceConnection();
-    	DataSourceConnection.sqlGetAll(search.getSearchMethod());
-        model.addAttribute("dave2", search);
-        System.out.println(search.getSearchMethod());
-        System.out.println("dave2");
-        return "result";
-    }
+//    @RequestMapping(value="/greeting", method=RequestMethod.POST)
+//    public String greetingSubmit(@ModelAttribute Search search, Model model) throws SQLException {
+//    	DataSourceConnection test = new DataSourceConnection();
+//    	DataSourceConnection.sqlGetAll(search.getSearchMethod());
+//        model.addAttribute("dave2", search);
+//        System.out.println(search.getSearchMethod());
+//        System.out.println("dave2");
+//        return "result";
+//    }
 
 	@RequestMapping(value="/main", method=RequestMethod.GET)
 	public String mainPage(Model model) {
 		return "main";
+	}
+	
+	@RequestMapping(value="/contact", method=RequestMethod.GET)
+	public String contactPage(Model model) {
+		return "contact";
 	}
 	
 	@RequestMapping(value="/header", method=RequestMethod.GET)
@@ -57,6 +57,11 @@ public class GreetingController {
 	@RequestMapping(value="/nav_bar", method=RequestMethod.GET)
 	public String navPage(Model model) {
 		return "nav_bar";
+	}
+	
+	@RequestMapping(value="/admin_nav_bar", method=RequestMethod.GET)
+	public String adminNavPage(Model model) {
+		return "admin_nav_bar";
 	}
 
 	@RequestMapping(value="/footer", method=RequestMethod.GET)

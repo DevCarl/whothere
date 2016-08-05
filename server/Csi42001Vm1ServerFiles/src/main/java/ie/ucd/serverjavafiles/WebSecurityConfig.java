@@ -6,7 +6,7 @@
 package ie.ucd.serverjavafiles;
 
 import javax.sql.DataSource;
-
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -44,8 +44,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .loginPage("/login")
                 .permitAll()
                 .and()
-            .logout()                                    
-                .permitAll();
+            .logout()
+		.logoutUrl("logout")
+		.logoutSuccessUrl("/login?logout")
+		.logoutRequestMatcher(new AntPathRequestMatcher("/logout"));
     }
  
 }

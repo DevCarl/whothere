@@ -2,55 +2,72 @@
 <html>
     <head>
         <title>Who's there - Contact us</title>
-        <link rel="stylesheet" type="text/css" href="../static/css/style.css">
+        <link rel="stylesheet" type="text/css" href="../static/css/style.css"></link>
                 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?callback=initMap" async='defer'> </script>
          
     </head>
         
     <body>
+        
         <!-- Insert header -->
-        <div id="header"></div>
+        <div id="header">
         <script> 
+            //<![CDATA[
             $(function(){
                 $("#header").load("header.html");
             });
+            //]]>
         </script>
+            </div>
+        
+        <!-- Insert navigation bar -->
+        <aside id="nav_bar">
+            <script> 
+                //<![CDATA[
+                $(function(){
+                    $("#nav_bar").load("admin_nav_bar.html");
+                });
+                //]]>
+            </script>
+        </aside>
         
         <!--    Contact us form    -->
-        <section id="contact_box">
-            <p class = "title">Contact us</p>
-            <div id="icons">
-                <img id="iconad" src="../static/img/address.png" alt="Address"/>
-                <img class="icons" src="../static/img/phone.png" alt="Phone"> 
-                <img class="icons" src="../static/img/mail.png" alt="E-mail">
+        <div id="contact_box">
+            <p class="title">Contact us</p>
+            <div class="stretch">
+                <br/>
+                <div>
+                    <div id="contacts">
+                        <img id="iconad" src="img/address.png" alt="Address"/><p class="input">School of Computer Science &amp; Informatics,<br/> University College Dublin,<br/>Belfield,<br/>Dublin 4, Ireland</p>
+                        <img class="icons" src="img/phone.png" alt="Phone"/><p class="input">+353 1 716 2483</p>
+                        <img class="icons" src="img/mail.png" alt="E-mail"/><p class="input">emailaddress@gmail.com</p>
+                    </div>
+                </div>
+                
+                <form id="contact_form">
+                    <input type="text" class="login" placeholder="Your name"/>
+                    <input type="email" class="login" placeholder="E-mail"/>
+                    <input type="text" id="textarea" placeholder="Message"/>
+                    <button type="submit" id="contact_btn" class="login">SUBMIT</button>
+                </form>
             </div>
-            <div id="contacts">
-                <p class= input>School of Computer Science &amp; Informatics,<br> University College Dublin,<br>Belfield,<br>Dublin 4,<br> Ireland</p>
-                <p class= input>+353 1 716 2483</p>
-                <p class= input>emailaddress@gmail.com</p>
-            </div>
-            <div id="contact_map"></div>
+            
+        <div id="contact_map"></div>
                 <script>
+                    //<![CDATA[
                   function initMap() {
                     var mapDiv = document.getElementById('contact_map');
                     var map = new google.maps.Map(mapDiv, {
                       center: {lat:53.309294, lng: -6.223747},
-                      zoom: 18
+                      zoom: 14
                     });
                   }
+                    //]]>
                 </script>
-                <script src="https://maps.googleapis.com/maps/api/js?callback=initMap"
-                    async defer> </script>
-            
-            
-            <form id="contact_form">
-                <input type="text" class="login" placeholder="Your name"/>
-                <input type="email" class="login" placeholder="E-mail"/>
-                <input type="text" id="textarea" placeholder="Message"/>
-                <button type="submit" id="contact_btn" class="login">SUBMIT</button>
-            </form>
-        </section>
+        </div>
+        
         
          <!-- Insert footer -->
         <div id="footer"></div>

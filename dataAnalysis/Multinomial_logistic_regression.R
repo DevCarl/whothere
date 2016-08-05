@@ -6,14 +6,8 @@
 
 library(RMySQL) #package for communicate with MySQL database
 library(ggplot2) #package for making graphs
-library(GGally)
-library(nlme)
-library(caret) # for splitting the database
-library(DAAG)#for k-fold validation on linear and logistic
-library(boot)#for k-fold validation on glm
-library(plyr)
-library(reshape2)
-library(glmnet)
+library(nnet)#package for running multinomial regression
+library(caret)#for k-fold
 source("http://peterhaschke.com/Code/multiplot.R") #for using multiplot
 
 #<-----------------------------SELECT THE DATA FROM THE DATABASE ------------------------------>
@@ -124,32 +118,140 @@ barpair3 <-ggplot(AnalysisTable, aes(x = Course_Level, fill = Binned_Occupancy))
 
 multiplot(barpair1, barpair2, barpair3, cols=2)
 
-#<--------Exploring interactions---------------------->
+#ANALYSIS
+#CASE 1: AVG
+#null model
+totalAccuracy.null <- c()
+cv <- 10
+cvDivider <- floor(nrow(AnalysisTable)/(cv+1))
 
-#Graph exploring interactive effect between Wifi_Average_clients and Time on binary occupancy 
-pair1 <- ggplot(AnalysisTable, aes(x = Factor_Time, y =Wifi_Average_clients, fill = factor(Binned_Occupancy))) + geom_bar(position = "dodge", stat="identity")+ scale_fill_manual(values=c( "darkblue","cyan4","orange", "yellow"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+for (cv in seq(1:cv)) {
+  # assign chunk to data test
+  dataTestIndex <- c((cv * cvDivider):(cv * cvDivider + cvDivider))
+  dataTest <- AnalysisTable[dataTestIndex,]
+  # everything else to train
+  dataTrain <- AnalysisTable[-dataTestIndex,]
+  
+  null <- multinom(Binned_Occupancy ~ 1, data=dataTrain,maxit=1000, trace = T)
+  pred <- predict(null, newdata=dataTest, type="class")
+  
+  #  classification error
+  cv_ac.null <- postResample(dataTest$Binned_Occupancy, pred)[[1]]
+  print(paste('Current Accuracy for null model:',cv_ac.null,'for CV:',cv))
+  totalAccuracy.null <- c(totalAccuracy.null, cv_ac.null)
+}
+mean(totalAccuracy.null)
+#accuracy = 0.47
 
-#Graph exploring interactive effect between Wifi_Average_clients and Course level on binary occupancy 
-pair2 <- ggplot(AnalysisTable, aes(x = Course_Level, y =Wifi_Average_clients, fill = factor(Binned_Occupancy))) + geom_bar(position = "dodge", stat="identity")+ scale_fill_manual(values=c( "darkblue","cyan4", "yellow", "orange", "blue", "red"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
-#Graph exploring interactive effect between Wifi_Max_clients and Time on binary occupancy
-pair3 <- ggplot(AnalysisTable, aes(x = Factor_Time, y =Wifi_Max_clients, fill = factor(Binned_Occupancy))) + geom_bar(position = "dodge", stat="identity")+ scale_fill_manual(values=c( "darkblue","cyan4","orange", "yellow"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+#avg model
+totalAccuracy.avg <- c()
+cv <- 10
+cvDivider <- floor(nrow(AnalysisTable)/(cv+1))
 
-#Graph exploring interactive effect between Wifi_Max_clients and Course level on binary occupancy
-pair4 <- ggplot(AnalysisTable, aes(x = Course_Level, y =Wifi_Max_clients, fill = factor(Binned_Occupancy))) + geom_bar(position = "dodge", stat="identity")+ scale_fill_manual(values=c( "darkblue","cyan4", "yellow", "orange", "blue", "red"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+for (cv in seq(1:cv)) {
+  # assign chunk to data test
+  dataTestIndex <- c((cv * cvDivider):(cv * cvDivider + cvDivider))
+  dataTest <- AnalysisTable[dataTestIndex,]
+  # everything else to train
+  dataTrain <- AnalysisTable[-dataTestIndex,]
+  
+  avg <- multinom(Binned_Occupancy ~ Wifi_Average_logs, data=dataTrain,maxit=1000, trace = T)
+  pred <- predict(avg, newdata=dataTest, type="class")
+  
+  #  classification error
+  cv_ac.avg <- postResample(dataTest$Binned_Occupancy, pred)[[1]]
+  print(paste('Current Accuracy for avg model:',cv_ac.avg,'for CV:',cv))
+  totalAccuracy.avg <- c(totalAccuracy.avg, cv_ac.avg)
+}
+mean(totalAccuracy.avg)
+#accuracy = 0.56
 
-#Graph exploring interactive effect between time and course level on binary occupancy 
-pair5 <-ggplot(AnalysisTable, aes(x=Factor_Time, fill = factor(Course_Level)) ) + facet_grid(Binned_Occupancy ~ .) + geom_bar(position = "dodge")+ scale_fill_manual(values=c( "darkblue","cyan4", "yellow", "orange", "blue", "red"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+#avg.room model
+totalAccuracy.avg.room <- c()
+cv <- 10
+cvDivider <- floor(nrow(AnalysisTable)/(cv+1))
 
-multiplot(pair1, pair2, pair3, pair4, cols=2)
-pair5
+for (cv in seq(1:cv)) {
+  # assign chunk to data test
+  dataTestIndex <- c((cv * cvDivider):(cv * cvDivider + cvDivider))
+  dataTest <- AnalysisTable[dataTestIndex,]
+  # everything else to train
+  dataTrain <- AnalysisTable[-dataTestIndex,]
+  
+  avg.room <- multinom(Binned_Occupancy ~ Wifi_Average_logs+Room, data=dataTrain,maxit=1000, trace = T)
+  pred <- predict(avg.room, newdata=dataTest, type="class")
+  
+  #  classification error
+  cv_ac.avg.room <- postResample(dataTest$Binned_Occupancy, pred)[[1]]
+  print(paste('Current Accuracy for avg model:',cv_ac.avg.room,'for CV:',cv))
+  totalAccuracy.avg.room <- c(totalAccuracy.avg.room, cv_ac.avg.room)
+}
+mean(totalAccuracy.avg.room)
+#accuracy = 0.58
+
+#avg.time model
+totalAccuracy.avg.time <- c()
+cv <- 10
+cvDivider <- floor(nrow(AnalysisTable)/(cv+1))
+
+for (cv in seq(1:cv)) {
+  # assign chunk to data test
+  dataTestIndex <- c((cv * cvDivider):(cv * cvDivider + cvDivider))
+  dataTest <- AnalysisTable[dataTestIndex,]
+  # everything else to train
+  dataTrain <- AnalysisTable[-dataTestIndex,]
+  
+  avg.time <- multinom(Binned_Occupancy ~ Wifi_Average_logs+Factor_Time, data=dataTrain,maxit=1000, trace = T)
+  pred <- predict(avg.time, newdata=dataTest, type="class")
+  
+  #  classification error
+  cv_ac.avg.time <- postResample(dataTest$Binned_Occupancy, pred)[[1]]
+  print(paste('Current Accuracy for avg model:',cv_ac.avg.time,'for CV:',cv))
+  totalAccuracy.avg.time <- c(totalAccuracy.avg.room, cv_ac.avg.time)
+}
+mean(totalAccuracy.avg.time)
+#accuracy = 0.58
+
+#avg.time model
+totalAccuracy.avg.level <- c()
+cv <- 10
+cvDivider <- floor(nrow(AnalysisTable)/(cv+1))
+
+for (cv in seq(1:cv)) {
+  # assign chunk to data test
+  dataTestIndex <- c((cv * cvDivider):(cv * cvDivider + cvDivider))
+  dataTest <- AnalysisTable[dataTestIndex,]
+  # everything else to train
+  dataTrain <- AnalysisTable[-dataTestIndex,]
+  
+  avg.level <- multinom(Binned_Occupancy ~ Wifi_Average_logs+Course_level, data=dataTrain,maxit=1000, trace = T)
+  pred <- predict(avg.time, newdata=dataTest, type="class")
+  
+  #  classification error
+  cv_ac.avg.level <- postResample(dataTest$Binned_Occupancy, pred)[[1]]
+  print(paste('Current Accuracy for avg model:',cv_ac.avg.level,'for CV:',cv))
+  totalAccuracy.avg.level <- c(totalAccuracy.avg.level, cv_ac.avg.level)
+}
+mean(totalAccuracy.avg.time)
+#accuracy = 0.58
+
+#full model
+for (cv in seq(1:cv)) {
+  # assign chunk to data test
+  dataTestIndex <- c((cv * cvDivider):(cv * cvDivider + cvDivider))
+  dataTest <- AnalysisTable[dataTestIndex,]
+  # everything else to train
+  dataTrain <- AnalysisTable[-dataTestIndex,]
+  
+  multinomfull <- multinom(Binned_Occupancy ~Wifi_Average_logs + Room + Factor_Time + Course_Level, data=dataTrain,maxit=1000, trace = T)
+  pred <- predict(multinomfull, newdata=dataTest, type="class")
+  
+  #  classification error
+  cv_ac <- postResample(dataTest$Binned_Occupancy, pred)[[1]]
+  print(paste('Current Accuracy for full model:',cv_ac,'for CV:',cv))
+  totalAccuracy.fullModel <- c(totalAccuracy, cv_ac)
+}
 
 
-#<--------------------k -Fold Cross-Validation --------------------------------->
-
-##CASE 1: Wifi_Max_clients
-formula <- as.formula(Binned_Occupancy ~Wifi_Average_clients + Factor_Time + Course_Level)
-X <- model.matrix(formula, AnalysisTable)
-model <- cv.glmnet(X, AnalysisTable$Binned_Occupancy, standardize=FALSE, family='multinomial', alpha=1, nfolds=10,type.measure="class")
-plot(model)
 
 
