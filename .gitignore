@@ -9,6 +9,7 @@ data_cleaning/__pycache__/
 
 # Pycharm byte code
 server/Csi42001Vm1ServerFiles/src/main/resources/static/helpers/data_cleaning/__pycache__/
+erver/Csi42001Vm1ServerFiles/src/main/resources_scripts/data_cleaning/__pycache__/
 
 # Ignore lock on files
 .~lock*
