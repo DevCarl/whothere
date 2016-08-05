@@ -31,7 +31,7 @@ public class SendMail {
     public static void mailSender(String Subject, String From, String Msg) throws MessagingException {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper mailMsg = new MimeMessageHelper(mimeMessage);
-        mailMsg.setTo("DevCarl@Gmail.com");
+        mailMsg.setTo("Whosthere.ucd@Gmail.com");
         mailMsg.setFrom(From);
         mailMsg.setSubject(Subject);
         mailMsg.setText(Msg);

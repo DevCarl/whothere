@@ -134,7 +134,7 @@ DEFAULT CHARACTER SET = utf8;
 CREATE TABLE IF NOT EXISTS `who_there_db`.`Users` (
   `Users_id` INT(11) NOT NULL AUTO_INCREMENT,
   `User_name` VARCHAR(45) NOT NULL,
-  `Password` VARCHAR(45) NOT NULL,
+  `Password` CHAR(75) NOT NULL,
   `Admin` TINYINT(1) NOT NULL DEFAULT '0',
   `Acount_active` TINYINT(1) NULL DEFAULT '1',
   `Ground_truth_access_code` VARCHAR(45) NULL DEFAULT NULL,

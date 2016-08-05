@@ -21,6 +21,7 @@ query <-"SELECT W.`Room_Room_id` as Room, W.`Date`, HOUR( W.Time ) as Time, T.`M
 
 #select the data based on the query and store them in a dataframe called Analysis table
 AnalysisTable <-dbGetQuery(connection, query)
+write.csv(AnalysisTable, file = "AnalysisTable.csv",row.names=FALSE)
 
 # <--------------------------- DATA QUALITY REPORT --------------------------->
 #get the dimension of the datasets
@@ -354,10 +355,447 @@ summary(max.full)
 
 
 #code for plotting the residuals
-res <- residuals(max.full, type="deviance")
-plot(log(predict(max.full)), res)
-abline(h=0, lty=2)
-qqnorm(res)
-qqline(res)
 
-#However also the diagnostic graph of this model did not look promising
+EP <- resid(max.full, type = "pearson")
+ED <- resid(max.full, type = "deviance")
+mu <- predict(max.full, type = "response")
+E <- AnalysisTable$Survey_occupancy - mu
+EP2 <- E / sqrt(15.97505 * mu) #corrected by the overdispersion of the model
+op <- par(mfrow = c(2, 2))
+plot(x = mu, y = E, main = "Response residuals")
+plot(x = mu, y = EP, main = "Pearson residuals")
+plot(x = mu, y = EP2,
+       main = "Pearson residuals scaled")
+plot(x = mu, y = ED, main = "Deviance residuals")
+par(op)
+
+#However also the diagnostic graph shows that there are 2 potential outliers.
+#We are going to run the analyses again without the outliers.
+
+#<----------------------------------OUTLIERS ----------------------------------->
+#From the hist we could see that max_client and average_client has 2 bin that they seems to be outliers (150 and 200). I remove from the dataset all the rows where max_client is higher than 150.
+
+NoOutlierTable <- AnalysisTable[ AnalysisTable$Wifi_Max_logs < 150,] 
+NoOutlierTable <- NoOutlierTable[ NoOutlierTable$Survey_occupancy < 120,] 
+
+dim(NoOutlierTable) #only 3 observations were dropped, so we did not lose to much data
+summary(NoOutlierTable)
+
+#Recheching the hist
+
+#histogram for showing the count in each bin for the Maximum number of clients
+histo1 <- ggplot(NoOutlierTable, aes(x = Wifi_Max_logs)) + geom_histogram(binwidth = 10,  col="red", aes(fill=..count..)) + scale_fill_gradient("Count", low = "yellow", high = "red") +theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+
+#histogram for showing the count in each bin for the Average number of clients
+histo2 <- ggplot(NoOutlierTable, aes(x = Wifi_Average_logs)) + geom_histogram(binwidth = 10,  col="red", aes(fill=..count..)) + scale_fill_gradient("Count", low = "yellow", high = "red") +theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+
+#histogram for showing the count in each bin for the number of clients counted with the survey
+histo3 <- ggplot(NoOutlierTable, aes(x = Survey_occupancy)) + geom_histogram(binwidth = 10,  col="red", aes(fill=..count..)) + scale_fill_gradient("Count", low = "yellow", high = "red") +theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+
+
+#plot all the histograms in one window
+multiplot(histo1, histo2, histo3, cols=2)
+#hist seems fine for avg and max, but not for Wifi avg clients
+
+#<--------------------k -Fold Cross-Validation without outlier--------------------------------->
+
+#<----------------------------------------LINEAR MODEL------------------------------------>
+#CASE 1: MODEL SELECTION WITH RESPONSE VARIABLE AVERAGE CLIENTS
+
+out.null.model <- CVlm (data=NoOutlierTable, m= 10, form.lm = formula (Survey_occupancy ~ 1))
+
+out.lm.avg <- CVlm (data=NoOutlierTable, m= 10, form.lm = formula (Survey_occupancy ~ Wifi_Average_logs))
+
+out.lm.avg.room <- CVlm (data=NoOutlierTable, m= 10, form.lm = formula (Survey_occupancy ~ Wifi_Average_logs + Room))
+
+out.lm.avg.time <- CVlm (data=NoOutlierTable, m= 10, form.lm = formula (Survey_occupancy ~ Wifi_Average_logs + Factor_Time))
+
+out.lm.avg.level <- CVlm (data=NoOutlierTable, m= 10, form.lm = formula (Survey_occupancy ~ Wifi_Average_logs + Course_Level))
+
+out.lm.avg.room.time <- CVlm (data=NoOutlierTable, m= 10, form.lm = formula (Survey_occupancy ~ Wifi_Average_logs + Room + Factor_Time))
+
+out.lm.avg.room.level <- CVlm (data=NoOutlierTable, m= 10, form.lm = formula (Survey_occupancy ~ Wifi_Average_logs + Room + Course_Level))
+
+out.lm.avg.time.level <- CVlm (data=NoOutlierTable, m= 10, form.lm = formula (Survey_occupancy ~ Wifi_Average_logs + Factor_Time + Course_Level))
+
+out.lm.avg.full <- CVlm (data=NoOutlierTable, m= 10, form.lm = formula (Survey_occupancy ~ Wifi_Average_logs + Room + Factor_Time + Course_Level))
+
+#the overall mse of the null model is:
+attr(out.null.model, "ms")
+#the overall mse of the lm.avg model is:
+attr(out.lm.avg, "ms")
+#the overall mse of the lm.avg.room model is:
+attr(out.lm.avg.room, "ms")
+#the overall mse of the lm.avg.time model is:
+attr(out.lm.avg.time, "ms")
+#the overall mse of the lm.avg.level model is:
+attr(out.lm.avg.level, "ms")
+#the overall mse of the lm.avg.room model is:
+attr(out.lm.avg.room.time, "ms")
+#the overall mse of the lm.avg.room.level model is:
+attr(out.lm.avg.room.level, "ms")
+#the overall mse of the lm.avg.time.level model is:
+attr(out.lm.avg.time.level, "ms")
+#the overall mse of the avg.full model is:
+attr(out.lm.avg.full, "ms")
+
+#The model with the lowest MSE was the model with only the average logs (315). Slighty improved from the first time.
+
+#CASE 2: MODEL SELECTION WITH RESPONSE VARIABLE MAX CLIENTS
+
+out.null.model.max <- CVlm (data=NoOutlierTable, m= 10, form.lm = formula (Survey_occupancy ~ 1))
+
+out.lm.max <- CVlm (data=NoOutlierTable, m= 10, form.lm = formula (Survey_occupancy ~ Wifi_Max_logs))
+
+out.lm.max.room <- CVlm (data=NoOutlierTable, m= 10, form.lm = formula (Survey_occupancy ~ Wifi_Max_logs + Room))
+
+out.lm.max.time <- CVlm (data=NoOutlierTable, m= 10, form.lm = formula (Survey_occupancy ~ Wifi_Max_logs + Factor_Time))
+
+out.lm.max.level <- CVlm (data=NoOutlierTable, m= 10, form.lm = formula (Survey_occupancy ~ Wifi_Max_logs + Course_Level))
+
+out.lm.max.room.time <- CVlm (data=NoOutlierTable, m= 10, form.lm = formula (Survey_occupancy ~ Wifi_Max_logs + Room + Factor_Time))
+
+out.lm.max.room.level <- CVlm (data=NoOutlierTable, m= 10, form.lm = formula (Survey_occupancy ~ Wifi_Max_logs + Room + Course_Level))
+
+out.lm.max.time.level <- CVlm (data=NoOutlierTable, m= 10, form.lm = formula (Survey_occupancy ~ Wifi_Max_logs + Factor_Time + Course_Level))
+
+out.lm.max.full <- CVlm (data=NoOutlierTable, m= 10, form.lm = formula (Survey_occupancy ~ Wifi_Max_logs + Room + Factor_Time + Course_Level))
+
+#the overall mse of the null model is:
+attr(out.null.model.max, "ms")
+#the overall mse of the lm.max model is:
+attr(out.lm.max, "ms")
+#the overall mse of the lm.max.room model is:
+attr(out.lm.max.room, "ms")
+#the overall mse of the lm.max.time model is:
+attr(out.lm.max.time, "ms")
+#the overall mse of the lm.max.level model is:
+attr(out.lm.max.level, "ms")
+#the overall mse of the lm.max.room model is:
+attr(out.lm.max.room.time, "ms")
+#the overall mse of the lm.max.room.level model is:
+attr(out.lm.max.room.level, "ms")
+#the overall mse of the lm.max.time.level model is:
+attr(out.lm.max.time.level, "ms")
+#the overall mse of the lm.max.full model is:
+attr(out.lm.max.full, "ms")
+
+#The model with the lowest MSE was the model with only the max logs as response variable (337), which was slightly higher than the previous best model.
+#Therefore we are going to run the Survey_occupancy ~ Wifi_Average_logs on the whole model
+occupancy.lm.avg <- lm(Survey_occupancy ~ Wifi_Average_logs, data=NoOutlierTable)
+summary(occupancy.lm.avg)
+#plot the residual
+plot(occupancy.lm.avg)
+#The diagnostic plot were very bad, so we decided to redo all the analysis with the GLM with Poisson distribution
+
+log.occupancy.lm.avg <- lm(log(Survey_occupancy+1) ~ Wifi_Average_logs, data=NoOutlierTable)
+summary(log.occupancy.lm.avg)
+#plot the residual
+plot(log.occupancy.lm.avg)
+#<---------------------------------GLM WITH POISSON DISTRIBUTION-------------------------------->
+#This model suffered of overdispersion, therefore we corrected the standard errors using a quasi-GLM model. 
+
+#Case1: Avg logs as response variable
+
+set.seed(1)
+out.avg.null <- glm(Survey_occupancy ~ 1, family = quasipoisson, data=NoOutlierTable)
+#k-fold cross validation
+out.poisson.avg.null <- cv.glm (data=NoOutlierTable, glmfit=out.avg.null, K=10)
+
+out.avg <- glm(Survey_occupancy ~ Wifi_Average_logs, family = quasipoisson, data=NoOutlierTable)
+#k-fold cross validation
+out.poisson.avg <- cv.glm (data=NoOutlierTable, glmfit=out.avg, K=10)
+
+out.avg.room <- glm(Survey_occupancy ~Wifi_Average_logs + Room, family = quasipoisson, data=NoOutlierTable)
+#k-fold cross validation
+out.poisson.avg.room <- cv.glm (data=NoOutlierTable, glmfit=out.avg.room, K=10)
+
+out.avg.time <- glm(Survey_occupancy ~ Wifi_Average_logs + Factor_Time, family = quasipoisson, data=NoOutlierTable)
+#k-fold cross validation
+out.poisson.avg.time <- cv.glm (data=NoOutlierTable, glmfit=out.avg.time, K=10)
+
+out.avg.level <- glm(Survey_occupancy ~ Wifi_Average_logs + Course_Level, family = quasipoisson, data=NoOutlierTable)
+#k-fold cross validation
+out.poisson.avg.level <- cv.glm (data=NoOutlierTable, glmfit=out.avg.level, K=10)
+
+out.avg.room.time <- glm(Survey_occupancy ~ Wifi_Average_logs + Room + Factor_Time, family = quasipoisson, data=NoOutlierTable)
+#k-fold cross validation
+out.poisson.avg.room.time <- cv.glm (data=NoOutlierTable, glmfit=out.avg.room.time, K=10)
+
+out.avg.room.level <- glm(Survey_occupancy ~ Wifi_Average_logs + Room + Course_Level, family = quasipoisson, data=NoOutlierTable)
+#k-fold cross validation
+out.poisson.avg.room.level <- cv.glm (data=NoOutlierTable, glmfit=out.avg.room.level, K=10)
+
+
+out.avg.time.level <- glm(Survey_occupancy ~ Wifi_Average_logs + Factor_Time + Course_Level, family = quasipoisson, data=NoOutlierTable)
+#k-fold cross validation
+out.poisson.avg.time.level <- cv.glm (data=NoOutlierTable, glmfit=out.avg.time.level, K=10)
+
+out.avg.full <- glm(Survey_occupancy ~ Wifi_Average_logs + Room + Factor_Time + Course_Level, family = quasipoisson, data=NoOutlierTable)
+#k-fold cross validation
+out.poisson.avg.full <- cv.glm (data=NoOutlierTable, glmfit=out.avg.full, K=10)
+
+#the raw cross-validation estimate of prediction error and the adjusted one of the avg null model is:
+out.poisson.avg.null$delta
+#the raw cross-validation estimate of prediction error and the adjusted one of the poisson.max model is:
+out.poisson.avg$delta 
+#the raw cross-validation estimate of prediction error and the adjusted one of the poisson.max.room model is:
+out.poisson.avg.room$delta 
+#the raw cross-validation estimate of prediction error and the adjusted one of the poisson.max.time model is:
+out.poisson.avg.time$delta 
+#the raw cross-validation estimate of prediction error and the adjusted one of the poisson.max.level model is:
+out.poisson.avg.level$delta 
+#the raw cross-validation estimate of prediction error and the adjusted one of the poisson.max.room.time model is:
+out.poisson.avg.room.time$delta 
+#the raw cross-validation estimate of prediction error and the adjusted one of the poisson.max.room.level model is:
+out.poisson.avg.room.level$delta 
+#the raw cross-validation estimate of prediction error and the adjusted one of the poisson.max.time.level model is:
+out.poisson.avg.time.level$delta 
+#the raw cross-validation estimate of prediction error and the adjusted one of the poisson.max.full model is:
+out.poisson.avg.full$delta 
+
+#The best model was out.poisson.avg$delta with an adjusted cross-validation estimate of prediction error of: 390
+
+#Case2: Max logs as response variable
+set.seed(1)
+out.max.null <- glm(Survey_occupancy ~ 1, family = quasipoisson, data=NoOutlierTable)
+#k-fold cross validation
+out.poisson.max.null <- cv.glm (data=NoOutlierTable, glmfit=out.max.null, K=10)
+
+out.max <- glm(Survey_occupancy ~ Wifi_Max_logs, family = quasipoisson, data=NoOutlierTable)
+#k-fold cross validation
+out.poisson.max <- cv.glm (data=NoOutlierTable, glmfit=out.max, K=10)
+
+out.max.room <- glm(Survey_occupancy ~ Wifi_Max_logs + Room, family = quasipoisson, data=NoOutlierTable)
+#k-fold cross validation
+out.poisson.max.room <- cv.glm (data=NoOutlierTable, glmfit=out.max.room, K=10)
+
+out.max.time <- glm(Survey_occupancy ~ Wifi_Max_logs + Factor_Time, family = quasipoisson, data=NoOutlierTable)
+#k-fold cross validation
+out.poisson.max.time <- cv.glm (data=NoOutlierTable, glmfit=out.max.time, K=10)
+
+out.max.level <- glm(Survey_occupancy ~ Wifi_Max_logs + Course_Level, family = quasipoisson, data=NoOutlierTable)
+#k-fold cross validation
+out.poisson.max.level <- cv.glm (data=NoOutlierTable, glmfit=out.max.level, K=10)
+
+out.max.room.time <- glm(Survey_occupancy ~ Wifi_Max_logs + Room + Factor_Time, family = quasipoisson, data=NoOutlierTable)
+#k-fold cross validation
+out.poisson.max.room.time <- cv.glm (data=NoOutlierTable, glmfit=out.max.room.time, K=10)
+
+out.max.room.level <- glm(Survey_occupancy ~ Wifi_Max_logs + Room + Course_Level, family = quasipoisson, data=NoOutlierTable)
+#k-fold cross validation
+out.poisson.max.room.level <- cv.glm (data=NoOutlierTable, glmfit=out.max.room.level, K=10)
+
+
+out.max.time.level <- glm(Survey_occupancy ~ Wifi_Max_logs + Factor_Time + Course_Level, family = quasipoisson, data=NoOutlierTable)
+#k-fold cross validation
+out.poisson.max.time.level <- cv.glm (data=NoOutlierTable, glmfit=out.max.time.level, K=10)
+
+out.max.full <- glm(Survey_occupancy ~ Wifi_Max_logs + Room + Factor_Time + Course_Level, family = quasipoisson, data=NoOutlierTable)
+#k-fold cross validation
+out.poisson.max.full <- cv.glm(data=NoOutlierTable, glmfit=out.max.full, K=10)
+
+#the raw cross-validation estimate of prediction error and the adjusted one of the null model is:
+out.poisson.max.null$delta
+#the raw cross-validation estimate of prediction error and the adjusted one of the poisson.max model is:
+out.poisson.max$delta 
+#the raw cross-validation estimate of prediction error and the adjusted one of the poisson.max.room model is:
+out.poisson.max.room$delta 
+#the raw cross-validation estimate of prediction error and the adjusted one of the poisson.max.time model is:
+out.poisson.max.time$delta 
+#the raw cross-validation estimate of prediction error and the adjusted one of the poisson.max.level model is:
+out.poisson.max.level$delta 
+#the raw cross-validation estimate of prediction error and the adjusted one of the poisson.max.room.time model is:
+out.poisson.max.room.time$delta 
+#the raw cross-validation estimate of prediction error and the adjusted one of the poisson.max.room.level model is:
+out.poisson.max.room.level$delta 
+#the raw cross-validation estimate of prediction error and the adjusted one of the poisson.max.time.level model is:
+out.poisson.max.time.level$delta 
+#the raw cross-validation estimate of prediction error and the adjusted one of the poisson.max.full model is:
+out.poisson.max.full$delta 
+
+# The best model was the out.poisson.max with an adjusted cross-validation estimate of prediction error of:  394, which was slightly worst than the model with the average logs as predictor. 
+
+#Therefore we are going to run this model on the whole dataset.
+
+summary(out.avg)
+
+#code for plotting the residuals
+
+EP <- resid(out.avg, type = "pearson")
+ED <- resid(out.avg, type = "deviance")
+mu <- predict(out.avg, type = "response")
+E <- NoOutlierTable$Survey_occupancy - mu
+EP2 <- E / sqrt(15.2 * mu) #corrected by the overdispersion of the model
+op <- par(mfrow = c(2, 2))
+plot(x = mu, y = E, main = "Response residuals")
+plot(x = mu, y = EP, main = "Pearson residuals")
+plot(x = mu, y = EP2,
+     main = "Pearson residuals scaled")
+plot(x = mu, y = ED, main = "Deviance residuals")
+par(op)
+
+p1 <- glm(Survey_occupancy ~ Wifi_Average_logs, family="poisson", data=NoOutlierTable)
+summary(p1)
+
+#This plot reveal overdispersion, therefore we are trying to run the negative binomial distribution.
+p1Diag <- data.frame(NoOutlierTable,
+                     link=predict(p1, type="link"),
+                     fit=predict(p1, type="response"),
+                     pearson=residuals(p1,type="pearson"),
+                     resid=residuals(p1,type="response"),
+                     residSqr=residuals(p1,type="response")^2
+)
+
+
+ggplot(data=p1Diag, aes(x=fit, y=residSqr)) +
+  geom_point() +
+  geom_abline(intercept = 0, slope = 1) +
+  geom_abline(intercept = 0, slope = summary(out.avg)$dispersion,
+              color="green") +
+  stat_smooth(method="loess", se = FALSE) +
+  theme_bw() 
+library(MASS)  
+nb1 <- glm.nb(Survey_occupancy ~ Wifi_Average_logs, data=NoOutlierTable)
+summary(nb1)
+
+
+
+ggplot(data=p1Diag, aes(x=fit, y=residSqr)) +
+  geom_point() +
+  geom_abline(intercept = 0, slope = 1) +
+  geom_abline(intercept = 0, slope = summary(out.avg)$dispersion,
+              color="green") +
+  stat_smooth(method="loess", se = FALSE) +
+  theme_bw() +
+  stat_function(fun=function(fit){fit + fit^2/11.53}, color="red") +
+  stat_smooth(method="loess", se = FALSE) +
+  theme_bw() 
+
+#<---------------------------------GLM WITH POISSON DISTRIBUTION-------------------------------->
+#This model suffered of overdispersion, therefore we corrected the standard errors using a quasi-GLM model. 
+
+#Case1: Avg logs as response variable
+
+set.seed(1)
+nb.avg.null <- glm.nb(Survey_occupancy ~ 1, data=NoOutlierTable)
+#k-fold cross validation
+out.nb.avg.null <- cv.glm (data=NoOutlierTable, glmfit=nb.avg.null, K=10)
+
+nb.avg <- glm.nb(Survey_occupancy ~ Wifi_Average_logs, data=NoOutlierTable)
+#k-fold cross validation
+out.nb.avg <- cv.glm (data=NoOutlierTable, glmfit=nb.avg, K=10)
+
+nb.avg.room <- glm.nb(Survey_occupancy ~Wifi_Average_logs + Room, data=NoOutlierTable)
+#k-fold cross validation
+out.nb.avg.room <- cv.glm (data=NoOutlierTable, glmfit=nb.avg.room, K=10)
+
+nb.avg.time <- glm.nb(Survey_occupancy ~ Wifi_Average_logs + Factor_Time,  data=NoOutlierTable)
+#k-fold cross validation
+out.nb.avg.time <- cv.glm (data=NoOutlierTable, glmfit=nb.avg.time, K=10)
+
+nb.avg.level <- glm.nb(Survey_occupancy ~ Wifi_Average_logs + Course_Level,  data=NoOutlierTable)
+#k-fold cross validation
+out.nb.avg.level <- cv.glm (data=NoOutlierTable, glmfit=nb.avg.level, K=10)
+
+nb.avg.room.time <- glm.nb(Survey_occupancy ~ Wifi_Average_logs + Room + Factor_Time, data=NoOutlierTable)
+#k-fold cross validation
+out.nb.avg.room.time <- cv.glm (data=NoOutlierTable, glmfit=nb.avg.room.time, K=10)
+
+nb.avg.room.level <- glm.nb(Survey_occupancy ~ Wifi_Average_logs + Room + Course_Level, data=NoOutlierTable)
+#k-fold cross validation
+out.nb.avg.room.level <- cv.glm (data=NoOutlierTable, glmfit=nb.avg.room.level, K=10)
+
+
+nb.avg.time.level <- glm.nb(Survey_occupancy ~ Wifi_Average_logs + Factor_Time + Course_Level, data=NoOutlierTable)
+#k-fold cross validation
+out.nb.avg.time.level <- cv.glm (data=NoOutlierTable, glmfit=nb.avg.time.level, K=10)
+
+nb.avg.full <- glm.nb(Survey_occupancy ~ Wifi_Average_logs + Room + Factor_Time + Course_Level, data=NoOutlierTable)
+#k-fold cross validation
+out.nb.avg.full <- cv.glm (data=NoOutlierTable, glmfit=nb.avg.full, K=10)
+
+#the raw cross-validation estimate of prediction error and the adjusted one of the avg null model is:
+out.nb.avg.null$delta
+#the raw cross-validation estimate of prediction error and the adjusted one of the poisson.max model is:
+out.nb.avg$delta 
+#the raw cross-validation estimate of prediction error and the adjusted one of the poisson.max.room model is:
+out.nb.avg.room$delta 
+#the raw cross-validation estimate of prediction error and the adjusted one of the poisson.max.time model is:
+out.nb.avg.time$delta 
+#the raw cross-validation estimate of prediction error and the adjusted one of the poisson.max.level model is:
+out.nb.avg.level$delta 
+#the raw cross-validation estimate of prediction error and the adjusted one of the poisson.max.room.time model is:
+out.nb.avg.room.time$delta 
+#the raw cross-validation estimate of prediction error and the adjusted one of the poisson.max.room.level model is:
+out.nb.avg.room.level$delta 
+#the raw cross-validation estimate of prediction error and the adjusted one of the poisson.max.time.level model is:
+out.nb.avg.time.level$delta 
+#the raw cross-validation estimate of prediction error and the adjusted one of the poisson.max.full model is:
+out.nb.avg.full$delta 
+
+#The best model was out.nb.avg$delta with an adjusted cross-validation estimate of prediction error of: 390
+
+#Case2: Max logs as response variable
+set.seed(1)
+nb.max.null <- glm.nb(Survey_occupancy ~ 1, data=NoOutlierTable)
+#k-fold cross validation
+out.nb.max.null <- cv.glm (data=NoOutlierTable, glmfit=nb.max.null, K=10)
+
+nb.max <- glm.nb(Survey_occupancy ~ Wifi_Max_logs, data=NoOutlierTable)
+#k-fold cross validation
+out.nb.max <- cv.glm (data=NoOutlierTable, glmfit=nb.max, K=10)
+
+nb.max.room <- glm.nb(Survey_occupancy ~Wifi_Max_logs + Room, data=NoOutlierTable)
+#k-fold cross validation
+out.nb.max.room <- cv.glm (data=NoOutlierTable, glmfit=nb.max.room, K=10)
+
+nb.max.time <- glm.nb(Survey_occupancy ~ Wifi_Max_logs + Factor_Time,  data=NoOutlierTable)
+#k-fold cross validation
+out.nb.max.time <- cv.glm (data=NoOutlierTable, glmfit=nb.max.time, K=10)
+
+nb.max.level <- glm.nb(Survey_occupancy ~ Wifi_Max_logs + Course_Level,  data=NoOutlierTable)
+#k-fold cross validation
+out.nb.max.level <- cv.glm (data=NoOutlierTable, glmfit=nb.max.level, K=10)
+
+nb.max.room.time <- glm.nb(Survey_occupancy ~ Wifi_Max_logs + Room + Factor_Time, data=NoOutlierTable)
+#k-fold cross validation
+out.nb.max.room.time <- cv.glm (data=NoOutlierTable, glmfit=nb.max.room.time, K=10)
+
+nb.max.room.level <- glm.nb(Survey_occupancy ~ Wifi_Max_logs + Room + Course_Level, data=NoOutlierTable)
+#k-fold cross validation
+out.nb.max.room.level <- cv.glm (data=NoOutlierTable, glmfit=nb.max.room.level, K=10)
+
+
+nb.max.time.level <- glm.nb(Survey_occupancy ~ Wifi_Max_logs + Factor_Time + Course_Level, data=NoOutlierTable)
+#k-fold cross validation
+out.nb.max.time.level <- cv.glm (data=NoOutlierTable, glmfit=nb.max.time.level, K=10)
+
+nb.max.full <- glm.nb(Survey_occupancy ~ Wifi_Max_logs + Room + Factor_Time + Course_Level, data=NoOutlierTable)
+#k-fold cross validation
+out.nb.max.full <- cv.glm (data=NoOutlierTable, glmfit=nb.max.full, K=10)
+
+#the raw cross-validation estimate of prediction error and the adjusted one of the avg null model is:
+out.nb.max.null$delta
+#the raw cross-validation estimate of prediction error and the adjusted one of the poisson.max model is:
+out.nb.max$delta 
+#the raw cross-validation estimate of prediction error and the adjusted one of the poisson.max.room model is:
+out.nb.max.room$delta 
+#the raw cross-validation estimate of prediction error and the adjusted one of the poisson.max.time model is:
+out.nb.max.time$delta 
+#the raw cross-validation estimate of prediction error and the adjusted one of the poisson.max.level model is:
+out.nb.max.level$delta 
+#the raw cross-validation estimate of prediction error and the adjusted one of the poisson.max.room.time model is:
+out.nb.max.room.time$delta 
+#the raw cross-validation estimate of prediction error and the adjusted one of the poisson.max.room.level model is:
+out.nb.max.room.level$delta 
+#the raw cross-validation estimate of prediction error and the adjusted one of the poisson.max.time.level model is:
+out.nb.max.time.level$delta 
+#the raw cross-validation estimate of prediction error and the adjusted one of the poisson.max.full model is:
+out.nb.max.full$delta 
+
+#The best model was out.nb.max with an adjusted cross-validation estimate of prediction error of: 394.
+
+#we will considered as best model: glm.nb(Survey_occupancy ~ Wifi_Average_logs, data=NoOutlierTable)
+summary(nb.avg)
+plot(nb.avg)
