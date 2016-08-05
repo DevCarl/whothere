@@ -10,55 +10,77 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="30dp"
         android:orientation="vertical"
         android:padding="10dp"
         android:background="@color/white">
 
-        <!--<TextView-->
-            <!--android:id="@+id/textview"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content" />-->
+        <EditText
+            android:id="@+id/access_code"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_marginBottom="0dp"
+            android:hint="@string/access_code"
+            android:paddingBottom="15dp"
+            android:paddingTop="15dp"
+            android:paddingLeft="24dp"
+            android:paddingRight="24dp"
+            android:background="@android:color/transparent"
+            android:gravity="center_vertical"
+            android:textSize="16sp"/>
 
         <Spinner
             android:id="@+id/buildings_spinner"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:prompt="@string/buildings_spinner_title"
-            android:layout_marginBottom="30dp"
+            android:layout_marginBottom="5dp"
             android:padding="15dp" />
 
         <Spinner
             android:id="@+id/classrooms_spinner"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:prompt="@string/classrooms_spinner_title"
-            android:layout_marginBottom="15dp"
+            android:layout_marginBottom="5dp"
             android:padding="15dp"/>
-        
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="70dp"
-            android:layout_marginBottom="15dp"
-            android:hint="Select a date"
-            android:paddingBottom="15dp"
-            android:paddingTop="15dp"
-            android:paddingLeft="25dp"
-            android:background="@android:color/transparent"
-            android:gravity="center_vertical"
-            android:textSize="16sp"/>
-
-        <!--<DatePicker-->
-            <!--android:id="@+id/date_picker"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content" />-->
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center"
-            android:layout_marginBottom="15dp">
+            android:layout_marginBottom="5dp">
+
+            <EditText
+                android:id="@+id/dateText"
+                android:inputType="date"
+                android:layout_width="0dp"
+                android:layout_weight=".45"
+                android:layout_height="70dp"
+                android:layout_marginBottom="5dp"
+                android:hint="@string/select_date"
+                android:paddingBottom="15dp"
+                android:paddingTop="15dp"
+                android:paddingLeft="24dp"
+                android:paddingRight="24dp"
+                android:background="@android:color/transparent"
+                android:gravity="center_vertical"
+                android:textSize="16sp"/>
+
+            <Spinner
+                android:id="@+id/time_spinner"
+                android:layout_width="0dp"
+                android:layout_weight=".45"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:padding="15dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="5dp">
 
             <Button
                 android:layout_width="wrap_content"
@@ -70,7 +92,7 @@
             <EditText android:id="@+id/occupancy"
                 android:layout_width="60dp"
                 android:layout_height="90dp"
-                android:text="0"
+                android:text="@string/occupancy_default"
                 android:layout_marginLeft="30dp"
                 android:layout_marginRight="30dp"
                 android:inputType="number"
