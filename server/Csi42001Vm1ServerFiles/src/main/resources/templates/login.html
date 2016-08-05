@@ -16,6 +16,9 @@
                 <div th:if="${param.logout}" class="alert alert-success"> 
                     <p id="logout_success">You have been logged out.</p>
                 </div>
+                <div th:if="${param.newaccount}" class="alert alert-success">    
+                    <p id="logout_success">Your Account has been created, please login.</p>
+                </div>
                 <input type="text" id="username" name="username" class="login" placeholder="username"/>        
                 <input type="password" id="password" name="password" class="login" placeholder="password" />    
                 <div class="form-actions">

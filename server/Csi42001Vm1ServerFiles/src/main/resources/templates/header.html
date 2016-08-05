@@ -6,8 +6,9 @@
     <img id="logo" alt="logo" src="/img/logo.png"/>
 <!--    <img id="logo" alt="logo" src="../static/img/logo.png"/>-->
     <p id="title">Who's there?</p>
-    <c:url value="/logout" var="logoutUrl" />
-    <a href="/logout"><img id="logout" alt="logout" src="/img/log_out.png"/></a>
+    <form th:action="@{/logout}" method="post">
+    <input type="image" id="logout" name="submit" src="/img/log_out.png" alt="Log Out" />
+    </form>
 <!--    <img id="logout" alt="logout" src="../static/img/log_out.png"/>-->
     
 </header>

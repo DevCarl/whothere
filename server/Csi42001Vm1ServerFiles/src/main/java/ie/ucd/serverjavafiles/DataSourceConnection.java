@@ -39,7 +39,6 @@ public class DataSourceConnection {
 			
 			query = query + id + "\n";
 		}
-		System.out.println(query);
 		return query;
 	}
 	
@@ -61,10 +60,10 @@ public class DataSourceConnection {
 		return result;
 	}
         
-        public static String sqlJson(String additional, String specific) throws SQLException{
-            String select = "SELECT R.Room_id, R.Room_no, R.Buildling, R.Floor_no, R.Campus, R.Room_active, R.Capacity, R.Plug_friendly, "
+        public static String sqlJson(String additional, String specific, String specific2) throws SQLException{
+            String select = "SELECT R.Room_id, R.Room_no, R.Building, R.Floor_no, R.Campus, R.Room_active, R.Capacity, R.Plug_friendly, "
                     + "W.Wifi_log_id, W.Date, W.Time, W.Associated_client_counts, "
-                    + "G.Data_input_id, G.Room_used, G.Percentage_room_full, G.No_of_people, G.Lecture, G.Tutorial, "
+                    + "G.Room_used, G.Percentage_room_full, G.No_of_people, G.Lecture, G.Tutorial, "
                     + "T.Time_period, T.No_expected_students, T.Double_module, T.Class_went_ahead, "
                     + "M.Module_code, M.Facilty, M.Course_level, M.Undergrad, M.Module_active";
             String from = " FROM Room R, Wifi_log W, Ground_truth_data G, Time_table T, Module M";
@@ -74,25 +73,31 @@ public class DataSourceConnection {
             String sql = select.concat(from.concat(where.concat(additional)));
             PreparedStatement question = connection.prepareStatement(sql);
             question.setString(1, specific);
+            if (specific2 != null){
+                question.setString(2, specific2);
+            }
             ResultSet resultSet = question.executeQuery();    
             ResultSetToJson convert = new ResultSetToJson();
             String result = convert.convertJsonFull(resultSet);
             return result;
         }
-
-        public static Boolean setUsers(Registration register) throws SQLException {
-            String sql = "INSERT INTO Users VALUES(?, ?, ?, ?, ?, ?)";
+        
+        public static ResultSet sqlQuery(String sql) throws SQLException {
             PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setInt(1, register.getUsersId());
-            statement.setString(2, register.getUserName());
-            statement.setString(3, register.getPassword());
-            statement.setBoolean(4, register.getAdmin());
-            statement.setBoolean(5, register.getAccountActive());
-            statement.setString(6, register.getGroundTruthAccessCode());
-            statement.execute();
-            sql = "PRINT @@ROWCOUNT";
-            statement = connection.prepareStatement(sql);
             ResultSet resultSet = statement.executeQuery();
-            return resultSet.getBoolean(1);
+            return resultSet;
+        }
+
+        public static void sqlSetUsers(Registration register) throws SQLException {
+            String sql = "INSERT INTO Users "
+                    + "(User_name, Password, Admin, Acount_active, Ground_truth_access_code) "
+                    + "VALUES(?, ?, ?, ?, ?)";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, register.getUserName());
+            statement.setString(2, register.getPassword());
+            statement.setBoolean(3, register.getAdmin());
+            statement.setBoolean(4, register.getAccountActive());
+            statement.setString(5, register.getGroundTruthAccessCode());
+            statement.execute();
         }
 }

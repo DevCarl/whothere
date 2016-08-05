@@ -1,7 +1,9 @@
 package ie.ucd.serverjavafiles;
 
 import java.sql.SQLException;
+import javax.mail.MessagingException;
 
+import java.sql.ResultSet;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -38,15 +40,45 @@ public class GreetingController {
 //        System.out.println("dave2");
 //        return "result";
 //    }
+        
+        @RequestMapping(value="/registration", method=RequestMethod.GET)
+        public String registrationPage(Model model){
+            model.addAttribute("registerModel", new Registration());
+            return "registration";
+        }
+        
+        @RequestMapping(value="/registration", method=RequestMethod.POST)
+        public String registrationPost(@ModelAttribute Registration register, Model model) throws SQLException {
+            model.addAttribute("registerModel", new Registration());
+            DataSourceConnection connection = new DataSourceConnection();
+            if (register.getRegistrationCode().equals("TEST")){
+                ResultSet rs = connection.sqlQuery("SELECT User_name FROM Users WHERE User_name = '" + register.getUserName() + "'");
+                rs.last();
+                if (rs.getRow() < 1){
+                    connection.sqlSetUsers(register);
+                    return "redirect: /login?newaccount";
+                }
+            }
+            return "redirect: /registration?error";
+        }
 
 	@RequestMapping(value="/main", method=RequestMethod.GET)
 	public String mainPage(Model model) {
-		return "main";
+            return "main";
 	}
 	
 	@RequestMapping(value="/contact", method=RequestMethod.GET)
-	public String contactPage(Model model) {
-		return "contact";
+	public String contactPage(Model model) throws MessagingException {
+            model.addAttribute("contactModel", new Email());
+            return "contact";
+	}
+        
+        @RequestMapping(value="/contact", method=RequestMethod.POST)
+	public String contactPage(@ModelAttribute Email email, Model model) throws MessagingException {
+            model.addAttribute("contactModel", new Email());
+            SendMail mail = new SendMail();
+            mail.mailSender(email.getName(), email.getEmail(), email.getMsg());
+            return "contact";
 	}
 	
 	@RequestMapping(value="/header", method=RequestMethod.GET)

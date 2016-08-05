@@ -34,19 +34,24 @@ public class ApiController {
 	public String apiRequestData(@RequestParam Map<String,String> requestParams) throws Exception{
 		String request = requestParams.get("request");
 		String specific = requestParams.get(request);
+                String request2 = requestParams.get("request2");
+                String specific2 = requestParams.get(request2);
+                String[] group = {request, request2};
                 String additional = "";
                 DataSourceConnection connection = new DataSourceConnection();
-                switch (request){
-                    case "Date":
-                        additional = "AND W.Date = ?";                  break;
-                    case "Week":
-                        additional = "AND WEEK(W.Date) = WEEK(?)";      break;
-                    case "Module":
-                        additional = "AND M.Module_code = ?";           break;
-                    case "Room_id":
-                        additional = "AND R.Room_id = ?";               break;
+                for (int i = 0; i < group.length; i++){
+                    switch ((group[i] != null) ? group[i] : "Null"){
+                        case "Date":
+                            additional = additional + "AND W.Date = ? ";              break;
+                        case "Week":
+                            additional = additional + "AND WEEK(W.Date) = WEEK(?) ";  break;
+                        case "Module":
+                            additional = additional + "AND M.Module_code = ? ";       break;
+                        case "Room_no":
+                            additional = additional + "AND R.Room_no = ? ";           break;
+                    }
                 }
-		request = connection.sqlJson(additional, specific);
+		request = connection.sqlJson(additional, specific, specific2);
 		return request;
 	}
 	

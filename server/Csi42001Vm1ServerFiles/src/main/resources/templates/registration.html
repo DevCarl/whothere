@@ -1,0 +1,44 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head> 
+    <title>Registration Page</title>
+    <link rel="stylesheet" type="text/css" href="/css/style.css" th:attr="href=@{/css/style.css}" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+</head>
+<body>
+    <div tiles:fragment="content" id="login_box">
+    <form action="#" th:action="@{/registration}" th:object="${registerModel}" method="post">
+        <fieldset id="login_fieldset">
+            <div th:if="${param.error}" class="alert alert-error"> 
+                <p id="login_error">Invalid Username or Registration Code.</p>
+            </div>
+    	   <input type="text" th:field="*{UserName}" placeholder="username" class="login" />
+            <input type="password" id="newPassword" th:field="*{Password}" placeholder="password" class="login" />
+            <input type="password" id="newPasswordConfirm" placeholder="Retype password" class="login" />
+            <input type="text" th:field="*{RegistrationCode}" placeholder="Registration Code" class="login" />
+            <div class="alert alert-error">
+                <p id="CheckPassword"></p>
+            </div>
+            <div class="form-actions">
+            <button type="submit" class="login" id="login_btn">Register</button>
+        </div>
+        </fieldset>
+    </form>
+    </div>
+        
+    <script>
+        //<![CDATA[
+        $("#registrationSubmit").prop("disabled", true);
+        $("#newPasswordConfirm").keyup(function() {
+            if ($("#newPasswordConfirm").val() == $("#newPassword").val()){
+                $("#CheckPassword").html("Passwords Match");
+                $("#login_btn").prop("disabled", false);
+            } else {
+                $("#CheckPassword").html("Passwords do not Match");
+                $("#login_btn").prop("disabled", true);
+            }
+        });
+        //]]>
+    </script>
+</body>
+</html>
