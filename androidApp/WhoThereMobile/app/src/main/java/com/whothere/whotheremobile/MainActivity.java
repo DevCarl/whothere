@@ -59,8 +59,7 @@ public class MainActivity extends Activity implements View.OnClickListener, View
                    time;
     private int occupancy;
 
-//    final String  BASE_URL = "http://10.0.2.2:8080";
-    final String  BASE_URL = "http://csi420-01-vm1.ucd.ie:8080"
+    final String  BASE_URL = "http://10.0.2.2:8080";
 
     private List<Building> buildings;
     private Building selectedBuilding;
@@ -334,12 +333,10 @@ public class MainActivity extends Activity implements View.OnClickListener, View
             try {
                 final String url = BASE_URL + "/post/groundtruth";
 
-//                GroundTruthData groundTruthData = new GroundTruthData(1, 80, "B002", "2016-08-06", "10:00:00", 70);
-
-                Log.e("GroundTruth", "ROOM ID " + selectedRoom.getRoomId() + "\nCAPACITY: " +  selectedRoom.getCapacity()
+                Log.e("GroundTruth", "ACCESS CODE: " + accessCode + "\nROOM ID " + selectedRoom.getRoomId() + "\nCAPACITY: " +  selectedRoom.getCapacity()
                         + "\nROOM NO: " + selectedRoom.getRoomNo() + "\nDATE: " + date
                         + "\nTIME: " + time + "\nOCCUPANCY: " + occupancy);
-                GroundTruthData groundTruthData = new GroundTruthData(selectedRoom.getRoomId(), selectedRoom.getCapacity(),
+                GroundTruthData groundTruthData = new GroundTruthData(accessCode, selectedRoom.getRoomId(), selectedRoom.getCapacity(),
                         selectedRoom.getRoomNo(), date, time, occupancy);
 
                 // Set the Content-Type header
@@ -355,11 +352,11 @@ public class MainActivity extends Activity implements View.OnClickListener, View
                 HttpStatus statusCode = responseEntity.getStatusCode();
                 Log.e("code: ", statusCode.toString());
                 if(statusCode.value() == 200){
-                    Log.e("code: ", statusCode.value() + "Thank you");
+                    Log.e("code: ", statusCode.value() + " Thank you");
                     Intent intent = new Intent(MainActivity.this, SuccessActivity.class);
                     startActivity(intent);
                 }else{
-                    Log.e("code: ", statusCode.value() + "Error");
+                    Log.e("code: ", statusCode.value() + " Error");
                     Intent intent = new Intent(MainActivity.this, ErrorActivity.class);
                     startActivity(intent);
                 }

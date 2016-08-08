@@ -1,6 +1,7 @@
 package ie.ucd.serverjavafiles;
 
 public class GroundTruthData {
+	private String accessCode;
 	private int roomId;
 	private int capacity;
 	private String classroom;
@@ -11,14 +12,23 @@ public class GroundTruthData {
 	public GroundTruthData(){
 	}
 	
-	public GroundTruthData(int roomId, int capacity, String classroom, 
+	public GroundTruthData(String accessCode, int roomId, int capacity, String classroom, 
 			String date, String time, int occupancy){
+		this.accessCode = accessCode;
 		this.roomId = roomId;
 		this.capacity = capacity;
 		this.classroom = classroom;
 		this.date = date;
 		this.time = time;
 		this.occupancy = occupancy;
+	}
+
+	public String getAccessCode() {
+		return accessCode;
+	}
+
+	public void setAccessCode(String accessCode) {
+		this.accessCode = accessCode;
 	}
 
 	public int getRoomId() {

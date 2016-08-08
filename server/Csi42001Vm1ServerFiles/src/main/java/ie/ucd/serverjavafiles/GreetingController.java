@@ -110,10 +110,13 @@ public class GreetingController {
     
     @RequestMapping(value="/post/groundtruth", method=RequestMethod.POST, consumes = "application/json")
 	public ResponseEntity<String> saveGroundTruth(@RequestBody GroundTruthData groundTruth) throws SQLException{
-		DataSourceConnection connection = new DataSourceConnection();
-		connection.setGroundTruth(groundTruth);
-		return new ResponseEntity<String>(HttpStatus.OK);
-		
+    	if(groundTruth.getAccessCode().trim().equalsIgnoreCase("test")){
+			DataSourceConnection connection = new DataSourceConnection();
+			connection.setGroundTruth(groundTruth);
+			return new ResponseEntity<String>(HttpStatus.OK);
+		}else{
+			return new ResponseEntity<String>(HttpStatus.UNAUTHORIZED);
+		}		
 	}
 	
 	
