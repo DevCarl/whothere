@@ -4,6 +4,7 @@ package com.whothere.whotheremobile;
  * Created by jonni on 06/08/2016.
  */
 public class GroundTruthData {
+    private String accessCode;
     private String classroom;
     private int roomId;
     private int capacity;
@@ -13,14 +14,23 @@ public class GroundTruthData {
 
     public GroundTruthData(){}
 
-    public GroundTruthData(int roomId, int capacity, String classroom,
+    public GroundTruthData(String accessCode, int roomId, int capacity, String classroom,
                            String date, String time, int occupancy) {
+        this.accessCode = accessCode;
         this.classroom = classroom;
         this.roomId = roomId;
         this.capacity = capacity;
         this.occupancy = occupancy;
         this.date = date;
         this.time = time;
+    }
+
+    public String getAccessCode() {
+        return accessCode;
+    }
+
+    public void setAccessCode(String accessCode) {
+        this.accessCode = accessCode;
     }
 
     public String getClassroom() {
