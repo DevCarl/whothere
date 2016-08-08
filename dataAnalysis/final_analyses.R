@@ -5,7 +5,6 @@ library(RMySQL)
 library(nlme)
 library(caret) # for splitting the database
 library(nnet)#package for running multinomial regression
-source("http://peterhaschke.com/Code/multiplot.R") 
 
 #<-----------------------------SELECT THE DATA FROM THE DATABASE ------------------------------>
 
@@ -42,7 +41,26 @@ NoOutlierTable <- AnalysisTable[ AnalysisTable$Wifi_Max_logs < 150,]
 NoOutlierTable <- NoOutlierTable[ NoOutlierTable$Survey_occupancy < 120,] 
 
 #best model for linear regression
-occupancy.lm.avg <- lm(Survey_occupancy ~ Wifi_Average_logs, data=NoOutlierTable)
-
+best.lm <- lm(Survey_occupancy ~ Wifi_Average_logs, data=NoOutlierTable)
 #best model for multinomial regression
-final.avg.room.level <- multinom(Binned_Occupancy ~ Wifi_Average_logs+Room+Course_Level, data=AnalysisTable,maxit=1000)
+best.logit <-multinom(Binned_Occupancy ~ Wifi_Average_logs+Room, data=AnalysisTable,maxit=1000)
+
+#create table with the prediction of the linear model(213 observations)
+prediction <-data.frame(Room=NoOutlierTable$Room , Date=NoOutlierTable$Date, Time=NoOutlierTable$Time,predict(best.lm, interval="confidence"))
+
+#create table with the predicion of the multinom model(216 observations)
+table <-data.frame(Room=AnalysisTable$Room, Date=AnalysisTable$Date, Time=AnalysisTable$Time, Logistic_occupancy=predict(best.logit))
+
+#create the table to export the output of the analysis
+output <- merge(table, prediction, by= c("Room","Date","Time"),all.x= TRUE)
+
+#query for insert model prediction into the dataset 
+for(i in 1:nrow(output)) {
+  row <- output[i,]
+  insert_query <- "INSERT INTO Processed_data (Time_table_Date, Time_table_Time_period, Time_table_Room_Room_id, People_estimate, Min_people_estimate, Max_people_estimate, Logistic_occupancy) 
+  VALUES(%s, %s, %s, %d, %d, %d, %s) 
+  ON DUPLICATE KEY UPDATE
+  Time_table_Date = %s, Time_table_Time_period = %s, Time_table_Room_Room_id = %s, People_estimate = %d, Min_people_estimate = %d, Max_people_estimate = %d, Logistic_occupancy = %s;"
+  sprintf(query, output[i,]$Date, output[i,]$Time, output[i,]$Room, output[i,]$fit, output[i,]$lwr, output[i,]$upr, output[i,]$Logistic_occupancy, output[i,]$Date, output[i,]$Time, output[i,]$Room, output[i,]$fit, output[i,]$lwr, output[i,]$upr, output[i,]$Logistic_occupancy)
+  dbGetQuery(connection, insert_query)
+}
