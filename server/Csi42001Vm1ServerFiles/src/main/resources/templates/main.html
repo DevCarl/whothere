@@ -7,6 +7,17 @@
 <!--        <link rel="stylesheet" type="text/css" href="/css/style.css" th:attr="href=@{/css/style.css}" />-->
                 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+        <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
+        <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
+<!--
+
+                    <style>
+                        #map {
+                            width:600px;
+                            height: 400px;
+                        }
+                    </style>
+-->
         
         <script>
             //<![CDATA[
@@ -67,7 +78,9 @@
             <main id="main">
 
             <!-- Map -->
-            <section id="map"></section>
+            <section id="map">
+                
+            </section>
             
             <!-- Section for floor plan and classroom info  -->
             <section id="info_section">
@@ -75,7 +88,30 @@
                 <h3 id="building_title"></h3>
                 <p id="no_info_error"></p>
                 <div id="floor_plan_wrap">
-                    <img id="img/CSI_floor_0.png"/>
+                    
+                    <script>
+                        //<![CDATA[
+
+                        var map = L.map('gound_map', {
+                            crs: L.CRS.Simple,
+                            zoomControl:false,
+                            dragging:false
+                        });
+
+                        var bounds = [[0,0], [400,600]];
+                        var image = L.imageOverlay('img/CSI_floor_0.png', bounds).addTo(map);
+
+                        map.fitBounds(bounds);
+
+                        var c = "blue";
+
+                        var polygon = L.polygon(
+                            [[162, 241],[168, 338],[79,341],[75, 244]],
+                            {color: c}).addTo(map);
+
+                        polygon.bindPopup("<div>I am a polygon.<br/>This is a special type of div</div>");
+                        //]]>
+                    </script>
                 </div>
             </section>
             

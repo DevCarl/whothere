@@ -227,8 +227,9 @@ nav li a:hover:not(.active) {
 
 /*    FLOOR PLAN    */
 #floor_plan_wrap{
-    margin: 0 auto;
-    width: 80%;
+    height: 400px;
+    width: 600px;
+    background-color: aqua;
 }
 #to_map_btn{
     margin: 5px;
@@ -461,4 +462,9 @@ input.login{
     text-align: center;
     margin-left: auto;
     margin-right: auto;
+}
+
+.gound_map {
+    height: 400px;
+    width: 600px;
 }

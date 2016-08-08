@@ -15,5 +15,13 @@ def derived_data_and_generate_indexs_from_db():
     return 1
 
 
+# Room table => derived building no / floor no / plug friendly
+
+# Module table => Facility / course level / undergrad
+
+# Buildings auto insert list
+
+# Generate derived table
+
 if __name__ == '__main__':
     print("hi")
