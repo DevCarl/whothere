@@ -9,16 +9,15 @@ library(nnet)#package for running multinomial regression
 #<-----------------------------SELECT THE DATA FROM THE DATABASE ------------------------------>
 
 #set up connection for server
-#connection <- dbConnect(MySQL(),user="student", password="goldilocks",dbname="who_there_db", host="localhost")
+connection <- dbConnect(MySQL(),user="student", password="goldilocks",dbname="who_there_db", host="localhost")
 #connect from xamp
-connection <- dbConnect(MySQL(),user="root", password="",dbname="who_there_db", host="localhost")
+#connection <- dbConnect(MySQL(),user="root", password="",dbname="who_there_db", host="localhost")
 
 #create the query
 query <-"SELECT W.`Room_Room_id` as Room, W.`Date`, HOUR( W.Time ) as Time, T.`Module_Module_code` as Module, M.`Course_Level`,T.`Tutorial`, T.`Double_module`, T.`Class_went_ahead`, R.`Capacity`, G.`Percentage_room_full`, AVG(W.`Associated_client_counts`) as Wifi_Average_logs, MAX(W.`Authenticated_client_counts`) as Wifi_Max_logs FROM Room R, Wifi_log W, Ground_truth_data G, Time_table T, Module M WHERE W.Room_Room_id = R.Room_id AND G.Room_Room_id = W.Room_Room_id AND W.Date = G.Date AND HOUR( W.Time ) = HOUR( G.Time ) AND HOUR( W.Time ) = HOUR( T.Time_period ) AND T.Date = W.Date AND T.Room_Room_id = W.Room_Room_id AND M.`Module_code` = T.`Module_Module_code` GROUP BY W.Room_Room_id, HOUR( W.Time ) , W.Date"
 
 #select the data based on the query and store them in a dataframe called Analysis table
 AnalysisTable <-dbGetQuery(connection, query)
-str(AnalysisTable)
 
 # <--------------------------- EXPLORATORY ANALYSES --------------------------->
 #create the new column for getting number of people counted through ground truth data
@@ -54,14 +53,16 @@ table <-data.frame(Room=AnalysisTable$Room, Date=AnalysisTable$Date, Time=Analys
 
 #create the table to export the output of the analysis
 output <- merge(table, prediction, by= c("Room","Date","Time"),all.x= TRUE)
-output[is.na(output)] <-"NULL"
+output[is.na(output)] <- "NULL"
+
 #query for insert model prediction into the dataset 
 for(i in 1:nrow(output)) {
   row <- output[i,]
-  insert_query <- "INSERT INTO Processed_data (Time_table_Date, Time_table_Time_period, Time_table_Room_Room_id, People_estimate, Min_people_estimate, Max_people_estimate, Logistic_occupancy) 
-  VALUES(%s, %s, %s, %d, %d, %d, %s) 
-  ON DUPLICATE KEY UPDATE
-  Time_table_Date = %s, Time_table_Time_period = %s, Time_table_Room_Room_id = %s, People_estimate = %d, Min_people_estimate = %d, Max_people_estimate = %d, Logistic_occupancy = %s;"
-  sprintf(query, output[i,]$Date, output[i,]$Time, output[i,]$Room, output[i,]$fit, output[i,]$lwr, output[i,]$upr, output[i,]$Logistic_occupancy, output[i,]$Date, output[i,]$Time, output[i,]$Room, output[i,]$fit, output[i,]$lwr, output[i,]$upr, output[i,]$Logistic_occupancy)
+  insert_query <- "INSERT INTO Processed_data (Time_table_Date, Time_table_Time_period, Time_table_Room_Room_id, People_estimate, Min_people_estimate, Max_people_estimate, Logistic_occupancy) VALUES(%s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE Time_table_Date = %s, Time_table_Time_period = %s, Time_table_Room_Room_id = %s, People_estimate = %s, Min_people_estimate = %s, Max_people_estimate = %s, Logistic_occupancy = %s"
+  date <- paste("'", output[i,]$Date, "'")
+  hour <- paste("STR_TO_DATE('", output[i,]$Time, "', '%H')")
+  logis <- paste("'", output[i,]$Logistic_occupancy, "'")
+  room <- toString(output[i,]$Room)
+  insert_query <- sprintf(insert_query, date, hour, room, toString(output[i,]$fit), toString(output[i,]$lwr), toString(output[i,]$upr), logis, date, hour, room, toString(output[i,]$fit), toString(output[i,]$lwr), toString(output[i,]$upr), logis)
   dbGetQuery(connection, insert_query)
 }

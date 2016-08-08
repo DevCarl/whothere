@@ -96,9 +96,10 @@ public class ResultSetToJson {
                                 location = minuteJSONLocation.getJSONObject(Minutes);     break;
                             case "Time_table":
                             case "Ground_truth_data":
-                                location = timeslotJSONLocation.getJSONObject(Time);                            break;
+                            case "Processed_data":
+                                location = timeslotJSONLocation.getJSONObject(Time);      break;
                             case "Room":
-                                location = roomJSONLocation;                                                    break;
+                                location = roomJSONLocation;                              break;
                             case "Module":
                                 location = moduleJSONLocation.getJSONObject(Module);      break;
                         }

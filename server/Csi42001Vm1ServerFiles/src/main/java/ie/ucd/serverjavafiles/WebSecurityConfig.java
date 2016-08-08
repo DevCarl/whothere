@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.http.HttpMethod;
 
 /**
  *
@@ -46,8 +47,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+            .csrf().disable()
             .authorizeRequests()
                 .antMatchers("/css/**", "/js/**", "/img/**", "/api/**", "/registration", "/login").permitAll()
+                .antMatchers(HttpMethod.POST, "/post/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
             .formLogin()

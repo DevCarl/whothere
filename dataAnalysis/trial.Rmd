@@ -8,10 +8,9 @@ output:
     fig_width: 14
 ---
 
-```{r, echo=FALSE, warning=FALSE}
-
+```{r, results='hide', message=FALSE, warning=FALSE}
 #Upload all the libraries necessary for the analyses.
-c #package for communicate with MySQL database
+library(RMySQL) #package for communicate with MySQL database
 library(ggplot2) #package for making graphs
 library(GGally)
 library(nlme)
@@ -113,7 +112,7 @@ Furthermore, for the variables Wifi_Average_clients, Wifi_Max_clients and Survey
 
 For exploring possible issues related with the continuous variables we plotted histograms and boxplots.
 
-### Histograms
+### Histograms  
 
 ```{r, echo=FALSE,warning=FALSE}
 
@@ -131,15 +130,14 @@ histo4 <- ggplot(AnalysisTable, aes(x = Time)) + geom_histogram(binwidth = 2,  c
 #plot all the histograms in one window
 multiplot(histo1, histo2, histo3, histo4, cols=2)
 ```  
-<br><br><br>
+<br><br><br><br>
 Form the histograms we could see that the distribution of the feature Wifi Maximum_client (i.e. the Maximum number of devices logged in one hour lecture) was skewed to the left, indicating that no more than 40 people attended the majority of the lectures. Furthermore, we could see that there were potential outliers (values > 150). Similar patterns were observed for the feature Wifi_Average_clients.
 Different was the situation of the target feature, Survey_counted client, which showed a skewed distribution, but more scattered, similar to a Poisson distribution. This could cause a problem in running a linear regression and more likely we have have to run a generalise linear model with a Poisson distribution. This is not surprising, since we are dealing with count data (Zuur et al. 2009).
 Feature times had as well a skewed distribution, suggesting that the majority of the lectures were concentrating during the early morning and they were decreasing towards the afternoon.
-<br><br><br>
+<br><br><br><br>
 
-#### Boxplots
-<br>
-  
+#### Boxplots  
+
 ```{r, echo=FALSE, warning=FALSE}
 box1 <- ggplot(AnalysisTable, aes(x = factor(0), y = Survey_occupancy)) + geom_boxplot() + xlab("Counted clients") + ylab("")+ scale_x_discrete(breaks = NULL) + theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
@@ -154,7 +152,7 @@ box4 <- ggplot(AnalysisTable, aes(x = factor(0), y = Time)) + geom_boxplot() + x
 #plot all the boxplots in one window
 multiplot(box1, box2, box3, box4, cols=2)
 ```  
-<br><br>
+<br><br><br><br>
 
 From the boxplots, all the trends observed in the histograms were confirmed.
 
@@ -175,14 +173,15 @@ bar3 <- ggplot(AnalysisTable, aes(x = Factor_Time)) + geom_bar(fill="orangered2"
 #plot all the barplots in one window
 multiplot(bar1, bar2, bar3, cols=2)
 ```
-<br><br>
+<br><br><br><br>
 From the barplots, we could see that observations were equally distributed across all the levels of the feature Room and Factor Time. On the contrary, there were more observations for non lectures and level 3 courses. No issues were detected for those features.  
-
 #### Summary
-<br><br>
+<br><br><br><br>
+
+
 
 Features               | Issues                                   | Planned Solution             
------------------------|------------------------------------------|----------------------------
+-----------------------|------------------------------------------|---------------------------
 Room                   |None                                      |None
 Time                   |Distibution skewed to the left            |To solve during analysis 
 Factor Time            |None                                      |None
@@ -194,7 +193,7 @@ Wifi Average clients   |Distibution skewed to the left \& outliers|To solve duri
 Wifi Maximum clients   |Distibution skewed to the left \& outliers|To solve during analysis
 Survey Counted clients |Distibution skewed to the left \& outliers|To solve during analysis
 
-<br><br>
+<br><br><br><br>
 
 ## FEATURES AFFECTING THE TARGET FEATURE  
 
@@ -202,7 +201,6 @@ The next step of the analysis was to see which features were more likely determi
 For the continuous features we explored the effects on the target features using a correlation matrix, while for the categorical features we used box plots. 
 
 ### Correlation matrix for continuous variables.  
-<br>
 ```{r, echo=FALSE, warning=FALSE}
 # Correlation Matrix
 
@@ -215,14 +213,15 @@ my_fn <- function(data, mapping, ...){
 
 ggpairs(AnalysisTable, columns = c('Survey_occupancy','Wifi_Max_logs', 'Wifi_Average_logs', 'Time'), lower = list(continuous = my_fn)) + theme_bw()
 ```  
-<br><br>
+<br><br><br><br>
 From the correlation matrix Survey counted  clients seems to have a good correlation with Wifi Average counted clients and Maximum counted clients, therefore we are will try to run 2 models: one for exploring the relationship between Survey counted clients and Average counted clients and another for Survey counted clients and Maximum counted clients. However, from this graphs we can see that there is one point that is clearly two outliers. Therefore, we are going to run the analyses with and without them.
 
 From the graphs we can see that Average counted clients and Maximum counted clients are highly correlated showing that both of them are not so different. Therefore we will not expect too much difference among the 2 models.
 
 Time does not seems to be correlated with the target features Survey counted clients and it seems more categorical.  
 
-### Box plots for categorical variables.  
+### Box plots for categorical variables. 
+<br><br><br><br>
 ``` {r, echo=FALSE, warning=FALSE}
 #Box plot for exploring relationship between Room and Client count
 pairbox1 <- ggplot(AnalysisTable, aes(x = Room, y = Survey_occupancy)) + geom_boxplot() + theme_bw()+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
@@ -236,34 +235,8 @@ pairbox3 <- ggplot(AnalysisTable, aes(x = Course_Level, y =Survey_occupancy)) + 
 #plot all the boxplots in one window
 multiplot(pairbox1, pairbox2, pairbox3, cols=2)
 ``` 
-<br><br>
+<br><br><br><br>
 From the boxplot plotting the counted people in the different room, it can be observed that the average of the counted people in room 1 was not different from room2. Room3 had an higher number of people on average, but this can be due to the outlier. 
 The average number of counted people, instead, changed across the different course levels and it will be worth to explore if the occupancy of the room was affected by the course level.
 The highest average number of counted people was in the late morning around 50, while it was around 30 for the rest of the day. Therefore it will be interesting to explore the effect of the time on the occupancy.
-
-# Analysis
-<br>
-For selecting the features that together with the max logs or with the average logs best predict the ground truth data we will do model selection with a method similar to the one used by James et al. (2013).     
-For doing so, instead, of using the function regsubset for selecting all the possible models, we decided to considered the following models, because they better suits our hypothesis:
-
-* $Survey occupancy %~~% 1$, the null model;
-
-* $Survey occupancy %~~% Average Wifi occupancy$, for testing whether average Wi-Fi counting logs were accurately predicting the occupancy of the room;
-
-* $Survey occupancy %~~% Average Wifi occupancy + Room$, for testing whether average Wi-Fi counting logs and the room were were accurately predicting the occupancy of the room;
-
-* $Survey occupancy %~~% Average Wifi occupancy + Time$, for testing whether average Wi-Fi counting logs and the time of the day were accurately predicting the occupancy of the room;
-
-* $Survey occupancy %~~% Average Wifi occupancy + Course_Level$, for testing whether average Wi-Fi counting logs and course levels were accurately predicting the occupancy of the room;
-
-* $Survey occupancy %~~% Average Wifi occupancy + Room + Time$, for testing whether average Wi-Fi counting logs, room type and the time of the day were accurately predicting the occupancy of the room;
-* $Survey occupancy %~~% Average Wifi occupancy + Room + Course_Level$, for testing whether average Wi-Fi counting logs, room type and course levels were accurately predicting the occupancy of the room;
-* $Survey occupancy %~~% Average Wifi occupancy + Time + Course_Level$, for testing whether average Wi-Fi counting logs, the time of the day and the course levels were accurately predicting the occupancy of the room;
-
-* $Survey occupancy \~ Average Wifi occupancy + Room + Time + Course_Level$, for testing whether average Wi-Fi counting logs, rooms, the time of the day and the course levels were accurately predicting the occupancy of the room;
-
-The same models were run also with the occupancy estimated with the maximum number of logs measured in that hour. All these models were run using the k-fold cross. K-fold validation was preferred over the validation set approach and the Leave Out Cross Validation (LOOCV), because it is more robust and more accurate in estimating the test error. The Validation set approach tends to give an over estimate of the test error and the test error is dependent on the observations included randomly in the test set. Furthermore, the LOOCV tends to provide a test error with a high variance, because the folds used to calculating it are correlated among each other. 
-In particular in this analysis we are going to perform a 10-fold cross validation, which is pretty standard.
-
-The 10 fold cross validation was carried out with the package, CVglm. For each model we estract the overall mean square error(MSE) and we picked as best model the model with the lowest MSE.
 
