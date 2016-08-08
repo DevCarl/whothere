@@ -18,6 +18,7 @@ query <-"SELECT W.`Room_Room_id` as Room, W.`Date`, HOUR( W.Time ) as Time, T.`M
 
 #select the data based on the query and store them in a dataframe called Analysis table
 AnalysisTable <-dbGetQuery(connection, query)
+str(AnalysisTable)
 
 # <--------------------------- EXPLORATORY ANALYSES --------------------------->
 #create the new column for getting number of people counted through ground truth data
@@ -53,7 +54,7 @@ table <-data.frame(Room=AnalysisTable$Room, Date=AnalysisTable$Date, Time=Analys
 
 #create the table to export the output of the analysis
 output <- merge(table, prediction, by= c("Room","Date","Time"),all.x= TRUE)
-
+output[is.na(output)] <-"NULL"
 #query for insert model prediction into the dataset 
 for(i in 1:nrow(output)) {
   row <- output[i,]
