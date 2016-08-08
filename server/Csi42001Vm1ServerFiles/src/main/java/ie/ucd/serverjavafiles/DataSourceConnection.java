@@ -105,4 +105,28 @@ public class DataSourceConnection {
             statement.setString(5, register.getGroundTruthAccessCode());
             statement.execute();
         }
+    
+    public void setGroundTruth(GroundTruthData groundTruth){
+    	String sql = "INSERT INTO Ground_truth_data (Room_Room_id, Date, Time, Room_used, "
+    				+ "Percentage_room_full, No_of_people) VALUES(?, ?, ?, ?, ?, ?)";
+    	
+    	try{
+        	PreparedStatement statement = connection.prepareStatement(sql);
+        	statement.setInt(1, groundTruth.getRoomId());
+        	statement.setString(2, groundTruth.getDate());
+        	statement.setString(3, groundTruth.getTime());
+        	statement.setInt(4, groundTruth.isRoomUsed());
+        	statement.setFloat(5, groundTruth.getPercentageRoomUsed());
+        	statement.setInt(6, groundTruth.getOccupancy());
+        	statement.execute();
+    	}catch(SQLException e){
+    		throw new RuntimeException(e);
+    	}finally{
+    		if (connection != null) {
+    			try{
+    				connection.close();
+    			}catch(SQLException e){}
+    		}
+    	}
+    }
 }

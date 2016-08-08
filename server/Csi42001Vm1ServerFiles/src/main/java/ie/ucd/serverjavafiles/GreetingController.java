@@ -4,9 +4,13 @@ import java.sql.SQLException;
 import javax.mail.MessagingException;
 
 import java.sql.ResultSet;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -102,6 +106,14 @@ public class GreetingController {
 	@RequestMapping(value="/footer", method=RequestMethod.GET)
 	public String footerPage(Model model) {
 		return "footer";
+	}
+    
+    @RequestMapping(value="/post/groundtruth", method=RequestMethod.POST, consumes = "application/json")
+	public ResponseEntity<String> saveGroundTruth(@RequestBody GroundTruthData groundTruth) throws SQLException{
+		DataSourceConnection connection = new DataSourceConnection();
+		connection.setGroundTruth(groundTruth);
+		return new ResponseEntity<String>(HttpStatus.OK);
+		
 	}
 	
 	
