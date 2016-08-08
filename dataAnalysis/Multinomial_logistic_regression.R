@@ -119,6 +119,8 @@ barpair3 <-ggplot(AnalysisTable, aes(x = Course_Level, fill = Binned_Occupancy))
 multiplot(barpair1, barpair2, barpair3, cols=2)
 
 #ANALYSIS
+
+
 set.seed(1000)
 cv <- 10
 cvDivider <- floor(nrow(AnalysisTable)/(cv+1))
