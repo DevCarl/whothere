@@ -9,16 +9,8 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
         <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
         <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
-<!--
-
-                    <style>
-                        #map {
-                            width:600px;
-                            height: 400px;
-                        }
-                    </style>
--->
-        
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAysaK-xaVpMze3R5nJp1hniuflmN0tCfY&amp;callback=initMap"
+            async = "async" defer = "defer"></script>
         <script>
             //<![CDATA[
             var dataResponse = "";
@@ -85,33 +77,17 @@
             <!-- Section for floor plan and classroom info  -->
             <section id="info_section">
                 <button id="to_map_btn">Back to map</button>
+                <button id="load_map" onclick="genearteMap()">Load map</button>
+                <button id="load_map" onclick="reloadMap()">Relod</button>
+                
                 <h3 id="building_title"></h3>
                 <p id="no_info_error"></p>
-                <div id="floor_plan_wrap">
-                    
-                    <script>
-                        //<![CDATA[
-
-                        var map = L.map('gound_map', {
-                            crs: L.CRS.Simple,
-                            zoomControl:false,
-                            dragging:false
-                        });
-
-                        var bounds = [[0,0], [400,600]];
-                        var image = L.imageOverlay('img/CSI_floor_0.png', bounds).addTo(map);
-
-                        map.fitBounds(bounds);
-
-                        var c = "blue";
-
-                        var polygon = L.polygon(
-                            [[162, 241],[168, 338],[79,341],[75, 244]],
-                            {color: c}).addTo(map);
-
-                        polygon.bindPopup("<div>I am a polygon.<br/>This is a special type of div</div>");
-                        //]]>
-                    </script>
+                <div>
+                <p style="text-align: center;"> Select </p>
+                </div>
+                <div id="floor_plan_wrap"></div>
+                <div>
+                <p>Info section</p>
                 </div>
             </section>
             
@@ -228,9 +204,9 @@
                 
                 //]]>
             </script>
+                
+                <script src="js/main.js" async = "async" defer = "defer"></script>
             
-            <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAysaK-xaVpMze3R5nJp1hniuflmN0tCfY&amp;callback=initMap"
-            async = "async" defer = "defer"></script>
 
         </main>
          <!-- Insert footer -->

@@ -1,39 +1,151 @@
 <!DOCTYPE html>
 <html>
-<head>
-	
-	<title>CRS.Simple example - Leaflet</title>
+    <head>
+        <title>Who's there - Login</title>
 
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	
-	<link rel="shortcut icon" type="image/x-icon" href="docs/images/favicon.ico" />
+        <link rel="stylesheet" type="text/css" href="../static/css/style.css" th:attr="href=@{/css/style.css}" />
+        <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
+        
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAysaK-xaVpMze3R5nJp1hniuflmN0tCfY&amp;callback=initMap"
+            async = "async" defer = "defer"></script>
+        
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+        
+        <!-- Bootstrap Core CSS -->
+        <link href="../static/css/bootstrap.min.css" rel="stylesheet">
+         
+    </head>
+    <body>
+        <div class="container-fluid">
+            <!-- header row            -->
+            <div class="row">
+                <div class="col-md-12">
+                    <!-- Section for floor plan and classroom info  -->
+                    <section id="test">
+                        <button id="to_map_btn">Back to map</button>
+                        <button id="load_map" onclick="genearteMap()">Load map</button>
+                        <button id="load_map" onclick="relodMap()">Relod</button>
 
-	<link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
-	<script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
+                        <h3 id="building_title"></h3>
+                        <p id="no_info_error"></p>
+                        <div>
+                        <p style="text-align: center;"> Select </p>
+                        </div>
+                        <div id="floor_plan_wrap"></div>
+                        <div>
+                        <p>Info section</p>
+                        </div>
+                    </section>
+                </div>
+            </div>
+            
+        </div>
+        
+                    <script>
+                //<![CDATA[
+                        
+                    var geo_map = L.map('floor_plan_wrap', {
+                        crs: L.CRS.Simple,
+                        zoomControl:false,
+                        dragging:false,
+                    });
+                    console.log(geo_map);
+                    
+                
+                function relodMap () {
+                    
+                    geo_map.removeLayer(all);
+                };
+                
+                
+                function genearteMap () {
+                    
+                    console.log(geo_map);
+                    
+                    geo_map.eachLayer(function (layer) {
+                        geo_map.removeLayer(layer);
+                    });
+                    
+                    geo_map.panTo([0,0]);
+                    var bounds = [[0,0], [400,600]];
 
-	<style>
-		#map {
-			width:600px;
-			height: 400px;
-		}
-	</style>
-	
-</head>
+                    var image = L.imageOverlay('../static/img/CSI_floor_0.png', bounds).addTo(geo_map);
+
+                    geo_map.fitBounds(bounds);
+
+                    var rooms = [{
+                        "type": "Feature",
+                        "properties": {"room": "B003"},
+                        "geometry": {
+                            "type": "Polygon",
+                            "coordinates": [[
+                                [332,146],
+                                [333, 5],
+                                [407, 5],
+                                [407,146]
+                            ]]
+                        }
+                    },
+                        {
+                        "type": "Feature",
+                        "properties": {"room": "B004"},
+                        "geometry": {
+                            "type": "Polygon",
+                            "coordinates": [[
+                                [407,146],
+                                [407, 5],
+                                [482,3],
+                                [482,143]
+                            ]]
+                        }
+                    }
+                                 ]
+                    var col = "green";
+                    var no = prompt("no");
+                    
+                    if (no == "1"){col = "red";}
+                    else if (no == "2") {col = "yellow";}
+                    
+                    L.geoJson(rooms, {color: col,
+//                        style: function(feature) {
+//                            switch (feature.properties.room) {
+//                                case 'B003': return {color: "red"};
+//                                case 'B004':   return {color: "green"};
+//                            }
+//                        }
+                        }).addTo(geo_map);
+                    
+//                    B002.bindPopup("<div>I am a polygon.<br/>This is a special type of div</div>");   
+                }
+                //]]>
+            </script>
+            
+        
+    </body>
+</html>
+    
+    
+<!--
 <body>
-
-<div id='map'></div>
-
+    <div id="first">
+        <div>
+            <div> <img src="../static/img/logo.png" ></im> </div>
+        <div id='map'></div>
+        </div>
+    </div>
 <script>
 
 	var map = L.map('map', {
 		crs: L.CRS.Simple,
         zoomControl:false,
-        dragging:false
+        dragging:false,
+        zoom:0,
+        minZoom:0,
+        maxZoom:0
 	});
 
 	var bounds = [[0,0], [400,600]];
-	var image = L.imageOverlay('images/csi_-_1st_floor_720.png', bounds).addTo(map);
+	var image = L.imageOverlay('../static/img/CSI_floor_1.png', bounds).addTo(map);
 
 	map.fitBounds(bounds);
     
@@ -51,3 +163,4 @@
 
 </body>
 </html>
+-->
