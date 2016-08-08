@@ -491,3 +491,14 @@ input.login{
 #test {
     height: 800px;
 }
+
+.floor_form {
+    height:auto; 
+    margin:0 auto; 
+}
+
+.floor_form_input {
+    width:50%; 
+    font-size:20px;
+    text-align: center;
+}
