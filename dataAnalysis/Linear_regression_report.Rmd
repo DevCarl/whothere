@@ -11,7 +11,7 @@ output:
 ```{r, echo=FALSE, warning=FALSE}
 
 #Upload all the libraries necessary for the analyses.
-library(RMySQL) #package for communicate with MySQL database
+c #package for communicate with MySQL database
 library(ggplot2) #package for making graphs
 library(GGally)
 library(nlme)
@@ -240,4 +240,30 @@ multiplot(pairbox1, pairbox2, pairbox3, cols=2)
 From the boxplot plotting the counted people in the different room, it can be observed that the average of the counted people in room 1 was not different from room2. Room3 had an higher number of people on average, but this can be due to the outlier. 
 The average number of counted people, instead, changed across the different course levels and it will be worth to explore if the occupancy of the room was affected by the course level.
 The highest average number of counted people was in the late morning around 50, while it was around 30 for the rest of the day. Therefore it will be interesting to explore the effect of the time on the occupancy.
+
+# Analysis
+<br>
+For selecting the features that together with the max logs or with the average logs best predict the ground truth data we will do model selection with a method similar to the one used by James et al. (2013).     
+For doing so, instead, of using the function regsubset for selecting all the possible models, we decided to considered the following models, because they better suits our hypothesis:
+
+* $Survey occupancy %~~% 1$, the null model;
+
+* $Survey occupancy %~~% Average Wifi occupancy$, for testing whether average Wi-Fi counting logs were accurately predicting the occupancy of the room;
+
+* $Survey occupancy %~~% Average Wifi occupancy + Room$, for testing whether average Wi-Fi counting logs and the room were were accurately predicting the occupancy of the room;
+
+* $Survey occupancy %~~% Average Wifi occupancy + Time$, for testing whether average Wi-Fi counting logs and the time of the day were accurately predicting the occupancy of the room;
+
+* $Survey occupancy %~~% Average Wifi occupancy + Course_Level$, for testing whether average Wi-Fi counting logs and course levels were accurately predicting the occupancy of the room;
+
+* $Survey occupancy %~~% Average Wifi occupancy + Room + Time$, for testing whether average Wi-Fi counting logs, room type and the time of the day were accurately predicting the occupancy of the room;
+* $Survey occupancy %~~% Average Wifi occupancy + Room + Course_Level$, for testing whether average Wi-Fi counting logs, room type and course levels were accurately predicting the occupancy of the room;
+* $Survey occupancy %~~% Average Wifi occupancy + Time + Course_Level$, for testing whether average Wi-Fi counting logs, the time of the day and the course levels were accurately predicting the occupancy of the room;
+
+* $Survey occupancy \~ Average Wifi occupancy + Room + Time + Course_Level$, for testing whether average Wi-Fi counting logs, rooms, the time of the day and the course levels were accurately predicting the occupancy of the room;
+
+The same models were run also with the occupancy estimated with the maximum number of logs measured in that hour. All these models were run using the k-fold cross. K-fold validation was preferred over the validation set approach and the Leave Out Cross Validation (LOOCV), because it is more robust and more accurate in estimating the test error. The Validation set approach tends to give an over estimate of the test error and the test error is dependent on the observations included randomly in the test set. Furthermore, the LOOCV tends to provide a test error with a high variance, because the folds used to calculating it are correlated among each other. 
+In particular in this analysis we are going to perform a 10-fold cross validation, which is pretty standard.
+
+The 10 fold cross validation was carried out with the package, CVglm. For each model we estract the overall mean square error(MSE) and we picked as best model the model with the lowest MSE.
 

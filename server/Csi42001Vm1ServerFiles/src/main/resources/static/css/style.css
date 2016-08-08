@@ -227,8 +227,14 @@ nav li a:hover:not(.active) {
 
 /*    FLOOR PLAN    */
 #floor_plan_wrap{
-    margin: 0 auto;
-    width: 80%;
+    position: relative;
+    height: 450px;
+    width: 650px;
+    background-color: aliceblue;
+    -webkit-transform: none;
+    top: 30%;
+    -webkit-transform: translate(25%, -50%);
+    -moz-transform: translate(25%, -50%);
 }
 #to_map_btn{
     margin: 5px;
@@ -251,7 +257,7 @@ nav li a:hover:not(.active) {
     margin: 0 auto;
     text-align: center;
     font-family: Merriweather, sans-serif;
-    margin-top: 100px;
+    margin-top: 10px;
 }
 /*    FOOTER    */
 footer {
@@ -461,4 +467,27 @@ input.login{
     text-align: center;
     margin-left: auto;
     margin-right: auto;
+}
+
+.gound_map {
+    height: 400px;
+    width: 600px;
+}
+
+#map_2 {
+    width: 100%;
+    height: 500px;
+}
+
+#map_3 {
+    height: 400px;
+    width: 600px;
+}
+
+
+.leaflet-zoom-animated {
+    transform: translate3d(-60px, -440px, 0px);
+}
+#test {
+    height: 800px;
 }

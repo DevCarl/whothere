@@ -577,11 +577,11 @@ print(paste('The accuracy for max.time.level model is:',mean(totalAccuracy.max.t
 print(paste('The accuracy for max.full model is:',mean(totalAccuracy.max.full),' and the AIC is:',mean(totalAIC.max.full)))
 
 #The best model in term of accuracy and AIC was MAX.ROOM with acc = 0.55  and AIC is: 385.
-#However the accuracy and the AIC of the AVG.MAX model was better and we keep it as best model and we will run it on the whole dataset.
+#However the accuracy and the AIC of the AVG.ROOM model was better and we keep it as best model and we will run it on the whole dataset.
 
-final.avg.room.level <- multinom(Binned_Occupancy ~ Wifi_Average_logs+Room+Course_Level, data=AnalysisTable,maxit=1000)
+final.avg.room <- multinom(Binned_Occupancy ~ Wifi_Average_logs+Room, data=AnalysisTable,maxit=1000)
 
-#EXAMINE THE MODEL
+#EXAMINE THE MODEL (wrong)
 #examine the changes in predicted probability associated with the 2 response features
 dses <- data.frame(Binned_occupancy=AnalysisTable$Binned_Occupancy,Room=AnalysisTable$Room,Course_Level=AnalysisTable$Course_Level,Wifi_Average_logs = mean(AnalysisTable$Wifi_Average_logs))
 predict(final.avg.room.level, newdata = dses, "probs")
