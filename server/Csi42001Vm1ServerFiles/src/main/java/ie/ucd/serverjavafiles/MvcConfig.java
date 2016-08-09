@@ -7,6 +7,7 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
+import org.thymeleaf.extras.springsecurity4.dialect.SpringSecurityDialect;
 
 @Configuration
 public class MvcConfig extends WebMvcConfigurerAdapter {
@@ -23,8 +24,13 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
         driverManagerDataSource.setDriverClassName("com.mysql.jdbc.Driver");
         driverManagerDataSource.setUrl("jdbc:mysql://localhost:3306/who_there_db?autoReconnect=true&useSSL=false");
         driverManagerDataSource.setUsername("root");
-        driverManagerDataSource.setPassword("goldilocks");
+        driverManagerDataSource.setPassword("Rufiedog101010");
         return driverManagerDataSource;
+    }
+
+    @Bean
+    public SpringSecurityDialect springSecurityDialect(){
+        return new SpringSecurityDialect();
     }
     
     @Bean

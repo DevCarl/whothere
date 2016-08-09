@@ -6,13 +6,13 @@ public class Registration {
     
     private String UserName;
     private String Password;
-    private boolean Admin;
+    private String Admin;
     private boolean AccountActive;
     private String GroundTruthAccessCode;
     private String RegistrationCode;
     
     public Registration() {
-        this.Admin = false;
+        this.Admin = "ROLE_USER";
         this.AccountActive = true;
         this.GroundTruthAccessCode = "Test";
     }
@@ -25,7 +25,7 @@ public class Registration {
         return this.Password;
     }
     
-    public boolean getAdmin() {
+    public String getAdmin() {
         return this.Admin;
     }
     
@@ -49,7 +49,7 @@ public class Registration {
         this.Password = passwordEncryptor(Password);
     }
     
-    public void setAdmin(boolean Admin) {
+    public void setAdmin(String Admin) {
         this.Admin = Admin;
     }
     

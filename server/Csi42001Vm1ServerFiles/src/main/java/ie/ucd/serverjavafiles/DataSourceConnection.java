@@ -100,7 +100,7 @@ public class DataSourceConnection {
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setString(1, register.getUserName());
             statement.setString(2, register.getPassword());
-            statement.setBoolean(3, register.getAdmin());
+            statement.setString(3, register.getAdmin());
             statement.setBoolean(4, register.getAccountActive());
             statement.setString(5, register.getGroundTruthAccessCode());
             statement.execute();
