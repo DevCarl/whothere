@@ -42,7 +42,10 @@ NoOutlierTable <- AnalysisTable[ AnalysisTable$Wifi_Max_logs < 150,]
 NoOutlierTable <- NoOutlierTable[ NoOutlierTable$Survey_occupancy < 120,] 
 
 #best model for linear regression
-best.lm <- lm(Survey_occupancy ~ Wifi_Average_logs, data=NoOutlierTable)
+vf <- varExp(form =~ Wifi_Average_logs)
+best.lm1 <- gls(Survey_occupancy ~ Wifi_Average_logs, weights = vf, data=AnalysisTable)
+
+
 #best model for multinomial regression
 best.logit <-multinom(Binned_Occupancy ~ Wifi_Average_logs+Room, data=AnalysisTable,maxit=1000)
 
