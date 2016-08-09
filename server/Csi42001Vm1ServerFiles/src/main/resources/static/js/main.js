@@ -6,27 +6,33 @@
 var geo_map;
 
 
-function fetchJsonApi () {
-    var dataResponse = "";
-    var url = '/api/tablesearch?request=Room&key=Building'
-    var xmr = new XMLHttpRequest();
-    xmr.open("GET", url, false);
+function hey () {
+    alert("hi");
+}
 
-    xmr.onreadystatechange = function(oEvent) {
-    if (xmr.readyState === 4) {
-        if (xmr.status === 200) {
-            dataResponse = JSON.parse(xmr.responseText);
-            console.log(dataResponse);
-        } else {
-            console.log("Error", xmr.statusText)
-        }
+// Function to call api
+
+var dataResponse = "";
+        var url = '/api/tablesearch?request=Room&key=Building'
+        var xmr = new XMLHttpRequest();
+        xmr.open("GET", url, false);
+        xmr.onreadystatechange = function(oEvent) {
+        if (xmr.readyState === 4) {
+            if (xmr.status === 200) {
+                dataResponse = JSON.parse(xmr.responseText);
+                console.log(dataResponse);
+
+            } else {
+                console.log("Error", xmr.statusText)
+            }
         }
     }
-    xmr.send(null);
-}
+        xmr.send(null);
 
 // Create map and draw rooms on.
 function genearteMap () {
+    
+    
     
     // Erase map if one exists
     if (geo_map != undefined) {geo_map.remove();}
@@ -154,7 +160,7 @@ function genearteMap () {
     
 //    console.log(floor_no, current_floor);
     
-    var image = L.imageOverlay(current_floor, bounds).addTo(geo_map);
+    var image = L.imageOverlay(testDirectory+current_floor, bounds).addTo(geo_map);
     
 
     geo_map.fitBounds(bounds);

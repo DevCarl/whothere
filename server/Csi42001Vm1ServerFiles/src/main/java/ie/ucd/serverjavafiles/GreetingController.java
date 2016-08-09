@@ -25,15 +25,24 @@ public class GreetingController {
 	
 //	In order of navigation. Upload page mapped within contorller
 	
-	@RequestMapping(value="/", method=RequestMethod.GET)
+	@RequestMapping(value={"/", "/main"}, method=RequestMethod.GET)
 	public String indexPageFromLocalhost(Model model) {
 		return "main";
 	}
-	
-	@RequestMapping(value="/main", method=RequestMethod.GET)
-	public String mainPage(Model model) {
-            return "main";
-	}
+        
+        @RequestMapping(value="/admincontrol", method=RequestMethod.GET)
+        public String adminControlPage(Model model) throws SQLException {
+            model.addAttribute("upgradeModel", new Upgrade());
+            return "admincontrol";
+        }
+        
+        @RequestMapping(value="/admincontrol", method=RequestMethod.POST)
+        public String adminControlPage(@ModelAttribute Upgrade upgrade, Model model) throws SQLException {
+            model.addAttribute("upgradeModel", new Upgrade());
+            DataSourceConnection connection = new DataSourceConnection();
+            connection.sqlUpgradeUsers(upgrade);
+            return "admincontrol";
+        }
 	
 	@RequestMapping(value="/api_docs", method=RequestMethod.GET)
 	public String apiDocs(Model model) {

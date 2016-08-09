@@ -9,7 +9,7 @@ library(nnet)#package for running multinomial regression
 #<-----------------------------SELECT THE DATA FROM THE DATABASE ------------------------------>
 
 #set up connection for server
-connection <- dbConnect(MySQL(),user="student", password="goldilocks",dbname="who_there_db", host="localhost")
+connection <- dbConnect(MySQL(),user="root", password="goldilocks",dbname="who_there_db", host="localhost")
 #connect from xamp
 #connection <- dbConnect(MySQL(),user="root", password="",dbname="who_there_db", host="localhost")
 
@@ -42,6 +42,7 @@ NoOutlierTable <- NoOutlierTable[ NoOutlierTable$Survey_occupancy < 120,]
 
 #best model for linear regression
 best.lm <- lm(Survey_occupancy ~ Wifi_Average_logs, data=NoOutlierTable)
+
 #best model for multinomial regression
 best.logit <-multinom(Binned_Occupancy ~ Wifi_Average_logs+Room, data=AnalysisTable,maxit=1000)
 
@@ -61,6 +62,9 @@ for(i in 1:nrow(output)) {
   insert_query <- "INSERT INTO Processed_data (Time_table_Date, Time_table_Time_period, Time_table_Room_Room_id, People_estimate, Min_people_estimate, Max_people_estimate, Logistic_occupancy) VALUES(%s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE Time_table_Date = %s, Time_table_Time_period = %s, Time_table_Room_Room_id = %s, People_estimate = %s, Min_people_estimate = %s, Max_people_estimate = %s, Logistic_occupancy = %s"
   date <- paste("'", output[i,]$Date, "'")
   hour <- paste("STR_TO_DATE('", output[i,]$Time, "', '%H')")
+  if (nchar(hour) <= 0){
+    hour <- paste("0", hour)
+  }
   logis <- paste("'", output[i,]$Logistic_occupancy, "'")
   room <- toString(output[i,]$Room)
   insert_query <- sprintf(insert_query, date, hour, room, toString(output[i,]$fit), toString(output[i,]$lwr), toString(output[i,]$upr), logis, date, hour, room, toString(output[i,]$fit), toString(output[i,]$lwr), toString(output[i,]$upr), logis)

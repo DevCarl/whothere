@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Who's there - Contact us</title>
+        <link rel="stylesheet" type="text/css" href="../static/css/style.css" th:attr="href=@{/css/style.css}" />
+                
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?callback=initMap" async='async' defer="defer"> </script>
+         
+    </head>
+        
+    <body>
+        
+        <!-- Insert header -->
+        <header id="header" th:replace="header::myHeader"></header>
+        
+        <!-- Insert navigation bar -->
+        <aside id="nav_bar">
+            <nav th:replace="admin_nav_bar::myNav" />
+        </aside>
+        
+        <!--    Content    -->
+        <div id="contact_box">
+            <p class="title">Admin Settings</p>
+            <form id="admin_form" action="#" th:action="@{/admincontrol}" th:object="${upgradeModel}" method="post">
+                    <input type="text"  class="login" th:field="*{UserName}" placeholder="User Name"/>
+                    <select class = "login" th:field="*{Admin}">
+                        <option value="ROLE_USER">User</option>
+                        <option value="ROLE_ADMIN">Admin</option>
+                        <option value="ROLE_GOD">God</option>                    
+                    </select>
+                    <button type="submit" id="contact_btn" class="login">UPGRADE USER</button>
+            </form>
+
+        </div>
+        
+        
+         <!-- Insert footer -->
+        <div id="footer">
+            <footer th:replace="footer::myFooter" />
+        </div>
+        
+    </body>
+</html>
