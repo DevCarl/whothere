@@ -52,8 +52,10 @@
             <!-- Section for floor plan and classroom info  -->
             <section id="info_section">
                 <button id="to_map_btn">Back to map</button>
+<!--
                 <button id="load_map" onclick="genearteMap()">Load map</button>
                 <button id="load_map" onclick="reloadMap()">Relod</button>
+-->
                 
                 <h3 id="building_title"></h3>
                 <p id="no_info_error"></p>
@@ -71,7 +73,15 @@
                 <div class="slider_bar">
                     <p>Info section</p>
                     <div>
-                        <label for="amount">Select a time 1 hour increments:</label>
+                        <p>Key <br/>
+                            <button class="button button3">0%-30%</button>
+                            <button class="button button2">30%-60%</button>
+                            <button class="button">60%-100%</button>
+                        </p>
+                    
+                    </div>
+                    <div>
+                        <label for="amount">Select a time. One hour increments:</label>
                         <input class="slider_outptu" type="text" id="amount"></input><br/><br/>
                         
                     <div id="slider" onclick="genearteMap()"></div>
@@ -90,7 +100,7 @@
                     };
                     
                     //This should have each valid amount that can be selected in the slider 
-                    var sliderAmountMap = [900, 1000, 1100, 1200, 1300,1400,1500,1600,1700,1800];
+                    var sliderAmountMap = [900, 1000, 1100, 1200, 1300,1400,1500,1600,1700];
                     var slider_value;
                     
                     $(function() {

@@ -48,7 +48,7 @@ function genearteMap () {
     geo_map = L.map('floor_plan_wrap', {
         crs: L.CRS.Simple,
         zoomControl:false,
-        dragging:false,
+//        dragging:false,
         minZoom: 0,
         maxZoom: 0
     });
@@ -144,7 +144,7 @@ function genearteMap () {
     rooms_ground_floor[2].apiData = dataResponse.Room_no.B004;
     
 //    console.log(dataResponse.Room_no.B004);
-    console.log(rooms_ground_floor);
+//    console.log(rooms_ground_floor);
 
     
     // Set which map to load and which rooms to set
@@ -181,9 +181,19 @@ function genearteMap () {
                 // Percentage of room full
                 var capacity = feature.apiData.Capacity;
                 var people_estimate = feature.apiData.Date[current_date].Timeslot[current_time].People_estimate;
-                
+                var percentage_full = people_estimate / capacity;
 //                console.log(current_time);
-                console.log(people_estimate, capacity);
+//                console.log(percentage_full, people_estimate, capacity);
+                
+                if (percentage_full <= 0.3) {
+                    return {color: "red"};
+                }
+                else if (0.3 < percentage_full && percentage_full <= 0.6) {
+                    return {color: "yellow"};
+                }
+                else {
+                    return {color: "green"};
+                }
             }
             else if (floor_no="first") {
                 switch (feature.properties.room) {
@@ -194,11 +204,23 @@ function genearteMap () {
             }
         },
         onEachFeature: function (feature, layer) {
-            popupOptions = {maxWidth: 200};
+            popupOptions = {maxWidth: 330};
             
             if (floor_no=="ground") {
                 layer.bindPopup("<p class='center_text'><b> Room name: </b>" + feature.properties.room + "</p>" +
-                                "<p>Hey</p>", popupOptions);
+                                "<p> "
+                                + "<b> Room name: </b>:" + feature.apiData.Building 
+                                + "<br/> <b>Campus</b>:" + feature.apiData.Campus 
+                                + "<br/> <b>Building capacity</b>:" + feature.apiData.Capacity 
+                                + "<br/> <b>Plug_friendly</b>:" + feature.apiData.Plug_friendly 
+                                + "<br/> <b>No_expected_students</b>:" + feature.apiData.Date[current_date].Timeslot[current_time].No_expected_students 
+                                + "<br/> <b>Class_went_ahead</b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Class_went_ahead 
+                                + "<br/> <b>Module</b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Module 
+                                + "<br/> <b>People_estimate</b>:" + feature.apiData.Date[current_date].Timeslot[current_time].People_estimate 
+                                + "<br/> <b>Min_people_estimate</b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Min_people_estimate 
+                                + "<br/> <b>Max_people_estimate</b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Max_people_estimate 
+                                + "<br/> <b>Logistic_occupancy</b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Logistic_occupancy
+                                + "</p>", popupOptions);
             }
             else if (floor_no=="first") {
                 layer.bindPopup("<p class='center_text'><b> Room name: </b>" + feature.properties.room + 
