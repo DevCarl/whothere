@@ -1,13 +1,15 @@
 <resources>
-    <string name="app_name">WhosThereMobile</string>
+    <string name="app_name">Who\'s There?</string>
     <string name="edit_message">Enter a number</string>
     <string name="button_send">Submit</string>
     <string name="access_code">Access code</string>
-    <string name="buildings_spinner_title">Select a building</string>
-    <string name="classrooms_spinner_title">Select a classroom</string>
-    <string name="select_date">Select a date</string>
-    <string name="select_time">Select a time</string>
+    <string name="buildings_spinner_title">Building</string>
+    <string name="classrooms_spinner_title">Classroom</string>
+    <string name="select_date">Date</string>
+    <string name="select_time">Time</string>
     <string name="occupancy_default">0</string>
     <string name="title_activity_success">SuccessActivity</string>
     <string name="title_activity_error">ErrorActivity</string>
+    <string name="reload">Reload page</string>
+    <string name="success">Thank you!</string>
 </resources>
