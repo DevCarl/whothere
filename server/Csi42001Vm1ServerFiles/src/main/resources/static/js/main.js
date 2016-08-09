@@ -168,7 +168,7 @@ function genearteMap () {
     
 //    console.log(floor_no, current_floor);
     
-    var image = L.imageOverlay(testDirectory+current_floor, bounds).addTo(geo_map);
+    var image = L.imageOverlay(current_floor, bounds).addTo(geo_map);
     
 
     geo_map.fitBounds(bounds);
