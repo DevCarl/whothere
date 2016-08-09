@@ -503,3 +503,18 @@ input.login{
     text-align: center;
     margin: auto;
 }
+
+.reg_button {
+    width: 300px;
+    height: 45px;
+    margin-bottom: 10px;
+    padding-left: 10px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    background-color: #e7e7e7;
+    border: 0px;
+    background-color: darkcyan;
+    margin-bottom: 0px;
+    font-family: Merriweather, sans-serif;
+    color: white;
+}

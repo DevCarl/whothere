@@ -17,7 +17,7 @@ def derived_data_and_generate_indexs_from_db(db_host_name, db_user_name, db_pass
     db = pymysql.connect(host=db_host_name, user=db_user_name, password=db_password, database=database_name,
                          port=db_port, autocommit=True)
 
-    print("yes")
+    # print("yes")
     db_cursor = db.cursor(pymysql.cursors.DictCursor)
 
     # Derive room table data
@@ -26,7 +26,7 @@ def derived_data_and_generate_indexs_from_db(db_host_name, db_user_name, db_pass
     # Derive module table data
     derive_module_table_data(db_cursor)
 
-    print("done")
+    # print("done")
     # Created derived tables
 
     # Created indexes
