@@ -1,10 +1,13 @@
 package com.whothere.whotheremobile;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Created by jonni on 06/08/2016.
+ * Created by Ophelie on 06/08/2016.
  */
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Room {
     @JsonProperty("Building")
     private String building;

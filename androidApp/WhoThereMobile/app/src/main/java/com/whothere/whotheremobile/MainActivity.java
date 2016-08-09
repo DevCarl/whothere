@@ -8,7 +8,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -17,6 +21,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -26,10 +31,14 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.client.DefaultResponseErrorHandler;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.SocketTimeoutException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -37,8 +46,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-public class MainActivity extends Activity implements View.OnClickListener, View.OnTouchListener,
-        View.OnFocusChangeListener{
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, View.OnTouchListener{
 
     // Views
     private ProgressDialog pDialog;
@@ -50,7 +58,6 @@ public class MainActivity extends Activity implements View.OnClickListener, View
                     timeSpinner;
     private DatePickerDialog datePickerDialog;
     private SimpleDateFormat dateFormatter;
-//    private Button submitBtn;
 
     // Form variables
     private String classroom,
@@ -59,7 +66,8 @@ public class MainActivity extends Activity implements View.OnClickListener, View
                    time;
     private int occupancy;
 
-    final String  BASE_URL = "http://10.0.2.2:8080";
+//    final String  BASE_URL = "http://10.0.2.2:8080";
+    final String  BASE_URL = "http://csi420-01-vm1.ucd.ie:8080";
 
     private List<Building> buildings;
     private Building selectedBuilding;
@@ -73,36 +81,71 @@ public class MainActivity extends Activity implements View.OnClickListener, View
         setViews();
         setDateTimeField();
         // Calling async task to get json
-        new HttpRequestTask().execute();
+        new HttpGetRequestTask().execute();
+    }
+
+    @Override
+    public void onResume()
+    {  // After a pause OR at startup
+        super.onResume();
+        setViews();
+//        new HttpGetRequestTask().execute();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_reload:
+                // Calling async task to get json
+                new HttpGetRequestTask().execute();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     // Setting all views on activity and listeners
     private void setViews(){
         occupancyText = (EditText)findViewById(R.id.occupancy);
         dateText = (EditText) findViewById(R.id.dateText);
-        dateText.setTextIsSelectable(true);
         dateText.requestFocus();
+        dateText.setTextIsSelectable(true);
         accessCodeText = (EditText) findViewById(R.id.access_code);
         buildingsSpinner = (Spinner) findViewById(R.id.buildings_spinner);
 
-        Button plusBtn = (Button) findViewById(R.id.plus_btn);
-        Button minusBtn = (Button) findViewById(R.id.minus_btn);
+        ImageButton plusBtn = (ImageButton) findViewById(R.id.plus_btn);
+        ImageButton minusBtn = (ImageButton) findViewById(R.id.minus_btn);
         Button submitBtn = (Button) findViewById(R.id.submit_btn);
+
+        // Set default value to classroom spinner
+        List<String> buildingTitle =  Collections.singletonList(getString(R.string.buildings_spinner_title));
+        ArrayAdapter<String> buildingsAdapter = new ArrayAdapter<String>(MainActivity.this,
+                android.R.layout.simple_spinner_item, buildingTitle);
+        buildingsAdapter.setDropDownViewResource(R.layout.spinner_item);
+        buildingsSpinner.setAdapter(buildingsAdapter);
 
         // Set default value to classroom spinner
         List<String> classroomTitle =  Collections.singletonList(getString(R.string.classrooms_spinner_title));
         classroomsSpinner = (Spinner) findViewById(R.id.classrooms_spinner);
         ArrayAdapter<String> classroomsAdapter = new ArrayAdapter<String>(MainActivity.this,
                 android.R.layout.simple_spinner_item, classroomTitle);
-        classroomsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        classroomsAdapter.setDropDownViewResource(R.layout.spinner_item);
         classroomsSpinner.setAdapter(classroomsAdapter);
 
         // Set values for time spinner
-        String[] time = new String[]{getString(R.string.select_time),"8","9","10","11","12","13","14","15","16","17","18"};
+        String[] time = new String[]{getString(R.string.select_time),"08:00","09:00","10:00","11:00",
+                "12:00","13:00","14:00","15:00","16:00","17:00","18:00"};
         timeSpinner = (Spinner) findViewById(R.id.time_spinner);
         ArrayAdapter<String> timeAdapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_spinner_item, time);
-        timeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        timeAdapter.setDropDownViewResource(R.layout.spinner_item);
         timeSpinner.setAdapter(timeAdapter);
 
         buildingsSpinner.setOnTouchListener(this);
@@ -111,20 +154,18 @@ public class MainActivity extends Activity implements View.OnClickListener, View
         plusBtn.setOnClickListener(this);
         minusBtn.setOnClickListener(this);
 
-        occupancyText.setOnFocusChangeListener(this);
-        accessCodeText.setOnFocusChangeListener(this);
-
         // Listener for Button "POST"
         submitBtn.setOnClickListener(this);
     }
 
-    @Override
-    public void onFocusChange(View v, boolean hasFocus) {
-        if(!hasFocus){
-            InputMethodManager inputManager = (InputMethodManager)getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-            inputManager.hideSoftInputFromWindow(occupancyText.getWindowToken(), 0);
-            inputManager.hideSoftInputFromWindow(accessCodeText.getWindowToken(), 0);
+
+    @Override  // Hides soft keyboard when clicking out of a view
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        if (getCurrentFocus() != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
         }
+        return super.dispatchTouchEvent(ev);
     }
 
     @Override
@@ -138,7 +179,7 @@ public class MainActivity extends Activity implements View.OnClickListener, View
             case R.id.submit_btn:
                 getFormValues();
                 if(!validateData()) {
-                    Toast.makeText(getBaseContext(), "Enter some data!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getBaseContext(), "Please fill in all fields", Toast.LENGTH_LONG).show();
                 }else{
                     // Calling async task to get json
                     formatTime();
@@ -210,12 +251,10 @@ public class MainActivity extends Activity implements View.OnClickListener, View
     }
 
     private void formatTime(){
-        time = timeSpinner.getSelectedItem().toString() + ":00:00";
-        if(Integer.parseInt(timeSpinner.getSelectedItem().toString()) < 10)
-            date = "0" + date;
+        time = timeSpinner.getSelectedItem().toString() + ":00";
     }
 
-    private class HttpRequestTask extends AsyncTask<Void, Void, Void> {
+    private class HttpGetRequestTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -230,18 +269,37 @@ public class MainActivity extends Activity implements View.OnClickListener, View
         @Override
         protected Void doInBackground(Void... params) {
             buildings = new ArrayList<Building>();
+            Room[] rooms = null;
+            String error = null;
+
+            final String url = BASE_URL + "/api/table?request=Room";
+            RestTemplate restTemplate = new RestTemplate();
+            ((SimpleClientHttpRequestFactory) restTemplate.getRequestFactory()).setConnectTimeout(3000);
+            restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
             try {
-                final String url = BASE_URL + "/api/table?request=Room";
-                RestTemplate restTemplate = new RestTemplate();
-                restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
-                Room[] rooms = restTemplate.getForObject(url, Room[].class);
-                for(Room room : rooms){
+                rooms = restTemplate.getForObject(url, Room[].class);
+            } catch (Exception e) {
+                if (e.getCause() instanceof SocketTimeoutException) {
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            Toast.makeText(MainActivity.this, "Cannot connect to the server", Toast.LENGTH_LONG).show();
+                        }
+                    });
+                } else {
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            Toast.makeText(MainActivity.this, "An error occurred", Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
+            }
+            if(rooms != null) {
+                for (Room room : rooms) {
                     Building tempBuilding = new Building(room.getBuilding());
                     Boolean isFound = false;
 
-                    for(Building building: buildings){
-
-                        if(building.getName().equalsIgnoreCase(room.getBuilding())){
+                    for (Building building : buildings) {
+                        if (building.getName().equalsIgnoreCase(room.getBuilding())) {
                             tempBuilding = building;
                             isFound = true;
                             break;
@@ -252,11 +310,9 @@ public class MainActivity extends Activity implements View.OnClickListener, View
                         buildings.add(tempBuilding);
                     }
                 }
-                return null;
-            } catch (Exception e) {
-                Log.e("MainActivity", e.getMessage(), e);
-            }
+            }else{
 
+            }
             return null;
         }
 
@@ -275,7 +331,7 @@ public class MainActivity extends Activity implements View.OnClickListener, View
 
             ArrayAdapter<String> buildingsAdapter = new ArrayAdapter<String>(MainActivity.this,
                     android.R.layout.simple_spinner_item, buildingNames);
-            buildingsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            buildingsAdapter.setDropDownViewResource(R.layout.spinner_item);
             buildingsSpinner.setAdapter(buildingsAdapter);
 
             buildingsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -295,7 +351,7 @@ public class MainActivity extends Activity implements View.OnClickListener, View
 
                         ArrayAdapter<String> classroomsAdapter = new ArrayAdapter<String>(MainActivity.this,
                                 android.R.layout.simple_spinner_item, roomNames);
-                        classroomsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        classroomsAdapter.setDropDownViewResource(R.layout.spinner_item);
                         classroomsSpinner.setAdapter(classroomsAdapter);
                     }
                 }
@@ -328,37 +384,82 @@ public class MainActivity extends Activity implements View.OnClickListener, View
     }
 
     private class HttpPostTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            // Show progress dialog
+            pDialog = new ProgressDialog(MainActivity.this);
+            pDialog.setMessage("Please wait...");
+            pDialog.setCancelable(false);
+            pDialog.show();
+        }
+
         @Override
         protected Void doInBackground(Void... params) {
+            // Dismiss the progress dialog
+            if (pDialog.isShowing())
+                pDialog.dismiss();
+
             try {
                 final String url = BASE_URL + "/post/groundtruth";
+                ResponseEntity<String> responseEntity = null;
 
-                Log.e("GroundTruth", "ACCESS CODE: " + accessCode + "\nROOM ID " + selectedRoom.getRoomId() + "\nCAPACITY: " +  selectedRoom.getCapacity()
-                        + "\nROOM NO: " + selectedRoom.getRoomNo() + "\nDATE: " + date
-                        + "\nTIME: " + time + "\nOCCUPANCY: " + occupancy);
                 GroundTruthData groundTruthData = new GroundTruthData(accessCode, selectedRoom.getRoomId(), selectedRoom.getCapacity(),
                         selectedRoom.getRoomNo(), date, time, occupancy);
 
                 // Set the Content-Type header
                 HttpHeaders requestHeaders = new HttpHeaders();
-                requestHeaders.setContentType(new MediaType("application","json"));
+                requestHeaders.setContentType(new MediaType("application", "json"));
                 HttpEntity<GroundTruthData> requestEntity = new HttpEntity<GroundTruthData>(groundTruthData, requestHeaders);
 
                 RestTemplate restTemplate = new RestTemplate();
+                ((SimpleClientHttpRequestFactory) restTemplate.getRequestFactory()).setConnectTimeout(3000);
                 restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
                 restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
-                ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
+                restTemplate.setErrorHandler(new DefaultResponseErrorHandler() {
+                    protected boolean hasError(HttpStatus statusCode) {
+                        return false;
+                    }
+                });
 
-                HttpStatus statusCode = responseEntity.getStatusCode();
-                Log.e("code: ", statusCode.toString());
-                if(statusCode.value() == 200){
-                    Log.e("code: ", statusCode.value() + " Thank you");
-                    Intent intent = new Intent(MainActivity.this, SuccessActivity.class);
-                    startActivity(intent);
-                }else{
-                    Log.e("code: ", statusCode.value() + " Error");
-                    Intent intent = new Intent(MainActivity.this, ErrorActivity.class);
-                    startActivity(intent);
+                try {
+                    responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
+                }catch (Exception e){
+                    if (e.getCause() instanceof SocketTimeoutException) {
+                        runOnUiThread(new Runnable() {
+                            public void run() {
+                                Toast.makeText(MainActivity.this, "Cannot connect to the server", Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    } else {
+                        runOnUiThread(new Runnable() {
+                            public void run() {
+                                Toast.makeText(MainActivity.this, "An error occurred", Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    }
+                }
+                if (responseEntity != null) {
+                    HttpStatus statusCode = responseEntity.getStatusCode();
+                    if (statusCode.value() == 200) {
+                        Intent intent = new Intent(MainActivity.this, SuccessActivity.class);
+                        startActivity(intent);
+                    } else if (statusCode.value() == 401) {
+                        runOnUiThread(new Runnable() {
+                            public void run() {
+                                Toast.makeText(MainActivity.this, "Invalid Access Code", Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    } else {
+                        Log.e("code: ", statusCode.value() + " Error");
+                        runOnUiThread(new Runnable() {
+                            public void run() {
+                                Toast.makeText(MainActivity.this, "An error occurred", Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    }
                 }
 
                 return null;

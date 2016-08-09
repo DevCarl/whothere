@@ -1,7 +1,9 @@
 package com.whothere.whotheremobile;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
- * Created by jonni on 06/08/2016.
+ * Created by Ophelie on 06/08/2016.
  */
 public class GroundTruthData {
     private String accessCode;

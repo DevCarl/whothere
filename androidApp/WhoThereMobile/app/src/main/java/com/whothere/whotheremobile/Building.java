@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by jonni on 07/08/2016.
+ * Created by Ophelie on 07/08/2016.
  */
 public class Building {
     private String name;
