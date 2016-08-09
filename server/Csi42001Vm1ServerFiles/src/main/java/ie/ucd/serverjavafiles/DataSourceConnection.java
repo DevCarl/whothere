@@ -93,7 +93,7 @@ public class DataSourceConnection {
             return resultSet;
         }
 
-        public static void sqlSetUsers(Registration register) throws SQLException {
+        public static boolean sqlSetUsers(Registration register) throws SQLException {
             String sql = "INSERT INTO Users "
                     + "(User_name, Password, Admin, Acount_active, Ground_truth_access_code) "
                     + "VALUES(?, ?, ?, ?, ?)";
@@ -103,8 +103,19 @@ public class DataSourceConnection {
             statement.setString(3, register.getAdmin());
             statement.setBoolean(4, register.getAccountActive());
             statement.setString(5, register.getGroundTruthAccessCode());
-            statement.execute();
+            int count = statement.executeUpdate();
+	    return count > 0;
         }
+
+        public static boolean sqlUpgradeUsers(Upgrade upgrade) throws SQLException {
+            String sql = "UPDATE Users SET Admin = ? WHERE User_name = ?";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, upgrade.getAdmin());
+            statement.setString(2, upgrade.getUserName());
+            int count = statement.executeUpdate();
+            return count > 0;
+        }
+    
     
     public void setGroundTruth(GroundTruthData groundTruth){
     	String sql = "INSERT INTO Ground_truth_data (Room_Room_id, Date, Time, Room_used, "

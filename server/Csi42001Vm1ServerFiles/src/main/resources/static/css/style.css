@@ -538,3 +538,12 @@ input.login{
     color:Blue; 
     font-weight:bold;
 }
+
+/* admin form controller */
+#admin_form{
+    padding: 20px;
+    width: 350px;
+    margin-top: 0px;
+    margin-left: auto;
+    margin-right: auto;
+}

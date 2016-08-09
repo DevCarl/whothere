@@ -5,7 +5,7 @@
         <link rel="stylesheet" type="text/css" href="../static/css/style.css" th:attr="href=@{/css/style.css}" />
         
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?callback=initMap" async='defer'> </script>
+    <script src="https://maps.googleapis.com/maps/api/js?callback=initMap" defer='defer'> </script>
          
     </head>
         
@@ -56,14 +56,9 @@
         
         
          <!-- Insert footer -->
-        <div id="footer"></div>
-        <script> 
-            //<![CDATA[
-            $(function(){
-                $("#footer").load("footer.html");
-            });
-            //]]>
-        </script>
+        <div id="footer">
+            <footer th:replace="footer::myFooter" />
+        </div>
         
     </body>
 </html>
