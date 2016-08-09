@@ -25,6 +25,29 @@ function fetchJsonApi () {
     xmr.send(null);
 }
 
+function hey () {
+    alert("hi");
+}
+
+// Function to call api
+
+ var dataResponse = "";
+            var url = '/api/tablesearch?request=Room&key=Building'
+            var xmr = new XMLHttpRequest();
+            xmr.open("GET", url, false);
+            xmr.onreadystatechange = function(oEvent) {
+            if (xmr.readyState === 4) {
+                if (xmr.status === 200) {
+                    dataResponse = JSON.parse(xmr.responseText);
+                    console.log(dataResponse);
+                    
+                } else {
+                    console.log("Error", xmr.statusText)
+                }
+            }
+        }
+            xmr.send(null);
+
 // Create map and draw rooms on.
 function genearteMap () {
     
