@@ -17,14 +17,16 @@ def derived_data_and_generate_indexs_from_db(db_host_name, db_user_name, db_pass
     db = pymysql.connect(host=db_host_name, user=db_user_name, password=db_password, database=database_name,
                          port=db_port, autocommit=True)
 
-    cursor = db.cursor(pymysql.cursors.DictCursor)
+    print("yes")
+    db_cursor = db.cursor(pymysql.cursors.DictCursor)
 
     # Derive room table data
-    derive_room_table_data(cursor)
+    derive_room_table_data(db_cursor)
 
     # Derive module table data
-    derive_module_table_data(cursor)
+    derive_module_table_data(db_cursor)
 
+    print("done")
     # Created derived tables
 
     # Created indexes
@@ -39,6 +41,7 @@ def derive_room_table_data(db_cursor):
 
     # Cycle through results and add in missing data
     for row in result_array:
+        # print(row)
         room_id = row.get("Room_id")
         room_no = row.get("Room_no")
         room_capacity = row.get("Capacity")
@@ -68,8 +71,8 @@ def derive_room_table_data(db_cursor):
         sql_string = "update Room set " + insert_string + " where Room_id=" + str(room_id) + ";"
 
         # Execute statement
-        # if len(update_string) > 0:
-        #     db_cursor.execute(sql_string)
+        if len(update_string) > 0:
+            db_cursor.execute(sql_string)
 
 
 # Module table => Facility / course level / undergrad
