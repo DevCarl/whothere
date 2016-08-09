@@ -16,10 +16,9 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
         
         <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
-        <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css"></link>
          
     </head>
-    
     <body>
         <!-- Insert header -->
         <header id="header" th:replace="header::myHeader"></header>
@@ -62,7 +61,7 @@
                 <div>  
                     <form class="floor_form_input" onclick="genearteMap()">
                         Select floor no => 
-                        <input type="radio" name="floor_no" value="ground" />Ground Floor
+                        <input type="radio" name="floor_no" value="ground" checked="checked"/>Ground Floor
                       <input type="radio" name="floor_no" value="first" />First Floor<br/>
                     </form>
                 </div>
@@ -73,11 +72,10 @@
                     <p>Info section</p>
                     <div>
                         <label for="amount">Select a time 1 hour increments:</label>
-                        <input class="slider_outptu" type="text" id="amount"><br/><br/>
+                        <input class="slider_outptu" type="text" id="amount"></input><br/><br/>
                         
-                        <div id="slider" onclick=""></div>
+                        <div id="slider" onclick="genearteMap()"></div>
                     </div>
-                    
                 </div>
             </section>
             
@@ -123,29 +121,29 @@
 
             <script>
                 //<![CDATA[
-                var x = document.getElementById("building");
-                    for (var buildingkey in dataResponse){
-                        var option = document.createElement("option");
-                        option.text = dataResponse[buildingkey][0]["Building"];
-                        x.add(option);
-                    }
-
-                    var classroom = document.getElementById("classroom");
-                    building.addEventListener("change", function() {
-                        classroom.innerHTML = "";
-                        var option = document.createElement("option");
-                        option.text = "Select a classroom";
-                        classroom.add(option);
-                        var optionList = building.querySelectorAll("option");
-                        var selected = building.options[building.selectedIndex].text;
-                        if (typeof dataResponse[selected] !== "undefined") {
-                            for (var i = 0; i < dataResponse[selected].length; i++){
-                                var option = document.createElement("option");
-                                option.text = dataResponse[selected][i]["Room_no"];
-                                classroom.add(option);
-                            }
-                        }
-                    });            
+//                var x = document.getElementById("building");
+//                    for (var buildingkey in dataResponse){
+//                        var option = document.createElement("option");
+//                        option.text = dataResponse[buildingkey][0]["Building"];
+//                        x.add(option);
+//                    }
+//
+//                    var classroom = document.getElementById("classroom");
+//                    building.addEventListener("change", function() {
+//                        classroom.innerHTML = "";
+//                        var option = document.createElement("option");
+//                        option.text = "Select a classroom";
+//                        classroom.add(option);
+//                        var optionList = building.querySelectorAll("option");
+//                        var selected = building.options[building.selectedIndex].text;
+//                        if (typeof dataResponse[selected] !== "undefined") {
+//                            for (var i = 0; i < dataResponse[selected].length; i++){
+//                                var option = document.createElement("option");
+//                                option.text = dataResponse[selected][i]["Room_no"];
+//                                classroom.add(option);
+//                            }
+//                        }
+//                    });            
                 //]]>
             </script>
 
