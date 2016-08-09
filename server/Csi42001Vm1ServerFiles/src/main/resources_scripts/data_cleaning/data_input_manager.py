@@ -20,6 +20,7 @@ import datetime
 from wifi_log_phraser import phrase_csv_file_and_return_array_of_dicts
 from occupancy_report_phraser import phrase_occupancy_excel_file
 from timetable_phraser import phrase_timetable_excel_sheet_into_array_of_dicts
+from generate_derived_data import derived_data_and_generate_indexs_from_db
 
 import nose2
 
@@ -41,6 +42,8 @@ def phrase_data_and_input_into_database(db_host_name, db_user_name, db_password,
         new_data_directory += "/"
 
     # Unzip files and remove zipped version
+    unzip_files_and_remove_zip(new_data_directory)
+    # Run unzip a second time to catch uploads that have been already zipped
     unzip_files_and_remove_zip(new_data_directory)
 
     # Get list of files in new data and remove those that are hidden
@@ -73,6 +76,9 @@ def phrase_data_and_input_into_database(db_host_name, db_user_name, db_password,
 
     # Store input logs
     store_input_logs(results, db_tuple)
+
+    # Generate derived data and indexes
+    derived_data_and_generate_indexs_from_db(db_host_name, db_user_name, db_password, database_name)
 
 
 def store_input_logs(input_results, database_tuple):
