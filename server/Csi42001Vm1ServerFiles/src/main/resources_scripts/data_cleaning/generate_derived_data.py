@@ -53,7 +53,7 @@ def derive_room_table_data(db_cursor):
             update_string += "Building='Computer Science and Informatics Centre',"
 
         # Return first no for room using regex
-        if row.get("Floor_no") and re.search(r'\d', room_no) is not None:
+        if row.get("Floor_no") is None and re.search(r'\d', room_no) is not None:
             update_string += " Floor_no= " + re.search(r'\d', room_no).group() + ","
 
         if row.get("Campus") is None:

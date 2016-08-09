@@ -13,32 +13,36 @@ function hey () {
 // Function to call api
 
 var dataResponse = "";
-        var url = '/api/tablesearch?request=Room&key=Building'
-        var xmr = new XMLHttpRequest();
-        xmr.open("GET", url, false);
-        xmr.onreadystatechange = function(oEvent) {
-        if (xmr.readyState === 4) {
-            if (xmr.status === 200) {
-                dataResponse = JSON.parse(xmr.responseText);
-                console.log(dataResponse);
+var url = 'http://csi420-01-vm1.ucd.ie:8080/api/data?request=Date&Date=2015/11/11'
+var xmr = new XMLHttpRequest();
+xmr.open("GET", url, false);
+xmr.onreadystatechange = function(oEvent) {
+    if (xmr.readyState === 4) {
+        if (xmr.status === 200) {
+            dataResponse = JSON.parse(xmr.responseText);
 
-            } else {
-                console.log("Error", xmr.statusText)
-            }
+        } else {
+            console.log("Error", xmr.statusText)
         }
     }
-        xmr.send(null);
+}
+    xmr.send(null);
 
 // Create map and draw rooms on.
 function genearteMap () {
     
-    
-    
     // Erase map if one exists
     if (geo_map != undefined) {geo_map.remove();}
     
+    //
     // Get form input varialbes
     var floor_no = $('input[name="floor_no"]:checked').val();
+    var current_time = $('#slider_value').val();
+    // Check if time is 9:00:00
+    if (current_time=="9:00:00") {
+        current_time = "09:00:00";
+    }
+    var current_date = '2015-11-11'; // Hard coded as of now
     
     
     geo_map = L.map('floor_plan_wrap', {
@@ -55,8 +59,8 @@ function genearteMap () {
         geo_map.removeLayer(layer);
     });
     
-    var rooms_ground_floor = [{
-        "type": "Feature",
+    var rooms_ground_floor = [
+        {"type": "Feature",
         "properties": {"room": "B002"},
         "geometry": {
             "type": "Polygon",
@@ -68,8 +72,7 @@ function genearteMap () {
             ]]
         }
     },
-        {
-        "type": "Feature",
+        {"type": "Feature",
         "properties": {"room": "B003"},
         "geometry": {
             "type": "Polygon",
@@ -81,8 +84,7 @@ function genearteMap () {
             ]]
         }
     },
-          {
-            "type": "Feature",
+          {"type": "Feature",
             "properties": {"room": "B004"},
             "geometry": {
                 "type": "Polygon",
@@ -97,8 +99,7 @@ function genearteMap () {
     ]
     
     var rooms_first_floor = [
-        {
-           "type": "Feature",
+        {"type": "Feature",
             "properties": {"room": "B108"},
             "geometry": {
                 "type": "Polygon",
@@ -110,8 +111,7 @@ function genearteMap () {
                 ]]
             } 
         },
-        {
-           "type": "Feature",
+        {"type": "Feature",
             "properties": {"room": "B109"},
             "geometry": {
                 "type": "Polygon",
@@ -137,6 +137,14 @@ function genearteMap () {
             } 
         } 
     ]
+    
+    // Combine external json and geojson files together
+    rooms_ground_floor[0].apiData = dataResponse.Room_no.B002;
+    rooms_ground_floor[1].apiData = dataResponse.Room_no.B003;
+    rooms_ground_floor[2].apiData = dataResponse.Room_no.B004;
+    
+//    console.log(dataResponse.Room_no.B004);
+    console.log(rooms_ground_floor);
 
     
     // Set which map to load and which rooms to set
@@ -166,15 +174,38 @@ function genearteMap () {
     geo_map.fitBounds(bounds);
 
     L.geoJson(current_room_set, {
+        // Set color of room
         style: function(feature) {
-            switch (feature.properties.room) {
-                case 'B108': return {color: "red"};
-                case 'B004':   return {color: "green"};
+            
+            if (floor_no=="ground") {
+                // Percentage of room full
+                var capacity = feature.apiData.Capacity;
+                var people_estimate = feature.apiData.Date[current_date].Timeslot[current_time].People_estimate;
+                
+//                console.log(current_time);
+                console.log(people_estimate, capacity);
+            }
+            else if (floor_no="first") {
+                switch (feature.properties.room) {
+                    case 'B109': return {color: "gery"};
+                    case 'B108':   return {color: "gery"};
+                    case 'B106':   return {color: "gery"};
+                }
             }
         },
         onEachFeature: function (feature, layer) {
             popupOptions = {maxWidth: 200};
-            layer.bindPopup("<b>Site name: </b>" + feature.properties.room,popupOptions);
+            
+            if (floor_no=="ground") {
+                layer.bindPopup("<p class='center_text'><b> Room name: </b>" + feature.properties.room + "</p>" +
+                                "<p>Hey</p>", popupOptions);
+            }
+            else if (floor_no=="first") {
+                layer.bindPopup("<p class='center_text'><b> Room name: </b>" + feature.properties.room + 
+                                "<br/> This room currently has no data. </p>", popupOptions);    
+            }
+            
+            
         }
     }).addTo(geo_map);
 

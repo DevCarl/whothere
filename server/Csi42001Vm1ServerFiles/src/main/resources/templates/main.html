@@ -74,7 +74,8 @@
                         <label for="amount">Select a time 1 hour increments:</label>
                         <input class="slider_outptu" type="text" id="amount"></input><br/><br/>
                         
-                        <div id="slider" onclick="genearteMap()"></div>
+                    <div id="slider" onclick="genearteMap()"></div>
+                    <textarea id="slider_value" rows="1" cols="50">Yes</textarea>
                     </div>
                 </div>
             </section>
@@ -90,7 +91,8 @@
                     
                     //This should have each valid amount that can be selected in the slider 
                     var sliderAmountMap = [900, 1000, 1100, 1200, 1300,1400,1500,1600,1700,1800];
-
+                    var slider_value;
+                    
                     $(function() {
                         $( "#slider" ).slider({
                             value: 0, //array index of onload selected default value on slider, for example, 45000 in same array will be selected as default on load
@@ -100,12 +102,15 @@
                             slide: function( event, ui ) {
                                 var time = sliderAmountMap[ui.value]
                                 var stime = time.toString();
-                                var result = stime.splice(-2, 0, ":");
+                                var result = stime.splice(-2, 0, ":00:");
+                                window.slider_value = time;
                                 
                             $( "#amount" ).val(result); //map selected "value" with lookup array
+                            $( "#slider_value" ).val(result);
                             }
                         });
                         $( "#amount" ).val("9:00");//map selected "value" with lookup array
+                        $( "#slider_value" ).val("9:00:00");
                     });
                 //]]>
                 </script>
