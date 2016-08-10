@@ -35,7 +35,7 @@
                 <form id="contact_form" action="#" th:action="@{/contact}" th:object="${contactModel}" method="post">
                     <input type="text" th:field="*{Name}" class="login" placeholder="Your name"/>
                     <input type="email" th:field="*{Email}" class="login" placeholder="E-mail"/>
-                    <input type="text" th:field="*{Msg}" id="textarea" placeholder="Message"/>
+                    <textarea id="textarea" th:field="*{Msg}" cols="86" rows = "8" placeholder="Message" />
                     <button type="submit" id="contact_btn" class="login">SUBMIT</button>
                 </form>
             </div>
