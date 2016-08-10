@@ -1,0 +1,61 @@
+---
+title: "Daily Classroom Occupancy"
+author: "Who's There"
+header-includes: 
+   \usepackage{graphicx}
+   \usepackage{fancyhdr}
+   \pagestyle{fancy}
+   \setlength\headheight{50pt}
+   \fancyhead[L]{\includegraphics[width=2cm]{./logo.png} Who's There}
+output:
+  pdf_document:
+    fig_height: 6
+    fig_width: 14
+---
+
+```{r, echo=FALSE,results='hide', message=FALSE, warning=FALSE}
+#Upload all the libraries necessary for the analyses.
+library(RMySQL) #package for communicate with MySQL database
+library(ggplot2) #package for making graphs
+library(nlme)
+library(nnet)
+library(MASS)
+source("http://peterhaschke.com/Code/multiplot.R") #for using multiplot
+```
+
+```{r, echo=FALSE}
+output <- read.csv("C:/Users/Cometa/Desktop/ResearchPracticum/repo/whothere/dataAnalysis/output.csv")
+newdata <- output[ which(output$Date=='2015-11-03' & output$Room=='1'), ]
+```
+**Class**: B.002  
+**Day**: 25-11-2015  
+**Capacity of the room**:   
+
+Today we predicted that the class will have the following level of occupancy during the day:
+
+```{r,echo=FALSE, fig.align='left'} 
+library(gridExtra)
+library(grid)
+c <- c("Time", "Logistic_occupancy")
+d<-newdata[c]
+
+e <- ggplot(data=newdata, aes(x=factor(Time), y=Logistic_occupancy, fill=Logistic_occupancy)) + geom_bar(stat="identity")+ scale_fill_manual(values=c( "orangered","gold", "cyan", "blue"))+ theme_bw()+guides(fill=FALSE) 
+
+grid.arrange(tableGrob(d), e, ncol=2)
+
+```
+
+In particular we are predicting the following number of people in the room for each hour:
+
+```{r, echo=FALSE}
+library(gridExtra)
+library(grid)
+a <- c("Time", "fit")
+b<-newdata[a]
+g <-ggplot(data=newdata, aes(x=Time, y=fit, group=1)) + geom_ribbon(data=newdata,aes(ymin=lwr, ymax=upr),alpha=0.2, fill="orangered3") + geom_line(color="orangered2")+ theme_bw() + geom_point(color="orangered2") 
+grid.arrange(tableGrob(b), g, ncol=2)
+```
+
+
+
+
