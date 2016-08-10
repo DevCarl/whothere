@@ -91,8 +91,12 @@ public class GreetingController {
 	public String contactPage(@ModelAttribute Email email, Model model) throws MessagingException {
             model.addAttribute("contactModel", new Email());
             SendMail mail = new SendMail();
-            mail.mailSender(email.getName(), email.getEmail(), email.getMsg());
-            return "contact";
+            try {
+		mail.mailSender(email.getName(), email.getEmail(), email.getMsg());
+		return "redirect: /contact?success";
+	    } catch (MessagingException exc) {
+	        return "redirect: /contact?failure";
+	    }
 	}
 	
 //   Internal page elements    
