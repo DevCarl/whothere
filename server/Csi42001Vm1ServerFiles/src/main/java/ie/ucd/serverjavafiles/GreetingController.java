@@ -103,6 +103,7 @@ public class GreetingController {
 	public String contactPage(@ModelAttribute Email email, Model model) throws MessagingException {
             model.addAttribute("contactModel", new Email());
             SendMail mail = new SendMail();
+            email.addEmailInMsg(email.getMsg());
             try {
 		mail.mailSender(email.getName(), email.getEmail(), email.getMsg());
 		return "redirect: /contact?success";

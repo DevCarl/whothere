@@ -28,5 +28,9 @@ public class Email {
     
     public void setMsg(String Msg) {
         this.Msg = Msg;
-    } 
+    }
+    
+    public void addEmailInMsg(String Msg) {
+        this.Msg = Msg + "\n\nSent by: " + this.Email;
+    }
 }
