@@ -139,7 +139,7 @@
                 android:scaleType="center"/>
 
             <EditText android:id="@+id/occupancy"
-                android:layout_width="90dp"
+                android:layout_width="110dp"
                 android:layout_height="90dp"
                 android:text="@string/occupancy_default"
                 android:layout_marginLeft="20dp"

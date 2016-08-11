@@ -12,4 +12,5 @@
     <string name="title_activity_error">ErrorActivity</string>
     <string name="reload">Reload page</string>
     <string name="success">Thank you!</string>
+    <string name="empty_field_error">Please fill in all fields</string>
 </resources>
