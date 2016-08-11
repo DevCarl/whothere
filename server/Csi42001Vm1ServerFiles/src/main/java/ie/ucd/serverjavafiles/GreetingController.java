@@ -77,9 +77,11 @@ public class GreetingController {
             rs.last();
             if (rs.getRow() < 1){
                 query.sqlSetUsers(register);
+                connection.close();
                 return "redirect: /login?newaccount";
             }
         }
+        connection.close();
         return "redirect: /registration?error";
     }
     

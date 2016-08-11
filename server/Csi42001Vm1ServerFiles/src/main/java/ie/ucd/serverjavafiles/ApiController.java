@@ -25,6 +25,7 @@ public class ApiController {
             Connection connection = dataSource.getConnection();
             SqlQueries query = new SqlQueries(connection);
             request = query.sqlGetAllJson(request);
+            connection.close();
             return request;
         }
 
@@ -35,6 +36,7 @@ public class ApiController {
             Connection connection = dataSource.getConnection();
             SqlQueries query = new SqlQueries(connection);
             request = query.sqlGetAllJsonObject(request, specific);
+            connection.close();
             return request;
         }
 	
@@ -61,6 +63,7 @@ public class ApiController {
                     }
                 }
 		request = query.sqlJson(additional, specific, specific2);
+                connection.close();
 		return request;
 	}
 	
