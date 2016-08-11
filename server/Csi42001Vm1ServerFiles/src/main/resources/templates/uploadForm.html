@@ -40,7 +40,6 @@
                 <div>
 
                     <form method="POST" enctype="multipart/form-data" action="/">
-                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                         <table>
                             <tr><td>File to upload here:</td><td><input type="file" name="file" /></td></tr>
                             <tr><td></td><td><input type="submit" value="Upload" /></td></tr>
