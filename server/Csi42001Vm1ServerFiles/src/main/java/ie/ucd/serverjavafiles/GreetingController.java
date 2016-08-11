@@ -45,9 +45,12 @@ public class GreetingController {
             model.addAttribute("upgradeModel", new Upgrade());
             Connection connection = dataSource.getConnection();
             SqlQueries query = new SqlQueries(connection);
-            query.sqlUpgradeUsers(upgrade);
+            boolean check = query.sqlUpgradeUsers(upgrade);
             connection.close();
-            return "admincontrol";
+            if (check) {
+                return "redirect: /admincontrol?success";
+            }
+            return "redirect: /admincontrol?failure";
         }
 	
 	@RequestMapping(value="/api_docs", method=RequestMethod.GET)

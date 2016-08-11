@@ -22,6 +22,12 @@
         <!--    Content    -->
         <div id="contact_box">
             <p class="title">Admin Settings</p>
+            <div th:if="${param.failure}" class="alert alert-error">  
+                <p id="login_error">Your request has failed</p>
+            </div>
+            <div th:if="${param.success}" class="alert alert-success"> 
+                <p id="logout_success">Your request has been successful</p>
+            </div>
             <form id="admin_form" action="#" th:action="@{/admincontrol}" th:object="${upgradeModel}" method="post">
                     <input type="text"  class="login" th:field="*{UserName}" placeholder="User Name"/>
                     <select class = "login" th:field="*{Admin}">
