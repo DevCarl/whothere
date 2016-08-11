@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 public class helpers {
     
     //activateScript has three inputs. type is the language you are using (python3, Rscript), location is the folder location, name is the file name
-    public void activateScript(String type, String location, String name){
+    public static void activateScript(String type, String location, String name){
         String base = "src/main/resources_scripts/";
         String run = type + " " + base + location + "/" + name;
         try {

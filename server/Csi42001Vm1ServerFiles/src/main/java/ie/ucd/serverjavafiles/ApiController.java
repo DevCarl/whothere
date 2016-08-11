@@ -8,16 +8,23 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.filter.CharacterEncodingFilter;
+import java.sql.Connection;
+import javax.sql.DataSource;
+import org.springframework.beans.factory.annotation.Autowired;
 
 
 @CrossOrigin
 @RestController
 public class ApiController {
+    
+        @Autowired
+        DataSource dataSource;
     	
         @RequestMapping(value = "/api/table", method = RequestMethod.GET)
         public String apiRequestTable(@RequestParam(value = "request", required=true) String request) throws Exception{
-            DataSourceConnection connection = new DataSourceConnection();
-            request = connection.sqlGetAllJson(request);
+            Connection connection = dataSource.getConnection();
+            SqlQueries query = new SqlQueries(connection);
+            request = query.sqlGetAllJson(request);
             return request;
         }
 
@@ -25,8 +32,9 @@ public class ApiController {
         public String apiRequestTableSearch(@RequestParam Map<String,String> requestParams) throws Exception{
 		String request = requestParams.get("request");
 		String specific = requestParams.get("key");
-            DataSourceConnection connection = new DataSourceConnection();
-            request = connection.sqlGetAllJsonObject(request, specific);
+            Connection connection = dataSource.getConnection();
+            SqlQueries query = new SqlQueries(connection);
+            request = query.sqlGetAllJsonObject(request, specific);
             return request;
         }
 	
@@ -38,7 +46,8 @@ public class ApiController {
                 String specific2 = requestParams.get(request2);
                 String[] group = {request, request2};
                 String additional = "";
-                DataSourceConnection connection = new DataSourceConnection();
+                Connection connection = dataSource.getConnection();
+                SqlQueries query = new SqlQueries(connection);
                 for (int i = 0; i < group.length; i++){
                     switch ((group[i] != null) ? group[i] : "Null"){
                         case "Date":
@@ -51,7 +60,7 @@ public class ApiController {
                             additional = additional + "AND R.Room_no = ? ";           break;
                     }
                 }
-		request = connection.sqlJson(additional, specific, specific2);
+		request = query.sqlJson(additional, specific, specific2);
 		return request;
 	}
 	

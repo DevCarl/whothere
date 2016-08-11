@@ -1,36 +1,30 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package ie.ucd.serverjavafiles;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import javax.sql.DataSource;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
- 
 
-public class DataSourceConnection {
-	
-	private static Connection connection;
-	
-	public DataSourceConnection() throws SQLException{
-		ApplicationContext appContext = new ClassPathXmlApplicationContext("beans.xml");
-		DataSource dataSource = (DataSource) appContext.getBean("dataSource");
-		this.connection = dataSource.getConnection();
-	}
-	
-	public Connection getConnection() {
-		return connection;
-	}
-	
-	public void setConnection(String bean) throws Exception{
-		ApplicationContext appContext = new ClassPathXmlApplicationContext(bean);
-		DataSource dataSource = (DataSource) appContext.getBean("dataSource");
-		this.connection = dataSource.getConnection();
-	}
-	
-	public static String sqlGetAll(String SearchMethod) throws SQLException{
+/**
+ *
+ * @author devin
+ */
+public class SqlQueries {
+    
+        private Connection connection;
+    
+        public SqlQueries(Connection connection) throws SQLException {
+            this.connection = connection;
+        }
+        
+    	public String sqlGetAll(String SearchMethod) throws SQLException{
 		String query = "";
 		Statement statement = connection.createStatement();
 		ResultSet resultSet = statement.executeQuery("SELECT * FROM " + SearchMethod);
@@ -42,7 +36,7 @@ public class DataSourceConnection {
 		return query;
 	}
 	
-	public static String sqlGetAllJson(String SearchMethod) throws SQLException{
+	public String sqlGetAllJson(String SearchMethod) throws SQLException{
 		String query = "";
 		Statement statement = connection.createStatement();
 		ResultSet resultSet = statement.executeQuery("SELECT * FROM " + SearchMethod);
@@ -51,7 +45,7 @@ public class DataSourceConnection {
 		return result;
 	}
 
-	public static String sqlGetAllJsonObject(String SearchMethod, String Key) throws SQLException{
+	public String sqlGetAllJsonObject(String SearchMethod, String Key) throws SQLException{
 		String query = "";
 		Statement statement = connection.createStatement();
 		ResultSet resultSet = statement.executeQuery("SELECT * FROM " + SearchMethod);
@@ -60,7 +54,7 @@ public class DataSourceConnection {
 		return result;
 	}
         
-        public static String sqlJson(String additional, String specific, String specific2) throws SQLException{
+        public String sqlJson(String additional, String specific, String specific2) throws SQLException{
             String select = "SELECT R.Room_id, R.Room_no, R.Building, R.Floor_no, R.Campus, R.Room_active, R.Capacity, R.Plug_friendly, "
                     + "W.Date, W.Time, W.Associated_client_counts, "
                     + "G.Room_used, G.Percentage_room_full, G.No_of_people, G.Lecture, G.Tutorial, "
@@ -87,13 +81,13 @@ public class DataSourceConnection {
             return result;
         }
         
-        public static ResultSet sqlQuery(String sql) throws SQLException {
+        public ResultSet sqlQuery(String sql) throws SQLException {
             PreparedStatement statement = connection.prepareStatement(sql);
             ResultSet resultSet = statement.executeQuery();
             return resultSet;
         }
 
-        public static boolean sqlSetUsers(Registration register) throws SQLException {
+        public boolean sqlSetUsers(Registration register) throws SQLException {
             String sql = "INSERT INTO Users "
                     + "(User_name, Password, Admin, Acount_active, Ground_truth_access_code) "
                     + "VALUES(?, ?, ?, ?, ?)";
@@ -107,7 +101,7 @@ public class DataSourceConnection {
 	    return count > 0;
         }
 
-        public static boolean sqlUpgradeUsers(Upgrade upgrade) throws SQLException {
+        public boolean sqlUpgradeUsers(Upgrade upgrade) throws SQLException {
             String sql = "UPDATE Users SET Admin = ? WHERE User_name = ?";
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setString(1, upgrade.getAdmin());

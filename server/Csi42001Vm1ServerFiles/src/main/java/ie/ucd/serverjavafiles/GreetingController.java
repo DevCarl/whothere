@@ -2,9 +2,9 @@ package ie.ucd.serverjavafiles;
 
 import java.sql.SQLException;
 import javax.mail.MessagingException;
-
 import java.sql.ResultSet;
-
+import javax.sql.DataSource;
+import java.sql.Connection;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -14,10 +14,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Controller
 public class GreetingController {
-	
+        
+        @Autowired
+        DataSource dataSource;
+        
 //	@RequestMapping(value="/index", method=RequestMethod.GET)
 //	public String indexPage(Model model) {
 //		return "main";
@@ -39,8 +43,10 @@ public class GreetingController {
         @RequestMapping(value="/admincontrol", method=RequestMethod.POST)
         public String adminControlPage(@ModelAttribute Upgrade upgrade, Model model) throws SQLException {
             model.addAttribute("upgradeModel", new Upgrade());
-            DataSourceConnection connection = new DataSourceConnection();
-            connection.sqlUpgradeUsers(upgrade);
+            Connection connection = dataSource.getConnection();
+            SqlQueries query = new SqlQueries(connection);
+            query.sqlUpgradeUsers(upgrade);
+            connection.close();
             return "admincontrol";
         }
 	
@@ -64,12 +70,13 @@ public class GreetingController {
     @RequestMapping(value="/registration", method=RequestMethod.POST)
     public String registrationPost(@ModelAttribute Registration register, Model model) throws SQLException {
         model.addAttribute("registerModel", new Registration());
-        DataSourceConnection connection = new DataSourceConnection();
+        Connection connection = dataSource.getConnection();
+        SqlQueries query = new SqlQueries(connection);
         if (register.getRegistrationCode().equals("TEST")){
-            ResultSet rs = connection.sqlQuery("SELECT User_name FROM Users WHERE User_name = '" + register.getUserName() + "'");
+            ResultSet rs = query.sqlQuery("SELECT User_name FROM Users WHERE User_name = '" + register.getUserName() + "'");
             rs.last();
             if (rs.getRow() < 1){
-                connection.sqlSetUsers(register);
+                query.sqlSetUsers(register);
                 return "redirect: /login?newaccount";
             }
         }
@@ -124,8 +131,9 @@ public class GreetingController {
     @RequestMapping(value="/post/groundtruth", method=RequestMethod.POST, consumes = "application/json")
 	public ResponseEntity<String> saveGroundTruth(@RequestBody GroundTruthData groundTruth) throws SQLException{
     	if(groundTruth.getAccessCode().trim().equalsIgnoreCase("test")){
-			DataSourceConnection connection = new DataSourceConnection();
-			connection.setGroundTruth(groundTruth);
+			Connection connection = dataSource.getConnection();
+                        SqlQueries query = new SqlQueries(connection);
+			query.setGroundTruth(groundTruth);
 			return new ResponseEntity<String>(HttpStatus.OK);
 		}else{
 			return new ResponseEntity<String>(HttpStatus.UNAUTHORIZED);
