@@ -83,9 +83,10 @@ public class GreetingController {
                 connection.close();
                 return "redirect: /login?newaccount";
             }
+	    return "redirect: /registration?errorN";
         }
         connection.close();
-        return "redirect: /registration?error";
+        return "redirect: /registration?errorR";
     }
     
     @RequestMapping(value="/site_map", method=RequestMethod.GET)
