@@ -571,3 +571,7 @@ input.login{
 
 .button2 {background-color: yellow;} /* Blue */
 .button3 {background-color: #f44336;} /* Red */
+
+.error {
+    width: 85%;
+}

@@ -34,25 +34,31 @@ public class GreetingController {
 		return "main";
 	}
         
-        @RequestMapping(value="/admincontrol", method=RequestMethod.GET)
-        public String adminControlPage(Model model) throws SQLException {
-            model.addAttribute("upgradeModel", new Upgrade());
-            return "admincontrol";
+    @RequestMapping(value="/admincontrol", method=RequestMethod.GET)
+    public String adminControlPage(Model model) throws SQLException {
+        model.addAttribute("upgradeModel", new Upgrade());
+        return "admincontrol";
+    }
+    
+    @RequestMapping(value="/admincontrol", method=RequestMethod.POST)
+    public String adminControlPage(@ModelAttribute Upgrade upgrade, Model model) throws SQLException {
+        model.addAttribute("upgradeModel", new Upgrade());
+        Connection connection = dataSource.getConnection();
+        SqlQueries query = new SqlQueries(connection);
+        boolean check = query.sqlUpgradeUsers(upgrade);
+        connection.close();
+        if (check) {
+            return "redirect: /admincontrol?success";
         }
-        
-        @RequestMapping(value="/admincontrol", method=RequestMethod.POST)
-        public String adminControlPage(@ModelAttribute Upgrade upgrade, Model model) throws SQLException {
-            model.addAttribute("upgradeModel", new Upgrade());
-            Connection connection = dataSource.getConnection();
-            SqlQueries query = new SqlQueries(connection);
-            boolean check = query.sqlUpgradeUsers(upgrade);
-            connection.close();
-            if (check) {
-                return "redirect: /admincontrol?success";
-            }
-            return "redirect: /admincontrol?failure";
-        }
+        return "redirect: /admincontrol?failure";
+    }
 	
+    @RequestMapping(value="/error", method=RequestMethod.GET)
+	public String errorPage(Model model) {
+		return "error";
+	}
+      
+        
 	@RequestMapping(value="/api_docs", method=RequestMethod.GET)
 	public String apiDocs(Model model) {
 		return "api_docs";
