@@ -575,3 +575,7 @@ input.login{
 .error {
     width: 85%;
 }
+
+#main_dynamic_map {
+    display: block;
+}

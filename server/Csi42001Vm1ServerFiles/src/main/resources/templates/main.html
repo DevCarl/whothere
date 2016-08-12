@@ -53,40 +53,38 @@
             <!-- Section for floor plan and classroom info  -->
             <section id="info_section">
                 <button id="to_map_btn">Back to map</button>
-<!--
-                <button id="load_map" onclick="genearteMap()">Load map</button>
-                <button id="load_map" onclick="reloadMap()">Relod</button>
--->
                 
                 <h3 id="building_title"></h3>
                 <p id="no_info_error"></p>
                 
-                <div>  
-                    <form class="floor_form_input" onclick="genearteMap()">
-                        Select floor no => 
-                        <input type="radio" name="floor_no" value="ground" checked="checked"/>Ground Floor
-                      <input type="radio" name="floor_no" value="first" />First Floor<br/>
-                    </form>
-                </div>
-                
-                <div id="floor_plan_wrap"></div>
-                
-                <div class="slider_bar">
-                    <p>Info section</p>
-                    <div>
-                        <p>Key <br/>
-                            <button class="button button3">0%-30%</button>
-                            <button class="button button2">30%-60%</button>
-                            <button class="button">60%-100%</button>
-                        </p>
-                    
+                <div id="main_dynamic_map">
+                    <div id="floor_no">  
+                        <form class="floor_form_input" onclick="genearteMap()">
+                            Select floor no => 
+                            <input type="radio" name="floor_no" value="ground" checked="checked"/>Ground Floor
+                          <input type="radio" name="floor_no" value="first" />First Floor<br/>
+                        </form>
                     </div>
-                    <div>
-                        <label for="amount">Select a time. One hour increments:</label>
-                        <input class="slider_outptu" type="text" id="amount" /><br/><br/>
-                        
-                    <div id="slider" onclick="genearteMap()"></div>
-                    <textarea id="slider_value" rows="1" cols="50">Yes</textarea>
+
+                    <div id="floor_plan_wrap"></div>
+
+                    <div class="slider_bar" id="slider_div">
+                        <p>Info section</p>
+                        <div>
+                            <p>Key <br/>
+                                <button class="button button3">0%-30%</button>
+                                <button class="button button2">30%-60%</button>
+                                <button class="button">60%-100%</button>
+                            </p>
+
+                        </div>
+                        <div>
+                            <label for="amount">Select a time. One hour increments:</label>
+                            <input class="slider_outptu" type="text" id="amount" /><br/><br/>
+
+                        <div id="slider" onclick="genearteMap()"></div>
+                        <textarea id="slider_value" rows="1" cols="50">Yes</textarea>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -226,6 +224,7 @@
                         // Give an id for marker matching building name in order to load 
                         // corresponding building information on click
                         marker.metadata = {type: "point", id: name};
+//                        console.log(name);
 
                         // Add listener to marker: show info section
                         marker.addListener('click', function(){
@@ -240,13 +239,14 @@
                     
                     function displayBuildingInfo(marker){
                         document.getElementById("building_title").innerHTML = marker.metadata.id;
+                        console.log(document.getElementById("building_title").innerHTML);
                         if(marker.metadata.id == "Computer Science and Informatics Centre"){
-                            document.getElementById("floor_plan").src = "../static/img/CSI_floor_0.png";
-                           document.getElementById("floor_plan").style.display = 'block'; document.getElementById("no_info_error").style.display = 'none';
+                            document.getElementById("main_dynamic_map").style.display = 'block';
+                            document.getElementById("floor_plan").style.display = 'block'; document.getElementById("no_info_error").style.display = 'none';
                         }else{
-                            document.getElementById("no_info_error").innerHTML = "Sorry, no information for this building yet"
+                            document.getElementById("no_info_error").innerHTML = "Sorry, no information for this building yet!"
                             document.getElementById("no_info_error").style.display = 'block';
-                            document.getElementById("floor_plan").style.display = 'none';
+                            document.getElementById("main_dynamic_map").style.display = 'none';
                         }
                     }
                 }
