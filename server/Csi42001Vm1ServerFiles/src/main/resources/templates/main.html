@@ -136,29 +136,41 @@
 
             <script>
                 //<![CDATA[
-//                var x = document.getElementById("building");
-//                    for (var buildingkey in dataResponse){
-//                        var option = document.createElement("option");
-//                        option.text = dataResponse[buildingkey][0]["Building"];
-//                        x.add(option);
-//                    }
-//
-//                    var classroom = document.getElementById("classroom");
-//                    building.addEventListener("change", function() {
-//                        classroom.innerHTML = "";
-//                        var option = document.createElement("option");
-//                        option.text = "Select a classroom";
-//                        classroom.add(option);
-//                        var optionList = building.querySelectorAll("option");
-//                        var selected = building.options[building.selectedIndex].text;
-//                        if (typeof dataResponse[selected] !== "undefined") {
-//                            for (var i = 0; i < dataResponse[selected].length; i++){
-//                                var option = document.createElement("option");
-//                                option.text = dataResponse[selected][i]["Room_no"];
-//                                classroom.add(option);
-//                            }
-//                        }
-//                    });            
+                
+                // Function to call api
+                
+                console.log(dataResponse["Room_no"]);
+                var keys = [];
+                // Generate list of keys
+                for(var k in dataResponse["Room_no"]) keys.push(k);
+//                console.log(keys[0]);
+                
+                var x = document.getElementById("building");
+                    for (var buildingkey in dataResponse){
+                        var option = document.createElement("option");
+                        var arr = $.map(dataResponse["Room_no"], function(el) { return el });
+                        option.text = arr[0].Building;
+                        x.add(option);
+                    }
+
+                    var classroom = document.getElementById("classroom");
+                    building.addEventListener("change", function() {
+                        classroom.innerHTML = "";
+                        var option = document.createElement("option");
+                        option.text = "Select a classroom";
+                        classroom.add(option);
+                        var optionList = building.querySelectorAll("option");
+                        var selected = building.options[building.selectedIndex].text;
+                        
+                        
+                        if (typeof dataResponse !== "undefined") {
+                            for (var i = 0; i < keys.length; i++){
+                                var option = document.createElement("option");
+                                option.text = keys[i];
+                                classroom.add(option);
+                            }
+                        }
+                    });     
                 //]]>
             </script>
 
