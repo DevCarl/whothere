@@ -168,7 +168,7 @@ function genearteMap () {
     
 //    console.log(floor_no, current_floor);
     
-    var image = L.imageOverlay(current_floor, bounds).addTo(geo_map);
+    var image = L.imageOverlay(testDirectory+current_floor, bounds).addTo(geo_map);
     
 
     geo_map.fitBounds(bounds);
@@ -207,19 +207,23 @@ function genearteMap () {
             popupOptions = {maxWidth: 330};
             
             if (floor_no=="ground") {
+//                console.log(feature.apiData.Date[current_date].Timeslot[current_time]);
                 layer.bindPopup("<p class='center_text'><b> Room name: </b>" + feature.properties.room + "</p>" +
                                 "<p> "
-                                + "<b> Room name: </b>:" + feature.apiData.Building 
-                                + "<br/> <b>Campus</b>:" + feature.apiData.Campus 
-                                + "<br/> <b>Building capacity</b>:" + feature.apiData.Capacity 
-                                + "<br/> <b>Plug_friendly</b>:" + feature.apiData.Plug_friendly 
-                                + "<br/> <b>No_expected_students</b>:" + feature.apiData.Date[current_date].Timeslot[current_time].No_expected_students 
-                                + "<br/> <b>Class_went_ahead</b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Class_went_ahead 
-                                + "<br/> <b>Module</b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Module 
-                                + "<br/> <b>People_estimate</b>:" + feature.apiData.Date[current_date].Timeslot[current_time].People_estimate 
-                                + "<br/> <b>Min_people_estimate</b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Min_people_estimate 
-                                + "<br/> <b>Max_people_estimate</b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Max_people_estimate 
-                                + "<br/> <b>Logistic_occupancy</b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Logistic_occupancy
+                                + "<b> Room name </b>:" + feature.apiData.Building 
+                                + "<br/> <b>Campus </b>:" + feature.apiData.Campus 
+                                + "<br/> <b>Building capacity< /b>:" + feature.apiData.Capacity 
+                                + "<br/> <b>Plug_friendly </b>:" + feature.apiData.Plug_friendly 
+                                + "<br/> <b>No_expected_students </b>:" + feature.apiData.Date[current_date].Timeslot[current_time].No_expected_students 
+                                + "<br/> <b>Class_went_ahead </b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Class_went_ahead 
+                                + "<br/> <b>Module </b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Module.Module_code
+                                + "<br/> <b>Facilty </b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Module.Facilty
+                                + "<br/> <b>Undergrad </b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Module.Undergrad
+                                + "<br/> <b>Course Level </b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Module.Course_level
+                                + "<br/> <b>People_estimate </b>:" + feature.apiData.Date[current_date].Timeslot[current_time].People_estimate 
+                                + "<br/> <b>Min_people_estimate </b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Min_people_estimate 
+                                + "<br/> <b>Max_people_estimate </b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Max_people_estimate 
+                                + "<br/> <b>Logistic_occupancy </b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Logistic_occupancy
                                 + "</p>", popupOptions);
             }
             else if (floor_no=="first") {

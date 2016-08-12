@@ -7,10 +7,11 @@
 <!--        <link rel="stylesheet" type="text/css" href="/css/style.css" th:attr="href=@{/css/style.css}" />-->
         
         <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
-        <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
+<!--        <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>-->
         
         <!--   Local javascript      -->
         <script src="../static/js/main.js"></script>
+        <script src="../static/js/leaflet.js"></script>
         <!--   JQery     -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/core.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
@@ -139,7 +140,7 @@
                 
                 // Function to call api
                 
-                console.log(dataResponse["Room_no"]);
+//                console.log(dataResponse["Room_no"]);
                 var keys = [];
                 // Generate list of keys
                 for(var k in dataResponse["Room_no"]) keys.push(k);
