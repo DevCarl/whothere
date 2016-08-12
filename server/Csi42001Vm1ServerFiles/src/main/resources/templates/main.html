@@ -69,21 +69,21 @@
                     <div id="floor_plan_wrap"></div>
 
                     <div class="slider_bar" id="slider_div">
-                        <p>Info section</p>
                         <div>
-                            <p>Key <br/>
-                                <button class="button button3">0%-30%</button>
-                                <button class="button button2">30%-60%</button>
-                                <button class="button">60%-100%</button>
+                            <p>Key: 
+                                <button class="button button3">Low</button>
+                                <button class="button button2">Medium</button>
+                                <button class="button">High</button>
                             </p>
 
                         </div>
                         <div>
-                            <label for="amount">Select a time. One hour increments:</label>
+                             Select a time. One hour increments:
                             <input class="slider_outptu" type="text" id="amount" /><br/><br/>
-
-                        <div id="slider" onclick="genearteMap()"></div>
-                        <textarea id="slider_value" rows="1" cols="50">Yes</textarea>
+                        </div>
+                        <div>
+                            <div id="slider" onclick="genearteMap()"></div>
+                            <textarea id="slider_value" rows="1" cols="50">Yes</textarea>
                         </div>
                     </div>
                 </div>
@@ -99,7 +99,7 @@
                     };
                     
                     //This should have each valid amount that can be selected in the slider 
-                    var sliderAmountMap = [900, 1000, 1100, 1200, 1300,1400,1500,1600,1700];
+                    var sliderAmountMap = [900, 1000, 1100, 1200, 1300,1400,1500,1600]; // 1700 left out
                     var slider_value;
                     
                     $(function() {
@@ -118,7 +118,7 @@
                             $( "#slider_value" ).val(result);
                             }
                         });
-                        $( "#amount" ).val("9:00");//map selected "value" with lookup array
+                        $( "#amount" ).val("9:00:00");//map selected "value" with lookup array
                         $( "#slider_value" ).val("9:00:00");
                     });
                 //]]>
@@ -239,9 +239,10 @@
                     
                     function displayBuildingInfo(marker){
                         document.getElementById("building_title").innerHTML = marker.metadata.id;
-                        console.log(document.getElementById("building_title").innerHTML);
+//                        console.log(document.getElementById("building_title").innerHTML);
                         if(marker.metadata.id == "Computer Science and Informatics Centre"){
                             document.getElementById("main_dynamic_map").style.display = 'block';
+                            genearteMap ();
                             document.getElementById("floor_plan").style.display = 'block'; document.getElementById("no_info_error").style.display = 'none';
                         }else{
                             document.getElementById("no_info_error").innerHTML = "Sorry, no information for this building yet!"

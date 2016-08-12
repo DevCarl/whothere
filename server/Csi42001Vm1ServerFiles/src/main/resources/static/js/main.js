@@ -5,7 +5,6 @@
 // Create map varialbe as undefiend
 var geo_map;
 
-
 function hey () {
     alert("hi");
 }
@@ -176,24 +175,35 @@ function genearteMap () {
     L.geoJson(current_room_set, {
         // Set color of room
         style: function(feature) {
+            console.log(feature.apiData.Date[current_date].Timeslot[current_time].Logistic_occupancy);
             
             if (floor_no=="ground") {
-                // Percentage of room full
-                var capacity = feature.apiData.Capacity;
-                var people_estimate = feature.apiData.Date[current_date].Timeslot[current_time].People_estimate;
-                var percentage_full = people_estimate / capacity;
-//                console.log(current_time);
-//                console.log(percentage_full, people_estimate, capacity);
+                // Logistic regression results
+                var log_reg = (feature.apiData.Date[current_date].Timeslot[current_time].Logistic_occupancy).trim();
+                switch (log_reg){
+                        case "Low" : return {color: "#B22222"};
+                        case "Mid_Low" : return {color: "#FAB117"};
+                        case "Mid_High" : return {color: "#FAB117"};
+                        case "High" : return {color: "#228B22"};
+                }
                 
-                if (percentage_full <= 0.3) {
-                    return {color: "red"};
-                }
-                else if (0.3 < percentage_full && percentage_full <= 0.6) {
-                    return {color: "yellow"};
-                }
-                else {
-                    return {color: "green"};
-                }
+                
+//                // Percentage of room full
+//                var capacity = feature.apiData.Capacity;
+//                var people_estimate = feature.apiData.Date[current_date].Timeslot[current_time].People_estimate;
+//                var percentage_full = people_estimate / capacity;
+////                console.log(current_time);
+////                console.log(percentage_full, people_estimate, capacity);
+//                
+//                if (percentage_full <= 0.3) {
+//                    return {color: "#B22222"};
+//                }
+//                else if (0.3 < percentage_full && percentage_full <= 0.6) {
+//                    return {color: "#FAB117"};
+//                }
+//                else {
+//                    return {color: "#228B22"};
+//                }
             }
             else if (floor_no="first") {
                 switch (feature.properties.room) {

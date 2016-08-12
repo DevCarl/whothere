@@ -230,7 +230,7 @@ nav li a:hover:not(.active) {
     position: relative;
     height: 450px;
     width: 650px;
-    background-color: aliceblue;
+    background-color: azure;
     margin: auto;
 /*
     -webkit-transform: none;
@@ -533,10 +533,12 @@ input.login{
 }
 
 .slider_outptu {
+    
     font-size: 20px;
     border:0; 
     color:Blue; 
     font-weight:bold;
+    width: 80px;
 }
 
 /* admin form controller */
@@ -557,10 +559,10 @@ input.login{
 }
 
 .button {
-    background-color: #4CAF50; /* Green */
+    background-color: #228B22; /* Green */
     border: none;
     color: black;
-    padding: 15px 32px;
+    padding: 10px 15px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
@@ -569,8 +571,8 @@ input.login{
     cursor: pointer;
 }
 
-.button2 {background-color: yellow;} /* Blue */
-.button3 {background-color: #f44336;} /* Red */
+.button2 {background-color: #FAB117;} /* Blue */
+.button3 {background-color: #B22222;} /* Red */
 
 .error {
     width: 85%;
@@ -579,3 +581,5 @@ input.login{
 #main_dynamic_map {
     display: block;
 }
+
+
