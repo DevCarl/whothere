@@ -5,7 +5,6 @@
 // Create map varialbe as undefiend
 var geo_map;
 
-
 function hey () {
     alert("hi");
 }
@@ -176,24 +175,34 @@ function genearteMap () {
     L.geoJson(current_room_set, {
         // Set color of room
         style: function(feature) {
-            
+
             if (floor_no=="ground") {
-                // Percentage of room full
-                var capacity = feature.apiData.Capacity;
-                var people_estimate = feature.apiData.Date[current_date].Timeslot[current_time].People_estimate;
-                var percentage_full = people_estimate / capacity;
-//                console.log(current_time);
-//                console.log(percentage_full, people_estimate, capacity);
+                // Logistic regression results
+                var log_reg = (feature.apiData.Date[current_date].Timeslot[current_time].Logistic_occupancy).trim();
+                switch (log_reg){
+                        case "Low" : return {color: "#B22222"};
+                        case "Mid_Low" : return {color: "#FAB117"};
+                        case "Mid_High" : return {color: "#FAB117"};
+                        case "High" : return {color: "#228B22"};
+                }
                 
-                if (percentage_full <= 0.3) {
-                    return {color: "red"};
-                }
-                else if (0.3 < percentage_full && percentage_full <= 0.6) {
-                    return {color: "yellow"};
-                }
-                else {
-                    return {color: "green"};
-                }
+                
+//                // Percentage of room full
+//                var capacity = feature.apiData.Capacity;
+//                var people_estimate = feature.apiData.Date[current_date].Timeslot[current_time].People_estimate;
+//                var percentage_full = people_estimate / capacity;
+////                console.log(current_time);
+////                console.log(percentage_full, people_estimate, capacity);
+//                
+//                if (percentage_full <= 0.3) {
+//                    return {color: "#B22222"};
+//                }
+//                else if (0.3 < percentage_full && percentage_full <= 0.6) {
+//                    return {color: "#FAB117"};
+//                }
+//                else {
+//                    return {color: "#228B22"};
+//                }
             }
             else if (floor_no="first") {
                 switch (feature.properties.room) {
@@ -207,19 +216,23 @@ function genearteMap () {
             popupOptions = {maxWidth: 330};
             
             if (floor_no=="ground") {
+//                console.log(feature.apiData.Date[current_date].Timeslot[current_time]);
                 layer.bindPopup("<p class='center_text'><b> Room name: </b>" + feature.properties.room + "</p>" +
                                 "<p> "
-                                + "<b> Room name: </b>:" + feature.apiData.Building 
-                                + "<br/> <b>Campus</b>:" + feature.apiData.Campus 
-                                + "<br/> <b>Building capacity</b>:" + feature.apiData.Capacity 
-                                + "<br/> <b>Plug_friendly</b>:" + feature.apiData.Plug_friendly 
-                                + "<br/> <b>No_expected_students</b>:" + feature.apiData.Date[current_date].Timeslot[current_time].No_expected_students 
-                                + "<br/> <b>Class_went_ahead</b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Class_went_ahead 
-                                + "<br/> <b>Module</b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Module 
-                                + "<br/> <b>People_estimate</b>:" + feature.apiData.Date[current_date].Timeslot[current_time].People_estimate 
-                                + "<br/> <b>Min_people_estimate</b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Min_people_estimate 
-                                + "<br/> <b>Max_people_estimate</b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Max_people_estimate 
-                                + "<br/> <b>Logistic_occupancy</b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Logistic_occupancy
+                                + "<b> Room name </b>:" + feature.apiData.Building 
+                                + "<br/> <b>Campus </b>:" + feature.apiData.Campus 
+                                + "<br/> <b>Building capacity< /b>:" + feature.apiData.Capacity 
+                                + "<br/> <b>Plug_friendly </b>:" + feature.apiData.Plug_friendly 
+                                + "<br/> <b>No_expected_students </b>:" + feature.apiData.Date[current_date].Timeslot[current_time].No_expected_students 
+                                + "<br/> <b>Class_went_ahead </b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Class_went_ahead 
+                                + "<br/> <b>Module </b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Module.Module_code
+                                + "<br/> <b>Facilty </b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Module.Facilty
+                                + "<br/> <b>Undergrad </b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Module.Undergrad
+                                + "<br/> <b>Course Level </b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Module.Course_level
+                                + "<br/> <b>People_estimate </b>:" + feature.apiData.Date[current_date].Timeslot[current_time].People_estimate 
+                                + "<br/> <b>Min_people_estimate </b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Min_people_estimate 
+                                + "<br/> <b>Max_people_estimate </b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Max_people_estimate 
+                                + "<br/> <b>Logistic_occupancy </b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Logistic_occupancy
                                 + "</p>", popupOptions);
             }
             else if (floor_no=="first") {

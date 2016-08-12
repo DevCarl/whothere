@@ -7,10 +7,11 @@
 <!--        <link rel="stylesheet" type="text/css" href="/css/style.css" th:attr="href=@{/css/style.css}" />-->
         
         <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
-        <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
+<!--        <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>-->
         
         <!--   Local javascript      -->
-        <script src="../static/js/main.js"></script>
+        <script src="js/main.js"></script>
+        <script src="js/leaflet.js"></script>
         <!--   JQery     -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/core.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
@@ -52,40 +53,38 @@
             <!-- Section for floor plan and classroom info  -->
             <section id="info_section">
                 <button id="to_map_btn">Back to map</button>
-<!--
-                <button id="load_map" onclick="genearteMap()">Load map</button>
-                <button id="load_map" onclick="reloadMap()">Relod</button>
--->
                 
                 <h3 id="building_title"></h3>
                 <p id="no_info_error"></p>
                 
-                <div>  
-                    <form class="floor_form_input" onclick="genearteMap()">
-                        Select floor no => 
-                        <input type="radio" name="floor_no" value="ground" checked="checked"/>Ground Floor
-                      <input type="radio" name="floor_no" value="first" />First Floor<br/>
-                    </form>
-                </div>
-                
-                <div id="floor_plan_wrap"></div>
-                
-                <div class="slider_bar">
-                    <p>Info section</p>
-                    <div>
-                        <p>Key <br/>
-                            <button class="button button3">0%-30%</button>
-                            <button class="button button2">30%-60%</button>
-                            <button class="button">60%-100%</button>
-                        </p>
-                    
+                <div id="main_dynamic_map">
+                    <div id="floor_no">  
+                        <form class="floor_form_input" onclick="genearteMap()">
+                            Select floor no => 
+                            <input type="radio" name="floor_no" value="ground" checked="checked"/>Ground Floor
+                          <input type="radio" name="floor_no" value="first" />First Floor<br/>
+                        </form>
                     </div>
-                    <div>
-                        <label for="amount">Select a time. One hour increments:</label>
-                        <input class="slider_outptu" type="text" id="amount" /><br/><br/>
-                        
-                    <div id="slider" onclick="genearteMap()"></div>
-                    <textarea id="slider_value" rows="1" cols="50">Yes</textarea>
+
+                    <div id="floor_plan_wrap"></div>
+
+                    <div class="slider_bar" id="slider_div">
+                        <div>
+                            <p>Key: 
+                                <button class="button button3">Low</button>
+                                <button class="button button2">Medium</button>
+                                <button class="button">High</button>
+                            </p>
+
+                        </div>
+                        <div>
+                             Select a time. One hour increments:
+                            <input class="slider_outptu" type="text" id="amount" /><br/><br/>
+                        </div>
+                        <div>
+                            <div id="slider" onclick="genearteMap()"></div>
+                            <textarea id="slider_value" rows="1" cols="50">Yes</textarea>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -100,7 +99,7 @@
                     };
                     
                     //This should have each valid amount that can be selected in the slider 
-                    var sliderAmountMap = [900, 1000, 1100, 1200, 1300,1400,1500,1600,1700];
+                    var sliderAmountMap = [900, 1000, 1100, 1200, 1300,1400,1500,1600]; // 1700 left out
                     var slider_value;
                     
                     $(function() {
@@ -119,7 +118,7 @@
                             $( "#slider_value" ).val(result);
                             }
                         });
-                        $( "#amount" ).val("9:00");//map selected "value" with lookup array
+                        $( "#amount" ).val("9:00:00");//map selected "value" with lookup array
                         $( "#slider_value" ).val("9:00:00");
                     });
                 //]]>
@@ -136,29 +135,47 @@
 
             <script>
                 //<![CDATA[
-//                var x = document.getElementById("building");
-//                    for (var buildingkey in dataResponse){
-//                        var option = document.createElement("option");
-//                        option.text = dataResponse[buildingkey][0]["Building"];
-//                        x.add(option);
-//                    }
-//
-//                    var classroom = document.getElementById("classroom");
-//                    building.addEventListener("change", function() {
-//                        classroom.innerHTML = "";
-//                        var option = document.createElement("option");
-//                        option.text = "Select a classroom";
-//                        classroom.add(option);
-//                        var optionList = building.querySelectorAll("option");
-//                        var selected = building.options[building.selectedIndex].text;
-//                        if (typeof dataResponse[selected] !== "undefined") {
-//                            for (var i = 0; i < dataResponse[selected].length; i++){
-//                                var option = document.createElement("option");
-//                                option.text = dataResponse[selected][i]["Room_no"];
-//                                classroom.add(option);
-//                            }
-//                        }
-//                    });            
+                
+                // Function to call api
+                
+//                console.log(dataResponse["Room_no"]);
+                var keys = [];
+                // Generate list of keys
+                for(var k in dataResponse["Room_no"]) keys.push(k);
+//                console.log(keys[0]);
+                
+                var x = document.getElementById("building");
+                    for (var buildingkey in dataResponse){
+                        var option = document.createElement("option");
+                        var arr = $.map(dataResponse["Room_no"], function(el) { return el });
+                        option.text = arr[0].Building;
+                        x.add(option);
+                    }
+
+                    var classroom = document.getElementById("classroom");
+                    building.addEventListener("change", function() {
+                        classroom.innerHTML = "";
+                        var option = document.createElement("option");
+                        option.text = "Select a classroom";
+                        classroom.add(option);
+                        var optionList = building.querySelectorAll("option");
+                        var selected = building.options[building.selectedIndex].text;     
+                        
+                        if (selected == "Computer Science and Informatics Centre") {
+                            for (var i = 0; i < keys.length; i++){
+                                var option = document.createElement("option");
+                                option.text = keys[i];
+                                classroom.add(option);
+                            }
+                        }
+                        else {
+                            document.getElementById('classroom').options.length = 0;
+                            var option = document.createElement("option");
+                            option.text = "Select a classroom";
+                            classroom.add(option);
+                        }
+                        
+                    });     
                 //]]>
             </script>
 
@@ -213,6 +230,7 @@
                         // Give an id for marker matching building name in order to load 
                         // corresponding building information on click
                         marker.metadata = {type: "point", id: name};
+//                        console.log(name);
 
                         // Add listener to marker: show info section
                         marker.addListener('click', function(){
@@ -227,13 +245,15 @@
                     
                     function displayBuildingInfo(marker){
                         document.getElementById("building_title").innerHTML = marker.metadata.id;
+//                        console.log(document.getElementById("building_title").innerHTML);
                         if(marker.metadata.id == "Computer Science and Informatics Centre"){
-                            document.getElementById("floor_plan").src = "../static/img/CSI_floor_0.png";
-                           document.getElementById("floor_plan").style.display = 'block'; document.getElementById("no_info_error").style.display = 'none';
+                            document.getElementById("main_dynamic_map").style.display = 'block';
+                            genearteMap ();
+                            document.getElementById("floor_plan").style.display = 'block'; document.getElementById("no_info_error").style.display = 'none';
                         }else{
-                            document.getElementById("no_info_error").innerHTML = "Sorry, no information for this building yet"
+                            document.getElementById("no_info_error").innerHTML = "Sorry, no information for this building yet!"
                             document.getElementById("no_info_error").style.display = 'block';
-                            document.getElementById("floor_plan").style.display = 'none';
+                            document.getElementById("main_dynamic_map").style.display = 'none';
                         }
                     }
                 }
