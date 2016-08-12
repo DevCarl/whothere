@@ -159,16 +159,22 @@
                         option.text = "Select a classroom";
                         classroom.add(option);
                         var optionList = building.querySelectorAll("option");
-                        var selected = building.options[building.selectedIndex].text;
+                        var selected = building.options[building.selectedIndex].text;     
                         
-                        
-                        if (typeof dataResponse !== "undefined") {
+                        if (selected == "Computer Science and Informatics Centre") {
                             for (var i = 0; i < keys.length; i++){
                                 var option = document.createElement("option");
                                 option.text = keys[i];
                                 classroom.add(option);
                             }
                         }
+                        else {
+                            document.getElementById('classroom').options.length = 0;
+                            var option = document.createElement("option");
+                            option.text = "Select a classroom";
+                            classroom.add(option);
+                        }
+                        
                     });     
                 //]]>
             </script>

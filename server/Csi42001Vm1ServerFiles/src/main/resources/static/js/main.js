@@ -167,7 +167,7 @@ function genearteMap () {
     
 //    console.log(floor_no, current_floor);
     
-    var image = L.imageOverlay(testDirectory+current_floor, bounds).addTo(geo_map);
+    var image = L.imageOverlay(current_floor, bounds).addTo(geo_map);
     
 
     geo_map.fitBounds(bounds);
@@ -175,8 +175,7 @@ function genearteMap () {
     L.geoJson(current_room_set, {
         // Set color of room
         style: function(feature) {
-            console.log(feature.apiData.Date[current_date].Timeslot[current_time].Logistic_occupancy);
-            
+
             if (floor_no=="ground") {
                 // Logistic regression results
                 var log_reg = (feature.apiData.Date[current_date].Timeslot[current_time].Logistic_occupancy).trim();
