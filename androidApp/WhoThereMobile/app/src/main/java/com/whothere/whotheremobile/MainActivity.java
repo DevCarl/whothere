@@ -1,7 +1,5 @@
 package com.whothere.whotheremobile;
 
-
-import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -23,6 +21,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.springframework.http.HttpEntity;
@@ -46,7 +45,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, View.OnTouchListener{
+public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
     // Views
     private ProgressDialog pDialog;
@@ -66,13 +65,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                    time;
     private int occupancy;
 
-//    final String  BASE_URL = "http://10.0.2.2:8080";
+//     final String  BASE_URL = "http://10.0.2.2:8080";
     final String  BASE_URL = "http://csi420-01-vm1.ucd.ie:8080";
 
     private List<Building> buildings;
     private Building selectedBuilding;
     private Room selectedRoom;
 
+    /**
+    * This method is called when the activity is created - It calls methods to initialise views
+    * and includes a call to the async task requesting and parsing JSON with classroom and
+    * building information
+    */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,14 +88,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         new HttpGetRequestTask().execute();
     }
 
+    /**
+     * This method is called after the activity has been paused
+     */
     @Override
-    public void onResume()
-    {  // After a pause OR at startup
+    public void onResume(){
         super.onResume();
-        setViews();
-//        new HttpGetRequestTask().execute();
+        clearFields();
     }
 
+    /**
+     * Create the action bar menu on the top of the screen
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -99,11 +107,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return true;
     }
 
+    /**
+     *  Listener to action buttons in the action bar
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_reload:
-                // Calling async task to get json
+                clearFields();
                 new HttpGetRequestTask().execute();
                 return true;
             default:
@@ -111,7 +122,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    // Setting all views on activity and listeners
+    public void clearFields(){
+        accessCodeText.getText().clear();
+        buildingsSpinner.setSelection(0);
+        classroomsSpinner.setSelection(0);
+        dateText.getText().clear();
+        timeSpinner.setSelection(0);
+        occupancyText.setText("0");
+    }
+
+    // Set all views in activity and listeners
     private void setViews(){
         occupancyText = (EditText)findViewById(R.id.occupancy);
         dateText = (EditText) findViewById(R.id.dateText);
@@ -124,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ImageButton minusBtn = (ImageButton) findViewById(R.id.minus_btn);
         Button submitBtn = (Button) findViewById(R.id.submit_btn);
 
-        // Set default value to classroom spinner
+        // Set default value to building spinner
         List<String> buildingTitle =  Collections.singletonList(getString(R.string.buildings_spinner_title));
         ArrayAdapter<String> buildingsAdapter = new ArrayAdapter<String>(MainActivity.this,
                 android.R.layout.simple_spinner_item, buildingTitle);
@@ -148,18 +168,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         timeAdapter.setDropDownViewResource(R.layout.spinner_item);
         timeSpinner.setAdapter(timeAdapter);
 
-        buildingsSpinner.setOnTouchListener(this);
-        classroomsSpinner.setOnTouchListener(this);
-        timeSpinner.setOnTouchListener(this);
         plusBtn.setOnClickListener(this);
         minusBtn.setOnClickListener(this);
-
-        // Listener for Button "POST"
         submitBtn.setOnClickListener(this);
     }
 
-
-    @Override  // Hides soft keyboard when clicking out of a view
+    // Hide soft keyboard when clicking out of a view
+    @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
         if (getCurrentFocus() != null) {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -168,6 +183,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return super.dispatchTouchEvent(ev);
     }
 
+    // Onclick listener
     @Override
     public void onClick(View view) {
         int occupancyValue = Integer.parseInt(occupancyText.getText().toString());
@@ -179,10 +195,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.submit_btn:
                 getFormValues();
                 if(!validateData()) {
-                    Toast.makeText(getBaseContext(), "Please fill in all fields", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getBaseContext(), R.string.empty_field_error, Toast.LENGTH_LONG).show();
                 }else{
-                    // Calling async task to get json
-                    formatTime();
+                    time = formatTime();
                     new HttpPostTask().execute();
                 }
                 break;
@@ -191,24 +206,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 occupancyText.setText(Integer.toString(increasedValue));
                 break;
             case R.id.minus_btn:
-
                 if (occupancyValue > 0) {
                     int decreasedValue = occupancyValue - 1;
                     occupancyText.setText(new Integer(decreasedValue).toString());
                 }
-                break;
         }
     }
 
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        InputMethodManager inputManager = (InputMethodManager)getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputManager.hideSoftInputFromWindow(occupancyText.getWindowToken(), 0);
-        inputManager.hideSoftInputFromWindow(accessCodeText.getWindowToken(), 0);
-        return false;
-    }
-
-    // Setting date picker window
+    // Set date picker window
     private void setDateTimeField() {
         dateText.setOnClickListener(this);
 
@@ -222,6 +227,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         },newCalendar.get(Calendar.YEAR), newCalendar.get(Calendar.MONTH), newCalendar.get(Calendar.DAY_OF_MONTH));
     }
 
+    // Store form values into corresponding variables
     private void getFormValues(){
         accessCode = accessCodeText.getText().toString();
         classroom = classroomsSpinner.getSelectedItem().toString();
@@ -230,30 +236,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         occupancy = Integer.decode(occupancyText.getText().toString());
     }
 
+    // Check that all the fields have been filled
     private Boolean validateData(){
         if(accessCode.equals("")) {
-            Log.e("ACCESS CODE", "null");
             return false;
         }
         if(classroom.trim().equals(getString(R.string.classrooms_spinner_title))) {
-            Log.e("CLASSROOM", "null");
             return false;
         }
         if(date.equals(getString(R.string.select_date))) {
-            Log.e("DATE", "null");
             return false;
         }
         if(time.equals(getString(R.string.select_time))) {
-            Log.e("TIME", "null");
             return false;
         }else
             return true;
     }
 
-    private void formatTime(){
-        time = timeSpinner.getSelectedItem().toString() + ":00";
+    // Format time to match format used in database
+    private String formatTime(){
+        return timeSpinner.getSelectedItem().toString() + ":00";
     }
 
+    /**
+     * This class creates another thread and conducts a http get request, parses the resulting JSON
+     * and populates the building and classroom dropdown menus
+     */
     private class HttpGetRequestTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected void onPreExecute() {
@@ -266,6 +274,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             pDialog.show();
         }
 
+        /**
+         * HTTP request with RestTemplate with timeout, get JSON with list of rooms, parse JSON and
+         * creates an array of Room objects. Then creates an array of unique buildings
+         */
         @Override
         protected Void doInBackground(Void... params) {
             buildings = new ArrayList<Building>();
@@ -279,6 +291,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             try {
                 rooms = restTemplate.getForObject(url, Room[].class);
             } catch (Exception e) {
+                Log.e("Exception", e.getMessage());
                 if (e.getCause() instanceof SocketTimeoutException) {
                     runOnUiThread(new Runnable() {
                         public void run() {
@@ -310,12 +323,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         buildings.add(tempBuilding);
                     }
                 }
-            }else{
-
             }
             return null;
         }
 
+        /**
+         * Populate building dropdown menu, listener for building dropdown menu populates classroom
+         * dropdown menu with classrooms belonging to selected building
+         */
         @Override
         protected void onPostExecute(Void result){
             // Dismiss the progress dialog
@@ -383,6 +398,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    /**
+     * This class creates another thread and conducts a http post request, sending values entered in
+     * the form to the server
+     */
     private class HttpPostTask extends AsyncTask<Void, Void, Void> {
 
         @Override
@@ -396,6 +415,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             pDialog.show();
         }
 
+        /**
+         * Instantiate GroundTruthData object with values from the form and post values to server
+         * using RestTemplate with timeout of 3 seconds
+         */
         @Override
         protected Void doInBackground(Void... params) {
             // Dismiss the progress dialog

@@ -5,7 +5,7 @@
         <link rel="stylesheet" type="text/css" href="../static/css/style.css" th:attr="href=@{/css/style.css}" />
         
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?callback=initMap" defer='defer'> </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAysaK-xaVpMze3R5nJp1hniuflmN0tCfY&amp;callback=initMap" defer='defer'></script>
          
     </head>
         
@@ -22,6 +22,12 @@
         <!--    Contact us form    -->
         <div id="contact_box">
             <p class="title">Contact us</p>
+            <div th:if="${param.failure}" class="alert alert-error">  
+                <p id="login_error">Your request has failed</p>
+            </div>
+            <div th:if="${param.success}" class="alert alert-success"> 
+                <p id="logout_success">Your request has been successful</p>
+            </div>
             <div class="stretch">
                 <br/>
                 <div>

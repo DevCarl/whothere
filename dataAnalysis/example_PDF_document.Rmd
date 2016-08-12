@@ -10,50 +10,112 @@ header-includes:
 output:
   pdf_document:
     fig_height: 6
-    fig_width: 14
+    fig_width: 16
 ---
 
 ```{r, echo=FALSE,results='hide', message=FALSE, warning=FALSE}
 #Upload all the libraries necessary for the analyses.
-library(RMySQL) #package for communicate with MySQL database
+library(httr)
+library(jsonlite)
+library(lubridate)
 library(ggplot2) #package for making graphs
-library(nlme)
-library(nnet)
-library(MASS)
 source("http://peterhaschke.com/Code/multiplot.R") #for using multiplot
+options(stringsAsFactors = FALSE)#turn off the auto transformation of string in factors
+library(dplyr) 
+library(tidyjson)
+library(magrittr)
+library(data.table)
+
+
+#set up the url and the path of the api for server
+#url <- "http://csi420-01-vm1.ucd.ie:8080"
+#path <-"/apidata?request=Room_no&Room_no=B002"
+
+#set up the url and the path of the api locally
+url <- "http://192.168.10.2:8080"
+path <-"/api/data?request=Room_no&Room_no=B003&request2=Date&Date=2015-11-03"
+
+raw_contents <- GET(url = url, path=path)
+raw_contents$status_code
+
+json_raw <- httr::content(raw_contents, type = "text", encoding = "UTF-8")
+
+tidy_json <- json_raw %>% as.tbl_json
+
+
+#Getting the detail for printing the main information on the PDF 
+details <-
+  tidy_json %>%
+  enter_object("Room_no") %>%
+  enter_object("B003") %>%
+  spread_values(Campus = jstring("Campus"),Building = jstring("Building"), Capacity=jnumber("Capacity"), Plug_friendly= jstring("Plug_friendly"), Floor =jstring("Floor_no")) 
+
+
+#Getting the keys for Timeslot
+time <- 
+  tidy_json %>%
+  enter_object("Room_no") %>%
+  enter_object("B003") %>%
+  enter_object("Date") %>%
+  enter_object("2015-11-03") %>%
+  enter_object("Timeslot") %>%
+  gather_keys 
+
+#for loop for gathering the information regarding the estimates on room occupancy
+#made by the model in each time slot and storing them in a dataframe 
+  for (i in 1:8){
+  print(paste("i is", i))
+  occupancy<-
+  tidy_json %>%
+  enter_object("Room_no") %>%
+  enter_object("B003") %>%
+  enter_object("Date") %>%
+  enter_object("2015-11-03") %>%
+  enter_object("Timeslot") %>%
+  enter_object(time$key[i])%>%
+    spread_values(Predicted_occupancy= jstring("Logistic_occupancy"), Expected_people= jnumber("People_estimate"), Max_people = jnumber("Max_people_estimate"), Min_people = jnumber("Min_people_estimate"))%>%
+  select(Predicted_occupancy, Expected_people, Max_people, Min_people)
+  
+  if (i == 1) { 
+              occupancy_table <- occupancy #create dataframe room occupancy
+         } 
+         else {
+              occupancy_table <- rbindlist(list(occupancy_table, occupancy))#add new rows to the dataframe
+         }
+  
+  }
+  library(stringr)
+  occupancy_table <-cbind(Time=str_sub(time$key, -8,-4), occupancy_table)
+  occupancy_table <- occupancy_table[order(Time),] 
+  
+
+```
+**Day**:  
+**Campus**:`r details$Campus`  
+**Building**: `r details$Building`  
+**Floor number**: `r details$Floor`  
+**Room**:   
+**Capacity of the room**: `r details$Capacity`   
+**Plug-friendly**: `r details$Plug_friendly`  
+
+
+This document summarised the occupancy of the room estimated using the predicted values gathered through our models for the day requested.  
+
+The data are summarised by the following table and graphs.  
+
+```{r pander, echo = FALSE, message=FALSE, warning=FALSE} 
+library(pander)
+panderOptions("digits", 4)
+pander(occupancy_table)
+
 ```
 
-```{r, echo=FALSE}
-output <- read.csv("C:/Users/Cometa/Desktop/ResearchPracticum/repo/whothere/dataAnalysis/output.csv")
-newdata <- output[ which(output$Date=='2015-11-03' & output$Room=='1'), ]
-```
-**Class**: B.002  
-**Day**: 25-11-2015  
-**Capacity of the room**:   
 
-Today we predicted that the class will have the following level of occupancy during the day:
+```{r, echo=FALSE, message=FALSE, fig.align='center'}
+occupancy_plot <- ggplot(data=occupancy_table, aes(x=factor(Time), y=Predicted_occupancy, fill=Predicted_occupancy)) + geom_bar(stat="identity")+ scale_fill_manual(values=c( "orangered","darkcyan","gold", "blue"))+ theme_bw()
 
-```{r,echo=FALSE, fig.align='left'} 
-library(gridExtra)
-library(grid)
-c <- c("Time", "Logistic_occupancy")
-d<-newdata[c]
-
-e <- ggplot(data=newdata, aes(x=factor(Time), y=Logistic_occupancy, fill=Logistic_occupancy)) + geom_bar(stat="identity")+ scale_fill_manual(values=c( "orangered","gold", "cyan", "blue"))+ theme_bw()+guides(fill=FALSE) 
-
-grid.arrange(tableGrob(d), e, ncol=2)
-
-```
-
-In particular we are predicting the following number of people in the room for each hour:
-
-```{r, echo=FALSE}
-library(gridExtra)
-library(grid)
-a <- c("Time", "fit")
-b<-newdata[a]
-g <-ggplot(data=newdata, aes(x=Time, y=fit, group=1)) + geom_ribbon(data=newdata,aes(ymin=lwr, ymax=upr),alpha=0.2, fill="orangered3") + geom_line(color="orangered2")+ theme_bw() + geom_point(color="orangered2") 
-grid.arrange(tableGrob(b), g, ncol=2)
+count_plot <-ggplot(data=occupancy_table, aes(x=Time, y=Expected_people, group=1)) + geom_ribbon(data=occupancy_table,aes(ymin=Min_people, ymax=Max_people),alpha=0.2, fill="orangered3") + geom_line(color="orangered2")+ theme_bw() + geom_point(color="orangered2") 
+multiplot(occupancy_plot, count_plot, cols=2)
 ```
 
 

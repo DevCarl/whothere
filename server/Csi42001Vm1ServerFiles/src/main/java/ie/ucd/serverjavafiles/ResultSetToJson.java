@@ -79,9 +79,6 @@ public class ResultSetToJson {
                     }
                     JSONObject moduleJSONLocation = timeslotJSONLocation.getJSONObject(Time).getJSONObject("Module");
                     JSONObject minuteJSONLocation = timeslotJSONLocation.getJSONObject(Time).getJSONObject("Time");
-                    if (!moduleJSONLocation.has(Module)){
-                        moduleJSONLocation.put(Module, new JSONObject());
-                    }
                     if (!minuteJSONLocation.has(Minutes)){
                         minuteJSONLocation.put(Minutes, new JSONObject());
                     }
@@ -90,7 +87,7 @@ public class ResultSetToJson {
                         String name = meta.getColumnLabel(i);
                         String table = meta.getTableName(i);
                         JSONObject location = new JSONObject();
-                        if (!(name.equals("Date") || name.equals("Time") || name.equals("Module_code") || name.equals("Room_no") || name.equals("Time_period"))){
+                        if (!(name.equals("Date") || name.equals("Time") || name.equals("Room_no") || name.equals("Time_period"))){
                         switch (table){
                             case "Wifi_log":
                                 location = minuteJSONLocation.getJSONObject(Minutes);     break;
@@ -101,7 +98,7 @@ public class ResultSetToJson {
                             case "Room":
                                 location = roomJSONLocation;                              break;
                             case "Module":
-                                location = moduleJSONLocation.getJSONObject(Module);      break;
+                                location = moduleJSONLocation;      break;
                         }
                         JSONPlacer(meta.getColumnType(i), resultSet, location, i, name);
                         }

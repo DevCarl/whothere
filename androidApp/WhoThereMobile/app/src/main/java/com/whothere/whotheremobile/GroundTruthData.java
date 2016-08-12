@@ -1,7 +1,5 @@
 package com.whothere.whotheremobile;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 /**
  * Created by Ophelie on 06/08/2016.
  */
