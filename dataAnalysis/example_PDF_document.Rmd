@@ -10,50 +10,127 @@ header-includes:
 output:
   pdf_document:
     fig_height: 6
-    fig_width: 14
+    fig_width: 16
 ---
 
 ```{r, echo=FALSE,results='hide', message=FALSE, warning=FALSE}
 #Upload all the libraries necessary for the analyses.
-library(RMySQL) #package for communicate with MySQL database
+library(httr)
+library(jsonlite)
+library(lubridate)
 library(ggplot2) #package for making graphs
-library(nlme)
-library(nnet)
-library(MASS)
 source("http://peterhaschke.com/Code/multiplot.R") #for using multiplot
+options(stringsAsFactors = FALSE)#turn off the auto transformation of string in factors
+library(dplyr) 
+library(tidyjson)
+library(magrittr)
+
+
+#set up the url and the path of the api for server
+#url <- "http://csi420-01-vm1.ucd.ie:8080"
+#path <-"/apidata?request=Room_no&Room_no=B002"
+
+#set up the url and the path of the api locally
+url <- "http://192.168.10.2:8080"
+path <-"/api/data?request=Room_no&Room_no=B003&request2=Date&Date=2015-11-03"
+
+raw_contents <- GET(url = url, path=path)
+raw_contents$status_code
+
+json_raw <- httr::content(raw_contents, type = "text", encoding = "UTF-8")
+
+tidy_json <- json_raw %>% as.tbl_json
+
+
+
+details <-
+  tidy_json %>%
+  enter_object("Room_no") %>%
+  enter_object("B003") %>%
+  spread_values(Campus = jstring("Campus"),Building = jstring("Building"), Capacity=jnumber("Capacity"), Plug_friendly= jstring("Plug_friendly"))
+
+
+time <- 
+  tidy_json %>%
+  enter_object("Room_no") %>%
+  enter_object("B003") %>%
+  enter_object("Date") %>%
+  enter_object("2015-11-03") %>%
+  enter_object("Timeslot") %>%
+  gather_keys 
+
+
+room_estimates <- c()
+
+  for (i in 1:8){
+  print(paste("i is", i))
+  room<-
+  tidy_json %>%
+  enter_object("Room_no") %>%
+  enter_object("B003") %>%
+  enter_object("Date") %>%
+  enter_object("2015-11-03") %>%
+  enter_object("Timeslot") %>%
+  enter_object(time$key[i])%>%
+    spread_values(Predicted_occupancy= jstring("Logistic_occupancy"), Max_number = jnumber("Max_people_estimate"))
+  room_estimates <- c(room_estimates, room)
+  print(paste("i is", i))
+  }
+    
+  
+
 ```
+
 
 ```{r, echo=FALSE}
 output <- read.csv("C:/Users/Cometa/Desktop/ResearchPracticum/repo/whothere/dataAnalysis/output.csv")
-newdata <- output[ which(output$Date=='2015-11-03' & output$Room=='1'), ]
+is.num <- sapply(output, is.numeric)
+output[is.num] <- lapply(output[is.num], round, 2)
+newdata <- output[ which(output$Date=='2015-11-03' & output$Room=='2'), ]
 ```
-**Class**: B.002  
-**Day**: 25-11-2015  
-**Capacity of the room**:   
+**Day**:
+**Campus**:
+**Building**:
+**Floor number**:
+**Room**:
+**Capacity of the room**:  
+**Plug-friendly**:
+
 
 Today we predicted that the class will have the following level of occupancy during the day:
 
-```{r,echo=FALSE, fig.align='left'} 
+```{r,echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.align='center' } 
 library(gridExtra)
 library(grid)
+library(gtable)
 c <- c("Time", "Logistic_occupancy")
 d<-newdata[c]
+tt3 <- ttheme_default(core=list(fg_params=list(fontface=c(rep("plain", 20))), bg_params = list(fill="white")),colhead=list(bg_params = list(fill="orange")), rowhead=list(fg_params=list(col="white")))
 
-e <- ggplot(data=newdata, aes(x=factor(Time), y=Logistic_occupancy, fill=Logistic_occupancy)) + geom_bar(stat="identity")+ scale_fill_manual(values=c( "orangered","gold", "cyan", "blue"))+ theme_bw()+guides(fill=FALSE) 
 
-grid.arrange(tableGrob(d), e, ncol=2)
+table <- tableGrob(d, theme=tt3)
+table$widths <- unit(rep(1/ncol(table), ncol(table)), "npc")
+table$heights <- unit(rep(0.75/nrow(table), nrow(table)), "npc")
+
+e <- ggplot(data=newdata, aes(x=factor(Time), y=Logistic_occupancy, fill=Logistic_occupancy)) + geom_bar(stat="identity")+ scale_fill_manual(values=c( "orangered","gold", "darkcyan", "blue"))+ theme_bw()+guides(fill=FALSE)+theme(plot.margin = unit(c(1,3,1,4), "cm")) 
+
+grid.arrange(table, e, ncol=2)
 
 ```
 
 In particular we are predicting the following number of people in the room for each hour:
 
-```{r, echo=FALSE}
-library(gridExtra)
-library(grid)
-a <- c("Time", "fit")
+```{r, echo=FALSE, results='hide', message=FALSE, fig.align='center'}
+a <- c("Time", "lwr", "fit", "upr")
 b<-newdata[a]
-g <-ggplot(data=newdata, aes(x=Time, y=fit, group=1)) + geom_ribbon(data=newdata,aes(ymin=lwr, ymax=upr),alpha=0.2, fill="orangered3") + geom_line(color="orangered2")+ theme_bw() + geom_point(color="orangered2") 
-grid.arrange(tableGrob(b), g, ncol=2)
+
+tt3 <- ttheme_default(core=list(fg_params=list(fontface=c(rep("plain", 20))), bg_params = list(fill="white")),colhead=list(bg_params = list(fill="orange")), rowhead=list(fg_params=list(col="white")))
+table1 <- tableGrob(b, theme=tt3)
+table1$widths <- unit(rep(1/ncol(table1), ncol(table1)), "npc")
+table1$heights <- unit(rep(0.75/nrow(table), nrow(table)), "npc")
+
+g <-ggplot(data=newdata, aes(x=Time, y=fit, group=1)) + geom_ribbon(data=newdata,aes(ymin=lwr, ymax=upr),alpha=0.2, fill="orangered3") + geom_line(color="orangered2")+ theme_bw() + geom_point(color="orangered2") +theme(plot.margin = unit(c(1,3,1,4), "cm")) 
+grid.arrange(table1, g, ncol=2)
 ```
 
 
