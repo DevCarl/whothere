@@ -25,9 +25,9 @@ public class helpers {
     
     //overloaded version, if you want parameters, include them as a single string as last parameter. Include quotation marks for strings.
     //example with 3 parameters, an int, a String and an int - "1, 'Dave', 2".
-    public static void activateScript(String type, Stri1ng location, String name, String Parameters){
+    public static void activateScript(String type, Stri1ng location, String name, String param){
         String base = "src/main/resources_scripts/";
-        String run = type + " " + base + location + "/" + name + " " + Parameters;
+        String run = type + " " + base + location + "/" + name + " " + param;
         try {
             Process p = Runtime.getRuntime().exec(run);
             BufferedReader in = new BufferedReader(new InputStreamReader(p.getErrorStream()));
