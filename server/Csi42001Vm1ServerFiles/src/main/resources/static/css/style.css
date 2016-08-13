@@ -37,7 +37,7 @@ header{
     float:right;
     overflow: auto;
 }
-title{
+#title{
     text-align:left;
     font-family: Merriweather, sans-serif;
     font-size: 45px;
@@ -310,7 +310,7 @@ footer li a{
 /*    CONTACT US PAGE    */
 /*    TITLE    */
 
-.title{
+.contact_title{
     padding:5px;
     color: #ff6e21;
     font-family: Merriweather, sans-serif;
