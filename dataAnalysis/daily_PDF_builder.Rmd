@@ -1,3 +1,4 @@
+
 ---
 title: "Daily Classroom Occupancy"
 author: "Who's There"
@@ -28,14 +29,12 @@ library(data.table)
 
 
 #set up the url and the path of the api for server
-#url <- "http://csi420-01-vm1.ucd.ie:8080"
-#path <-"/apidata?request=Room_no&Room_no=B002"
+#url <- "paste("http://csi420-01-vm1.ucd.ie:8080"/api/data?request=Room_no&Room_no=", room, "&request2=Date&Date=",date"
 
 #set up the url and the path of the api locally
-url <- "http://192.168.10.2:8080"
-path <-"/api/data?request=Room_no&Room_no=B003&request2=Date&Date=2015-11-03"
+url <- "http://192.168.10.2:8080/api/data?request=Room_no&Room_no=B003&request2=Date&Date=2015-11-03"
 
-raw_contents <- GET(url = url, path=path)
+raw_contents <- GET(url = url)
 raw_contents$status_code
 
 json_raw <- httr::content(raw_contents, type = "text", encoding = "UTF-8")
