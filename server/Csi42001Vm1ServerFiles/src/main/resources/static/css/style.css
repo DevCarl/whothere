@@ -8,10 +8,14 @@
 html, body { height: 100%; margin: 0; padding: 0;}
 
 body{
-    background-image: url("../img/background.jpg");
+    background-image: url("../img/background2.jpg") no-repeat center center fixed;
     background-color: black;
-    background-repeat: no-repeat;
+/*    background-repeat: no-repeat;*/
     background-size: cover;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+   height:100%;
 } 
 
 /*    HEADER    */
@@ -69,10 +73,10 @@ header{
     margin-bottom: 10px;
 }
 #login_error{
-    color: orangered;
+    color: #FF6E21;
 }
 #logout_success{
-    color: seagreen;     
+    color: #008B8B;     
 }
 #login_fieldset{
     padding: 5px;
@@ -308,18 +312,7 @@ footer li a{
 }
 
 /*    CONTACT US PAGE    */
-/*    TITLE    */
 
-.contact_title{
-    padding:5px;
-    color: #ff6e21;
-    font-family: Merriweather, sans-serif;
-    font-size: 30px;
-    text-align: center;
-    margin-top: 0px; 
-    margin-bottom: 50px;
-    border-bottom: thin solid #ff6e21;
-}
 
 /*    ADRESS, PHONE, MAIL    */
 #contact_box{
@@ -584,3 +577,62 @@ input.login{
 }
 
 
+/* Fonts used in the website */
+
+/*    TITLE    */
+
+h2{
+    padding:5px;
+    color: #FF6E21;
+    font: normal 30px, Merriweather, sans-serif;
+    font-weight:normal;
+    text-align: center;
+    margin: 0px, 10px, 50px, 30px;
+    border-bottom: thin solid #ff6e21;
+}
+
+h3{
+    padding:5px;
+    color: #FF6E21;
+    font: bold 20px, Merriweather, sans-serif;
+    font-weight:normal;
+    text-align: justify;
+    margin:auto;
+    margin-left:30px;
+}
+
+h4{
+    padding:5px;
+    color: #FF6E21;
+    font: bold 18px, Merriweather, sans-serif;
+    font-weight:normal;
+    text-align: justify;
+    margin:auto;
+    margin-left:30px;
+}
+
+p {
+    font: 12px, Merriweather, sans-serif;
+    text-align:justify;
+    margin-left: 30px;
+    margin-right: 10px;
+}
+
+
+.textcode{
+    height:40px;
+    width: 750px;
+    vertical-align: middle;
+    margin:auto;
+    margin-left: 50px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    background-color: white;
+    border: 0px;
+    resize:none;
+    overflow: auto;
+}
+textarea {
+    vertical-align: middle;
+}

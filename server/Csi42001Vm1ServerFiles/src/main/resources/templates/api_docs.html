@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Who's there - Contact us</title>
+        <title>Who's there - Api instructions</title>
         <link rel="stylesheet" type="text/css" href="../static/css/style.css" th:attr="href=@{/css/style.css}" />
                 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
@@ -21,19 +21,38 @@
         
         <!--    Content section   -->
         <div id="contact_box">
-            <p class="title">Instructions for using the API</p>
-            <p style="align:center;">Good Evening Comp Sci Masters students, <br/><br/>
-                    TO use our API, the basic request is sent to /api/data<br/><br/>
-                    The general extension is as follows ?request=[search1]&amp;[search1]=[value] <br/><br/>
-                    You may follow this with &amp;request2=[search2]&amp;[search2]=[value] for more specific results. <br/><br/>
-                    An example would be...
-                    <a href="/api/data?request=Date&amp;Date=2015/11/11">/api/data?request=Date&amp;Date=2015/11/11</a><br/><br/>
-                    The valid search terms are Date, Week, Module and Room_no. <br/>
-                    Week follows the same structure as Date where an individual date is selected.
-                    
+            <h2>Instructions for using the API</h2>
+                <p id="greeting"> </p>
+                <p> Our API allows you to query the latest information of the room occupancy in UCD buildings.
                 
-            </p>
-
+                <h3>Base Url</h3>
+                    <p> All our API requests start with the following base:</p>
+                        <textarea class="textcode"> http://csi420-01-vm1.ucd.ie/api/data</textarea>
+                    <p> The general query format is the following: </p>
+                        <textarea class="textcode"> http://csi420-01-vm1.ucd.ie/api/data?request=[search1]&amp;[search1]=[value]</textarea>
+                     <p>The valid search terms are: </p>
+                        <ul>
+                            <li>Date, which is written in format yy/mm/dd (e.g. 2015/11/25)</li>
+                            <li>Week</li>
+                            <li>Module, which is the module code in which you are interested (e.g. COMP30250)</li>
+                            <li>Room_no, which indicate the name or the code of the room (e.g. B002)</li>        
+                        </ul>
+            
+                    <h4>Example</h4>
+                        <p> This is an example on how a simple API query looks like:</p>
+                        <textarea class="textcode"> http://csi420-01-vm1.ucd.ie/api/data?request=Date&amp;Date=2015/11/11</textarea>
+                    
+                 <h3>Complex Url</h3>
+                    <p> If you want to make your research more precise you can combine two different requests togheter as showed below:</p>
+                    <textarea class="textcode"> http://csi420-01-vm1.ucd.ie/api/data?request=[search1]&amp;[search1]=[value]&amp;request2=[search2]&amp;[search2]=[value]</textarea>
+            
+                        
+                    
+            
+            <h4>Example</h4>
+                    <p> This is an example on how a complex API query looks like:</p>
+                    <textarea class="textcode"> http://csi420-01-vm1.ucd.ie/api/data?request=Room_no&amp;Room_no=B003&amp;request2=Date&amp;Date=2015-11-03
+                    </textarea>
         </div>
         
         
@@ -41,6 +60,23 @@
         <div id="footer">
             <footer th:replace="footer::myFooter" />
         </div>
+        
+        <script>
+            var data = [
+                    [0, 4, "Good Night User!"], 
+                    [5, 11, "Good Morning User!"],          //Store messages in an array
+                    [12, 17, "Good Afternoon User!"],
+                    [18, 24, "Good Night User!"]
+                ],
+                    hr = new Date().getHours();
+
+            for(var i = 0; i < data.length; i++){
+                if(hr >= data[i][0] && hr <= data[i][1]){
+                    document.getElementById("greeting").innerHTML = data[i][2];
+                } 
+            }
+        
+        </script>
         
     </body>
 </html>
