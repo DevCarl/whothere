@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Page Title</title>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    
+</head>
+<body>
+    
+<script type="text/javascript">
+    //<![CDATA
+    var dataResponse = "";
+    var url = 'http://csi420-01-vm1.ucd.ie/api/data?request=Room_no&Room_no=B003&request2=Date&Date=2015-11-06%22'
+    console.log(url);
+    var xmr = new XMLHttpRequest();
+    xmr.open("GET", url, false);
+    xmr.onreadystatechange = function(oEvent) {
+        console.log("Ready state: " + xmr.readyState);
+        if (xmr.readyState === 4) {
+            console.log("status: " + xmr.status);   
+            if (xmr.status === 200) {
+                dataResponse = JSON.parse(xmr.responseText);
+                console.log("Response: " + dataResponse);
+
+            } else {
+                console.log("Error", xmr.statusText)
+            }
+        }
+    }    
+    xmr.send(null);
+    
+    var dataArray = [];
+    for (var room in dataResponse.Room_no){
+        console.log("Room no: " + room);
+        for(var date in dataResponse.Room_no[room].Date){
+            console.log("Date: " + date);
+            for(var timeSlot in dataResponse.Room_no[room].Date[date].Timeslot){
+                var students = dataResponse.Room_no[room].Date[date].Timeslot[timeSlot].Logistic_occupancy;
+                console.log("Time: " + timeSlot + " \nstudents: " + students);
+                dataArray.push([timeSlot, students]);
+                    
+            }
+        }
+    }
+        
+    for(var i = 0; i < dataArray.length; i++){
+        console.log(dataArray[i].toString() + " length: " + dataArray[i].length);
+    }
+    
+    dataArray.sort(sortFunction);
+
+    function sortFunction(a, b) {
+    if (a[0] === b[0]) {
+        return 0;
+    }
+    else {
+        return (a[0] < b[0]) ? -1 : 1;
+    }
+}
+    console.log(dataArray.toString());
+    dataArray.unshift(["Time Slots","Occupancy"]);
+    console.log(dataArray.toString());
+    google.charts.load('current', {'packages':['bar']});
+    google.charts.setOnLoadCallback(drawChart);
+    function drawChart() {
+        var data = google.visualization.arrayToDataTable(dataArray);
+        var options = {
+            chart: {
+                title: 'Occupancy'
+            },
+            bars: 'vertical',
+            series: {
+                0:{color: '#FAB117'}
+            }
+        };
+
+        var chart = new google.charts.Bar(document.getElementById('barchart_material'));
+        chart.draw(data, options);
+    }
+          
+    //]]>
+</script>
+
+    <div id="barchart_material" style="width: 900px; height: 500px;"></div>
+</body>
+</html>
