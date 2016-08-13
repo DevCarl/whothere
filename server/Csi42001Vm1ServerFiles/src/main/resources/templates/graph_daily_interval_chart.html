@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Page Title</title>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    
+</head>
+<body>
+    
+<script type="text/javascript">
+    //<![CDATA
+    var dataResponse = "";
+    var url = 'http://csi420-01-vm1.ucd.ie/api/data?request=Room_no&Room_no=B003&request2=Date&Date=2015-11-06%22'
+    console.log(url);
+    var xmr = new XMLHttpRequest();
+    xmr.open("GET", url, false);
+    xmr.onreadystatechange = function(oEvent) {
+        console.log("Ready state: " + xmr.readyState);
+        if (xmr.readyState === 4) {
+            console.log("status: " + xmr.status);   
+            if (xmr.status === 200) {
+                dataResponse = JSON.parse(xmr.responseText);
+                console.log("Response: " + dataResponse);
+
+            } else {
+                console.log("Error", xmr.statusText)
+            }
+        }
+    }    
+    xmr.send(null);
+    
+    var dataArray = [];
+    var maxArray = [];
+    var minArray = [];
+    var estimate = [];
+    for (var room in dataResponse.Room_no){
+        console.log("Room no: " + room);
+        for(var date in dataResponse.Room_no[room].Date){
+            console.log("Date: " + date);
+            for(var timeSlot in dataResponse.Room_no[room].Date[date].Timeslot){
+                console.log("Time " + parseInt(timeSlot.substring(0,2)));
+                dataArray.push([parseInt(timeSlot.substring(0,2)),
+                                dataResponse.Room_no[room].Date[date].Timeslot[timeSlot].People_estimate,
+                                dataResponse.Room_no[room].Date[date].Timeslot[timeSlot].Max_people_estimate,
+                                dataResponse.Room_no[room].Date[date].Timeslot[timeSlot].Min_people_estimate]);
+            }
+        }
+    }
+    
+    for(var i = 0; i < dataArray.length; i++){
+        console.log(dataArray[i].toString() + " length: " + dataArray[i].length);
+    }
+    
+    dataArray.sort(sortFunction);
+
+    function sortFunction(a, b) {
+    if (a[0] === b[0]) {
+        return 0;
+    }
+    else {
+        return (a[0] < b[0]) ? -1 : 1;
+    }
+}
+    console.log("ARRAY: " + dataArray.toString());
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('number', 'x');
+        data.addColumn('number', 'Estimated occupancy');
+        data.addColumn({id:'i1', type:'number', role:'interval'});
+        data.addColumn({id:'i2', type:'number', role:'interval'});
+        data.addRows(dataArray);
+
+        var options = {
+            title:'Daily occupancy',
+            curveType:'function',
+            series: [{'color': '#F1CA3A'}],
+            intervals: { 'style':'area',
+                        'color': '#fdde9b'},
+            legend: 'top',
+            hAxis: {title: 'Time',       
+                    format: '0',                     
+            },
+            vAxis: {title: 'Number of people'}
+        };
+  
+        var chart_lines = new google.visualization.LineChart(document.getElementById('chart_lines'));
+        chart_lines.draw(data, options);
+    }
+          
+    //]]>
+</script>
+
+    <div id="chart_lines" style="width: 900px; height: 500px;"></div>
+</body>
+</html>
