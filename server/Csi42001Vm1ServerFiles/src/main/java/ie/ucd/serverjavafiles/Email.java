@@ -1,5 +1,8 @@
 package ie.ucd.serverjavafiles;
 
+// This class assists SendMail.Java in the sending of emails.
+// It is used to temporarily store values from the POST request.
+
 public class Email {
     
     private String Name;
@@ -30,6 +33,7 @@ public class Email {
         this.Msg = Msg;
     }
     
+    // This should be called once before sending the email to allow us to see who sent the message
     public void addEmailInMsg(String Msg) {
         this.Msg = Msg + "\n\nSent by: " + this.Email;
     }
