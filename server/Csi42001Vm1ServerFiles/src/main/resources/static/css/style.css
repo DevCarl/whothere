@@ -172,7 +172,7 @@ aside {
     height: 100%;
     width: 15%;
     float: left;
-    display: inline;
+/*    display: inline;*/
     top: 142px;
     overflow: auto;
     padding: 0px;
@@ -181,7 +181,6 @@ aside {
 nav { 
     width:15%;
     margin: 0px;
-    margin-top: 142px;
     text-align: center;
     align-content: center;
     font-family: Merriweather, sans-serif;
