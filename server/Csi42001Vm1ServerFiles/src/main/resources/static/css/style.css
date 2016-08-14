@@ -170,7 +170,7 @@ input.login{
 /*    NAVIGATION BAR    */
 aside {
     height: 100%;
-    width: 20%;
+    width: 15%;
     float: left;
 /*    display: inline;*/
     top: 142px;
@@ -179,7 +179,6 @@ aside {
     background-color: #1f7b6c;
 }
 nav { 
-    width:100px;
     margin: 0px;
     text-align: center;
     align-content: center;
@@ -223,7 +222,7 @@ nav li a:hover:not(.active) {
 /*    MAP    */
 #map, #info_section{
     height: 600px;
-    width: 80%;
+    width: 85%;
     float: left;
     display: inline;
 }
