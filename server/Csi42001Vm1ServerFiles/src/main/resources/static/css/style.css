@@ -7,6 +7,7 @@
 /*     BODY     */
 html, body { height: 100%; margin: 0; padding: 0;}
 
+
 body{
     background-image: url("../img/background.jpg");
     background-color: black;
@@ -20,8 +21,9 @@ body{
 header{
     background-color: rgba(255,255,240, 0.5);
     overflow: auto;
-    height: auto; 
+    height: 60px; 
     padding: 10px;
+    clear:both;
 }
 #logo{
     width: 60px;
@@ -128,13 +130,17 @@ input.login{
 
 /*    SEARCH FORM    */
 #search_form{
-    margin: 0 auto;
-    width: 1045px;
+    margin-right: 10px;
+    width: 85%;
+    float:right;
 }
 #search_section{
     padding-bottom: 10px;
     padding-top: 10px;
-    padding-left: 10px;
+    margin: 0 auto;
+    width: 85%;
+    float:right;
+}
 }
 .search_select{
     height: 40px;
@@ -145,7 +151,7 @@ input.login{
 }
 #search_btn{
     height: 40px;
-    width: 250px; 
+    width: 90px; 
     background-color: darkcyan;
     font-family: Merriweather, sans-serif;
     font-size: 16px;
@@ -162,19 +168,17 @@ input.login{
 }
 
 /*    NAVIGATION BAR    */
-/*
 aside {
     height: 100%;
-    width: 15%;
+    width: 200px;
     float: left;
     display: inline;
     top: 142px;
     overflow: auto;
-    padding: 0px
+    padding: 0px;
+    background-color: #1f7b6c;
 }
-*/
 nav { 
-    min-height: 100% !important;
     width:15%;
     margin: 0px;
     margin-top: 142px;
@@ -185,7 +189,6 @@ nav {
     color: white;
     background-color: #1f7b6c;
     float:left;
-    display:inline;
 /*    position: fixed;*/
 }
 
@@ -222,7 +225,7 @@ nav li a:hover:not(.active) {
 
 /*    MAP    */
 #map, #info_section{
-    height: 1000px;
+    height: 600px;
     width: 85%;
     float: left;
     display: inline;
@@ -275,13 +278,13 @@ nav li a:hover:not(.active) {
 footer {
     background-color: rgba(255,255,240, 0.5);
     overflow: hidden;
-    position:fixed;
+/*    position:fixed;*/
     bottom:0;
     right:0;
     height: 40px; 
     padding-top: 5px; 
-    margin-left: 15px;
-    width: 85%;
+    width: 100%;
+    clear:both;
 }
 
 footer ul {
@@ -649,3 +652,4 @@ p {
     margin:0 auto;
     padding:5px;
 }
+
