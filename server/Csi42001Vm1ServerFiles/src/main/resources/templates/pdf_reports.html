@@ -22,6 +22,26 @@
         <!--    Content section    -->
         <div id="contact_box">
             <h2>PDF reports</h2>
+            <!--      connected to a function for greeting the user according to the time of the day -->
+                <p id="greeting"> </p>
+            <!--      Upload instruciton      -->
+                <p>
+                    In this page you can download the daily PDF reports for the class and the day selected using the form below. 
+                </p>
+             
+                <div id="form_container">  
+                    <form class="PDF_form_input" onclick="genearteMap()">
+                        <h3>Select the day and the class</h3> 
+                            <select id="date" class="search_form">
+                                <option>Select a building</option>                 
+                            </select>
+                            <select id="class" class="search_form">
+                                <option>Select a classroom</option>
+                            </select>
+                                <input type="date" name="date" class="search_select"/>
+                            <button type="submit" id="pdf_btn">Search</button>
+                    </form>
+                </div>
 
         </div>
         
@@ -30,6 +50,22 @@
         <div id="footer">
             <footer th:replace="footer::myFooter" />
         </div>
-        
+        <script>
+            //<![CDATA[
+            var data = [
+                    [0, 4, "Good Night User!"], 
+                    [5, 11, "Good Morning User!"],          //Store messages in an array
+                    [12, 17, "Good Afternoon User!"],
+                    [18, 24, "Good Night User!"]
+                ],
+                    hr = new Date().getHours();
+
+            for(var i = 0; i < data.length; i++){
+                if(hr >= data[i][0] &amp;&amp; hr <= data[i][1]){
+                    document.getElementById("greeting").innerHTML = data[i][2];
+                } 
+            }
+            //]]>
+        </script>
     </body>
 </html>
