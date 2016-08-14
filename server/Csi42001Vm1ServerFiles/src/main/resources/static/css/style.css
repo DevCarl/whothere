@@ -162,9 +162,10 @@ input.login{
 /*    MAIN SECTION - INCLUDES NAV BAR AND MAP    */
 #main{
     width: 100%;
-    height: 600px;
+    height: 1080px;
     margin: 0px;
     padding: 0px;
+    border: 10px solid yellow;
 }
 
 /*    NAVIGATION BAR    */
@@ -647,5 +648,13 @@ p {
     display: inline-block;
     margin:0 auto;
     padding:5px;
+}
+
+
+.wrapper {
+     width: 100%;
+    height: 1000px;
+    margin: 0px;
+    padding: 0px;
 }
 

@@ -15,50 +15,52 @@
         <header id="header" th:replace="header::myHeader"></header>
         
         <!-- Insert navigation bar -->
-        <aside id="nav_bar">
-            <nav th:replace="admin_nav_bar::myNav" />
-        </aside>
-        
-        <!--    Content section   -->
-        <div id="contact_box">
-            <h2>Instructions for using the API</h2>
-                <p id="greeting"> </p>
-                <p> Our API allows you to query the latest information of the room occupancy in UCD buildings. </p>
-                
-                <h3>Base Url</h3>
-                    <p> All our API requests start with the following base:</p>
-                        <div class="textcode"> <p class="url">http://csi420-01-vm1.ucd.ie/api/data</p></div>
-                    <p> The general query format is the following: </p>
-            <div class="textcode"> <p class="url">http://csi420-01-vm1.ucd.ie/api/data?request=[search1]&amp;[search1]=[value]</p></div>
-                     <p>The valid search terms are: </p>
-                        <ul>
-                            <li>Date, which is written in format yy/mm/dd (e.g. 2015/11/25)</li>
-                            <li>Week, which it will take a date in the same format as data, but it will return the week of the day selected</li>
-                            <li>Module, which is the module code in which you are interested (e.g. COMP30250)</li>
-                            <li>Room_no, which indicate the name or the code of the room (e.g. B002)</li>        
-                        </ul>
-            
-                    <h4>Example</h4>
-                        <p> This is an example on how a simple API query looks like:</p>
-                <div class="textcode"><p class="url"> http://csi420-01-vm1.ucd.ie/api/data?request=Date&amp;Date=2015/11/11</p></div>
-                    
-                 <h3>Complex Url</h3>
-                    <p> If you want to make your research more precise you can combine two different requests together as showed below:</p>
-                <div class="textcode"><p class="url"> http://csi420-01-vm1.ucd.ie/api/data?request=[search1]&amp;[search1]=[value]&amp;request2=[search2]&amp;[search2]=[value]</p></div>
-            
-                        
-                    
-            
-            <h4>Example</h4>
-                    <p> This is an example on how a complex API query looks like:</p>
-                <div class="textcode"><p class="url"> http://csi420-01-vm1.ucd.ie/api/data?request=Room_no&amp;Room_no=B003&amp;request2=Date&amp;Date=2015-11-03</p>
-                    </div>
-        </div>
-        
-        
-         <!-- Insert footer -->
-        <div id="footer">
-            <footer th:replace="footer::myFooter" />
+        <div class="wrapper">
+            <aside id="nav_bar">
+                <nav th:replace="admin_nav_bar::myNav" />
+            </aside>
+
+            <!--    Content section   -->
+            <div id="contact_box">
+                <h2>Instructions for using the API</h2>
+                    <p id="greeting"> </p>
+                    <p> Our API allows you to query the latest information of the room occupancy in UCD buildings. </p>
+
+                    <h3>Base Url</h3>
+                        <p> All our API requests start with the following base:</p>
+                            <div class="textcode"> <p class="url">http://csi420-01-vm1.ucd.ie/api/data</p></div>
+                        <p> The general query format is the following: </p>
+                <div class="textcode"> <p class="url">http://csi420-01-vm1.ucd.ie/api/data?request=[search1]&amp;[search1]=[value]</p></div>
+                         <p>The valid search terms are: </p>
+                            <ul>
+                                <li>Date, which is written in format yy/mm/dd (e.g. 2015/11/25)</li>
+                                <li>Week, which it will take a date in the same format as data, but it will return the week of the day selected</li>
+                                <li>Module, which is the module code in which you are interested (e.g. COMP30250)</li>
+                                <li>Room_no, which indicate the name or the code of the room (e.g. B002)</li>        
+                            </ul>
+
+                        <h4>Example</h4>
+                            <p> This is an example on how a simple API query looks like:</p>
+                    <div class="textcode"><p class="url"> http://csi420-01-vm1.ucd.ie/api/data?request=Date&amp;Date=2015/11/11</p></div>
+
+                     <h3>Complex Url</h3>
+                        <p> If you want to make your research more precise you can combine two different requests together as showed below:</p>
+                    <div class="textcode"><p class="url"> http://csi420-01-vm1.ucd.ie/api/data?request=[search1]&amp;[search1]=[value]&amp;request2=[search2]&amp;[search2]=[value]</p></div>
+
+
+
+
+                <h4>Example</h4>
+                        <p> This is an example on how a complex API query looks like:</p>
+                    <div class="textcode"><p class="url"> http://csi420-01-vm1.ucd.ie/api/data?request=Room_no&amp;Room_no=B003&amp;request2=Date&amp;Date=2015-11-03</p>
+                        </div>
+            </div>
+
+
+             <!-- Insert footer -->
+            <div id="footer">
+                <footer th:replace="footer::myFooter" />
+            </div>
         </div>
         
         <script>

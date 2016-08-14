@@ -10,61 +10,62 @@
     </head>
         
     <body>
-        
+        <div class="wrapper">
         <!-- Insert header -->
         <header id="header" th:replace="header::myHeader"></header>
         
         <!-- Insert navigation bar -->
-        <aside id="nav_bar">
-            <nav th:replace="admin_nav_bar::myNav" />
-        </aside>
         
-        <!--    Contact us form    -->
-        <div id="contact_box">
-            <h2>Contact us</h2>
-            <div th:if="${param.failure}" class="alert alert-error">  
-                <p id="login_error">Your request has failed</p>
-            </div>
-            <div th:if="${param.success}" class="alert alert-success"> 
-                <p id="logout_success">Your request has been successful</p>
-            </div>
-            <div class="stretch">
-                <br/>
-                <div>
-                    <div id="contacts">
-                        <img id="iconad" src="img/address.png" alt="Address"/><p class="input">School of Computer Science &amp; Informatics,<br/> University College Dublin,<br/>Belfield,<br/>Dublin 4, Ireland</p>
-                        <img class="icons" src="img/phone.png" alt="Phone"/><p class="input">+353 1 716 2483</p>
-                        <img class="icons" src="img/mail.png" alt="E-mail"/><p class="input">emailaddress@gmail.com</p>
-                    </div>
+            <aside id="nav_bar">
+                <nav th:replace="admin_nav_bar::myNav" />
+            </aside>
+
+            <!--    Contact us form    -->
+            <div id="contact_box">
+                <h2>Contact us</h2>
+                <div th:if="${param.failure}" class="alert alert-error">  
+                    <p id="login_error">Your request has failed</p>
                 </div>
-            
-                <form id="contact_form" action="#" th:action="@{/contact}" th:object="${contactModel}" method="post">
-                    <input type="text" th:field="*{Name}" class="login" placeholder="Your name"/>
-                    <input type="email" th:field="*{Email}" class="login" placeholder="E-mail"/>
-                    <textarea id="textarea" th:field="*{Msg}" cols="86" rows = "8" placeholder="Message" />
-                    <button type="submit" id="contact_btn" class="login">SUBMIT</button>
-                </form>
+                <div th:if="${param.success}" class="alert alert-success"> 
+                    <p id="logout_success">Your request has been successful</p>
+                </div>
+                <div class="stretch">
+                    <br/>
+                    <div>
+                        <div id="contacts">
+                            <img id="iconad" src="img/address.png" alt="Address"/><p class="input">School of Computer Science &amp; Informatics,<br/> University College Dublin,<br/>Belfield,<br/>Dublin 4, Ireland</p>
+                            <img class="icons" src="img/phone.png" alt="Phone"/><p class="input">+353 1 716 2483</p>
+                            <img class="icons" src="img/mail.png" alt="E-mail"/><p class="input">emailaddress@gmail.com</p>
+                        </div>
+                    </div>
+
+                    <form id="contact_form" action="#" th:action="@{/contact}" th:object="${contactModel}" method="post">
+                        <input type="text" th:field="*{Name}" class="login" placeholder="Your name"/>
+                        <input type="email" th:field="*{Email}" class="login" placeholder="E-mail"/>
+                        <textarea id="textarea" th:field="*{Msg}" cols="86" rows = "8" placeholder="Message" />
+                        <button type="submit" id="contact_btn" class="login">SUBMIT</button>
+                    </form>
+                </div>
+
+            <div id="contact_map"></div>
+                    <script>
+                        //<![CDATA[
+                      function initMap() {
+                        var mapDiv = document.getElementById('contact_map');
+                        var map = new google.maps.Map(mapDiv, {
+                          center: {lat:53.309294, lng: -6.223747},
+                          zoom: 14
+                        });
+                      }
+                        //]]>
+                    </script>
             </div>
-            
-        <div id="contact_map"></div>
-                <script>
-                    //<![CDATA[
-                  function initMap() {
-                    var mapDiv = document.getElementById('contact_map');
-                    var map = new google.maps.Map(mapDiv, {
-                      center: {lat:53.309294, lng: -6.223747},
-                      zoom: 14
-                    });
-                  }
-                    //]]>
-                </script>
+
+
+             <!-- Insert footer -->
+            <div id="footer">
+                <footer th:replace="footer::myFooter" />
+            </div>
         </div>
-        
-        
-         <!-- Insert footer -->
-        <div id="footer">
-            <footer th:replace="footer::myFooter" />
-        </div>
-        
     </body>
 </html>
