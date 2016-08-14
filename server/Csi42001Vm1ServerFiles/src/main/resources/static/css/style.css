@@ -658,11 +658,13 @@ p {
 }
 
 
-button {
+#pdf_btn {
     background-color: #FF6E21;
     margin-bottom: 0px;
     font-family: Merriweather, sans-serif;
     color: white;
+    height:25px;
+    border:none;
 }
 
 form {
@@ -670,5 +672,16 @@ form {
 }
 
 .PDF_form_input {
-    margin-left: 10px;
+    margin-left: 20px;
+    float:left;
+    margin-right:20px;
 }
+
+#pdf_form {
+    margin-left: 10px;
+    float: left;
+    border:10px yellow;
+}
+
+
+
