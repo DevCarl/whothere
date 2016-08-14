@@ -13,7 +13,7 @@
         <header id="header" th:replace="header::myHeader"></header>
         
         <!-- Insert navigation bar -->
-        <aside id="nav_bar">
+        <aside id="nav_bar"> 
             <nav th:replace="admin_nav_bar::myNav" />
         </aside>
         
@@ -24,7 +24,7 @@
         <div class="holder_box">
             <h2>Upload data</h2>
             <!--      Upload instruciton      -->
-            <p style="align:center;">
+            <p>
                 To upload data please use the format as specified in the templates show below. <br/>
                 To upload multiple files first zip them.
             </p>
@@ -34,14 +34,14 @@
             <!--  Upload form  -->
             <div class="upload_form">
                 <div th:if="${message}">
-                    <h2 th:text="${message}"/>
+                    <p th:text="${message}"/>
                 </div>
 
                 <div>
 
                     <form method="POST" enctype="multipart/form-data" action="/">
                         <table>
-                            <tr><td>File to upload here:</td><td><input type="file" name="file" /></td></tr>
+                            <tr><td><p>File to upload here:</p></td><td><input type="file" name="file"/> </td></tr>
                             <tr><td></td><td><input type="submit" value="Upload" /></td></tr>
                         </table>
                     </form>
