@@ -21,7 +21,7 @@ body{
 header{
     background-color: rgba(255,255,240, 0.5);
     overflow: auto;
-    height: 60px; 
+    height: 70px; 
     padding: 10px;
     clear:both;
 }
@@ -131,14 +131,14 @@ input.login{
 /*    SEARCH FORM    */
 #search_form{
     margin-right: 10px;
-    width: 85%;
+    width: 80%;
     float:right;
 }
 #search_section{
     padding-bottom: 10px;
     padding-top: 10px;
     margin: 0 auto;
-    width: 85%;
+    width: 80%;
     float:right;
 }
 }
@@ -170,7 +170,7 @@ input.login{
 /*    NAVIGATION BAR    */
 aside {
     height: 100%;
-    width: 15%;
+    width: 20%;
     float: left;
 /*    display: inline;*/
     top: 142px;
@@ -179,7 +179,7 @@ aside {
     background-color: #1f7b6c;
 }
 nav { 
-    width:15%;
+    width:20%;
     margin: 0px;
     text-align: center;
     align-content: center;
@@ -197,8 +197,6 @@ nav {
     padding-top: 5px;
     align-content: center;
     align-items:center;
-    overflow: hidden;
-    min-height: 100%;
 }
 
 #nav_list_item {
@@ -225,7 +223,7 @@ nav li a:hover:not(.active) {
 /*    MAP    */
 #map, #info_section{
     height: 600px;
-    width: 85%;
+    width: 80%;
     float: left;
     display: inline;
 }
