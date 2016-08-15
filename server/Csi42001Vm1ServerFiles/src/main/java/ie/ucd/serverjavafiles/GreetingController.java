@@ -69,6 +69,21 @@ public class GreetingController {
 		return "pdf_reports";
 	}
 	
+	@RequestMapping(value="/pdf_reports", method=RequestMethod.POST)
+        public void pdfReportsPost(@ModelAttribute PDFSearch pdfsearch, HttpServletResponse response) throws IOException {
+            // Code goes here to call R Script to generate PDF report, and the return value of name/location
+            File file = new File(this.getClass().getResource("/ds.pdf").getFile());
+            response.setContentType("application/pdf");
+            response.setHeader("Content-disposition", "inline; filename=" + file);
+            InputStream inputStream = new BufferedInputStream(new FileInputStream(file));
+            OutputStream outputStream = response.getOutputStream();
+            IOUtils.copy(inputStream, outputStream);
+            IOUtils.closeQuietly(inputStream);
+            response.flushBuffer();
+            file.delete();
+        }
+	
+	
 	
     @RequestMapping(value="/registration", method=RequestMethod.GET)
     public String registrationPage(Model model){
