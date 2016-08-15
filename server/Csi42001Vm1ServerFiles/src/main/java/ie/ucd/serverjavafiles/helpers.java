@@ -8,18 +8,21 @@ import java.util.logging.Logger;
 public class helpers {
     
     //activateScript has three inputs. type is the language you are using (python3, Rscript), location is the folder location, name is the file name
-    public static void activateScript(String type, String location, String name){
+    public static String activateScript(String type, String location, String name){
         String base = "src/main/resources_scripts/";
         String run = type + " " + base + location + "/" + name;
         try {
             Process p = Runtime.getRuntime().exec(run);
-            BufferedReader in = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+            BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
             String line;
-            while ((line = in.readLine()) != null) {
+            while ((in.readLine()) != null) {
+                line = in.readLine();
                 System.out.println(line);
             }
+            return line;
         } catch (IOException ex) {
             ex.printStackTrace();
+            return null;
         }
     }
     
@@ -30,13 +33,16 @@ public class helpers {
         String run = type + " " + base + location + "/" + name + " " + param;
         try {
             Process p = Runtime.getRuntime().exec(run);
-            BufferedReader in = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+            BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
             String line;
-            while ((line = in.readLine()) != null) {
+            while ((in.readLine()) != null) {
+                line = in.readLine();
                 System.out.println(line);
             }
+            return line;
         } catch (IOException ex) {
             ex.printStackTrace();
+            return null;
         }
     }
 }
