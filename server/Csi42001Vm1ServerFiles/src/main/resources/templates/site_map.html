@@ -21,8 +21,69 @@
         
         <!--    Content    -->
         <div id="contact_box">
-            <p class="title">Site map for website</p>
+            <p class="title">Site map</p>
+            <div id="chart_div"></div>
+            
+            <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+            <script type="text/javascript">
+                //<![CDATA[
+                google.charts.load('current', {packages:["orgchart"]});
+                google.charts.setOnLoadCallback(drawChart);
 
+                function drawChart() {
+                    var data = new google.visualization.DataTable();
+                    data.addColumn('string', 'Page');
+                    data.addColumn('string', 'Parent');
+
+                    data.addRows([
+                        ['Registration', ''],
+                        ['Login', 'Registration'],
+                        ['Home', 'Login'],
+                        ['File Upload', 'Home'],
+                        ['PDF reports', 'Home'],
+                        ['Admin settings', 'Home'],
+                        ['API instructions', 'Home'],
+                        ['Contact us', 'Home'],
+                        ['Terms and privacy', 'Home']
+                    ]);
+
+                    // Create org chart of site map
+                    var chart = new google.visualization.OrgChart(document.getElementById('chart_div'));
+                    chart.draw(data, {allowHtml: true, nodeClass: 'myNodeClass'});
+                    google.visualization.events.addListener(chart, 'select', selectHandler);
+
+                    function selectHandler(e) {
+                        var selection = chart.getSelection();
+                        switch(selection[0].row){
+                            case 0:
+                                window.location.href = 'registration.html';
+                                break;
+                            case 1:
+                                window.location.href = 'login.html';
+                                break;
+                            case 2:
+                                window.location.href = 'main.html';
+                                break;
+                            case 3:
+                                window.location.href = 'uploadForm.html';
+                                break;
+                            case 4:
+                                window.location.href = 'pdf_reports.html';
+                                break;
+                            case 5:
+                                window.location.href = 'admincontrol.html';
+                                break;
+                            case 6:
+                               window.location.href = 'api_docs.html';
+                                break; 
+                            case 7:
+                                window.location.href = 'contact.html';
+                                break;
+                        }
+                    }
+                }
+                //]]>
+            </script>
         </div>
         
         
