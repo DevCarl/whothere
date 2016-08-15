@@ -221,7 +221,7 @@ nav li a:hover:not(.active) {
 
 /*    MAP    */
 #map, #info_section{
-    height: 600px;
+    height: 800px;
     width: 85%;
     float: left;
     display: inline;
@@ -685,3 +685,7 @@ form {
 
 
 
+
+.button_bar {
+    display: inline-block;
+}
