@@ -1,13 +1,4 @@
 #Final model
-
-install.packages("Jsonlite", repos="http://cran/r-project.org")
-install.packages("curl")
-
-library(jsonlite)
-
-y <- fromJSON("http://csi420-01-vm1.ucd.ie/api/data?request=Date&Date=2015/11/11")
-
-y$Room_no$B004$
   
 asFrame <- do.call("rbind.fill", lapply(y, as.data.frame))
 
