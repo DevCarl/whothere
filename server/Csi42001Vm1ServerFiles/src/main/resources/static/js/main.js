@@ -81,7 +81,6 @@ function genearteMap () {
     // Erase map if one exists
     if (geo_map != undefined) {geo_map.remove();}
     
-    //
     // Get form input varialbes
     var floor_no = $('input[name="floor_no"]:checked').val();
     var current_time = $('#slider_value').val();
@@ -90,9 +89,20 @@ function genearteMap () {
         current_time = "09:00:00";
     }
     var current_date =  $('#search_date').val().trim();
-    console.log(current_date);
-    console.log(dataResponse);
+//    console.log(current_date);
+//    console.log(dataResponse);
     
+    // Hide one of the chart divs
+    if (floor_no == "ground") {
+        $('.ground_floor_charts').css('display','block');
+        $('.room_charts_section').css('display','block');
+        $('.first_floor_charts').css('display','none');
+    }
+    else {
+        $('.ground_floor_charts').css('display','none');
+        $('.room_charts_section').css('display','none');
+        $('.first_floor_charts').css('display','block');
+    }
     
     geo_map = L.map('floor_plan_wrap', {
         crs: L.CRS.Simple,
@@ -295,6 +305,136 @@ function genearteMap () {
 //                    B002.bindPopup("<div>I am a polygon.<br/>This is a special type of div</div>");   
     
 
+}
+
+
+// Generate charts based on room
+function generateCharts () {
+    
+    // Get chosen room and day
+    var select_room = $('input[name="room_no"]:checked').val();
+    var current_date =  $('#search_date').val().trim();
+    
+    console.log(current_date);
+    console.log(dataResponse.Room_no[select_room].Date[current_date]);
+    
+    
+    bar_chart_data = generateBarChartData();
+    
+    google.charts.load('current', {'packages':['bar']});
+    google.charts.setOnLoadCallback(drawChart);
+    
+    google.charts.setOnLoadCallback(drawChart);
+    
+    function drawChart() {
+        var data = google.visualization.arrayToDataTable(bar_chart_data);
+        var options = {
+            chart: {
+                title: 'Occupancy'
+            },
+            bars: 'vertical',
+            series: {
+                0:{color: '#FAB117'}
+            }
+        };
+
+        var chart = new google.charts.Bar(document.getElementById('barchart_material'));
+        chart.draw(data, options);
+    }
+    
+    // Draw interval chart
+    
+    var intervalDataArray = [];
+    var maxArray = [];
+    var minArray = [];
+    var estimate = [];
+    
+    for (var room in dataResponse.Room_no){
+//        console.log("Room no: " + room);
+        for(var date in dataResponse.Room_no[room].Date){
+//            console.log("Date: " + date);
+            for(var timeSlot in dataResponse.Room_no[room].Date[date].Timeslot){
+//                console.log("Time " + parseInt(timeSlot.substring(0,2)));
+                dataArray.push([parseInt(timeSlot.substring(0,2)),
+                                dataResponse.Room_no[room].Date[date].Timeslot[timeSlot].People_estimate,
+                                dataResponse.Room_no[room].Date[date].Timeslot[timeSlot].Max_people_estimate,
+                                dataResponse.Room_no[room].Date[date].Timeslot[timeSlot].Min_people_estimate]);
+            }
+        }
+    }
+    
+//    for(var i = 0; i < dataArray.length; i++){
+//        console.log(dataArray[i].toString() + " length: " + dataArray[i].length);
+//    }
+    
+    dataArray.sort(sortFunction);
+
+    function sortFunction(a, b) {
+    if (a[0] === b[0]) {
+        return 0;
+    }
+    else {
+        return (a[0] < b[0]) ? -1 : 1;
+    }
+}
+
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('number', 'x');
+        data.addColumn('number', 'Estimated occupancy');
+        data.addColumn({id:'i1', type:'number', role:'interval'});
+        data.addColumn({id:'i2', type:'number', role:'interval'});
+        data.addRows(dataArray);
+
+        var options = {
+            title:'Daily occupancy',
+            curveType:'function',
+            series: [{'color': '#F1CA3A'}],
+            intervals: { 'style':'area',
+                         'color': '#fdde9b'},
+            legend: 'top',
+            hAxis: {title: 'Time',       
+                    format: '0',                     
+            },
+            vAxis: {title: 'Number of people'}
+        };
+  
+        var chart_lines = new google.visualization.LineChart(document.getElementById('chart_lines'));
+        chart_lines.draw(data, options);
+    }
+    
+}
+
+function generateBarChartData () {
+    
+    // Get chosen room and day
+    var select_room = $('input[name="room_no"]:checked').val();
+    var current_date =  $('#search_date').val().trim();
+    var barCharDataArray = [];
+
+    for(var timeSlot in dataResponse.Room_no[select_room].Date[current_date].Timeslot){
+        var students = dataResponse.Room_no[select_room].Date[current_date].Timeslot[timeSlot].Logistic_occupancy;
+        barCharDataArray.push([timeSlot, students]);
+    }
+
+        
+    barCharDataArray.sort(sortFunction);
+
+    function sortFunction(a, b) {
+        if (a[0] === b[0]) {
+            return 0;
+        }
+        else {
+            return (a[0] < b[0]) ? -1 : 1;
+        }
+    }
+    
+    barCharDataArray.unshift(["Time Slots","Occupancy"]);
+    
+    return barCharDataArray;
 }
 
 

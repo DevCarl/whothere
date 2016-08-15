@@ -220,7 +220,14 @@ nav li a:hover:not(.active) {
 
 
 /*    MAP    */
-#map, #info_section{
+#map {
+    height: 600px;
+    width: 85%;
+    float: left;
+    display: inline;
+}
+
+#info_section{
     height: 800px;
     width: 85%;
     float: left;
@@ -708,4 +715,20 @@ form {
 
 #classroom {
     display: none;
+}
+
+
+
+.charts_section {
+    text-align: center;
+    font-size: 20px;
+
+}
+
+.ground_floor_charts {
+    display: inline;
+}
+
+.first_floor_charts {
+    display: inline;
 }

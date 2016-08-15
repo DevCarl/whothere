@@ -11,16 +11,16 @@
     //<![CDATA
     var dataResponse = "";
     var url = 'http://csi420-01-vm1.ucd.ie/api/data?request=Room_no&Room_no=B003&request2=Date&Date=2015-11-06%22'
-    console.log(url);
+//    console.log(url);
     var xmr = new XMLHttpRequest();
     xmr.open("GET", url, false);
     xmr.onreadystatechange = function(oEvent) {
-        console.log("Ready state: " + xmr.readyState);
+//        console.log("Ready state: " + xmr.readyState);
         if (xmr.readyState === 4) {
-            console.log("status: " + xmr.status);   
+//            console.log("status: " + xmr.status);   
             if (xmr.status === 200) {
                 dataResponse = JSON.parse(xmr.responseText);
-                console.log("Response: " + dataResponse);
+//                console.log("Response: " + dataResponse);
 
             } else {
                 console.log("Error", xmr.statusText)
@@ -33,12 +33,13 @@
     var maxArray = [];
     var minArray = [];
     var estimate = [];
+    
     for (var room in dataResponse.Room_no){
-        console.log("Room no: " + room);
+//        console.log("Room no: " + room);
         for(var date in dataResponse.Room_no[room].Date){
-            console.log("Date: " + date);
+//            console.log("Date: " + date);
             for(var timeSlot in dataResponse.Room_no[room].Date[date].Timeslot){
-                console.log("Time " + parseInt(timeSlot.substring(0,2)));
+//                console.log("Time " + parseInt(timeSlot.substring(0,2)));
                 dataArray.push([parseInt(timeSlot.substring(0,2)),
                                 dataResponse.Room_no[room].Date[date].Timeslot[timeSlot].People_estimate,
                                 dataResponse.Room_no[room].Date[date].Timeslot[timeSlot].Max_people_estimate,
@@ -47,9 +48,9 @@
         }
     }
     
-    for(var i = 0; i < dataArray.length; i++){
-        console.log(dataArray[i].toString() + " length: " + dataArray[i].length);
-    }
+//    for(var i = 0; i < dataArray.length; i++){
+//        console.log(dataArray[i].toString() + " length: " + dataArray[i].length);
+//    }
     
     dataArray.sort(sortFunction);
 
@@ -61,7 +62,7 @@
         return (a[0] < b[0]) ? -1 : 1;
     }
 }
-    console.log("ARRAY: " + dataArray.toString());
+//    console.log("ARRAY: " + dataArray.toString());
     google.charts.load('current', {'packages':['corechart']});
     google.charts.setOnLoadCallback(drawChart);
 
