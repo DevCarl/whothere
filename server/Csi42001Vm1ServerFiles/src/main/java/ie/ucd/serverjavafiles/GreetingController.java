@@ -16,6 +16,18 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.beans.factory.annotation.Autowired;
 
+
+import java.io.BufferedInputStream;
+import org.springframework.util.FileCopyUtils;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
+
 @Controller
 public class GreetingController {
         
@@ -70,7 +82,7 @@ public class GreetingController {
 	}
 	
 	@RequestMapping(value="/pdf_reports", method=RequestMethod.POST)
-        public void pdfReportsPost(@ModelAttribute PDFSearch pdfsearch, HttpServletResponse response) throws IOException {
+        public void pdfReportsPost(@ModelAttribute Search search, HttpServletResponse response) throws IOException {
             // Code goes here to call R Script to generate PDF report, and the return value of name/location
             File file = new File(this.getClass().getResource("/ds.pdf").getFile());
             response.setContentType("application/pdf");
