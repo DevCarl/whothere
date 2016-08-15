@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Who's there - Contact us</title>
+        <title>Who's there - PDF reports</title>
         <link rel="stylesheet" type="text/css" href="../static/css/style.css" th:attr="href=@{/css/style.css}" />
                 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
@@ -21,15 +21,102 @@
         
         <!--    Content section    -->
         <div id="contact_box">
-            <p class="title">PDF reports</p>
+            <h2>PDF reports</h2>
+            <!--      connected to a function for greeting the user according to the time of the day -->
+                <p id="greetings"> </p>
+            <!--      Upload instruciton      -->
+                <p>
+                    In this page you can download the daily PDF reports for the class and the day selected. 
+                    To obtain the PDF complete the form below with the desired value and hit submit. The PDF will be generated and it can be download pressing the button below.
+                </p>
+             
+                <div id="form_container">  
+                        <form id="pdf_form">
+                            <select id="building" class="PDF_form_input">
+                                <option>Select a building</option>                 
+                            </select>
+                            <select id="classroom" class="PDF_form_input">
+                                <option>Select a classroom</option>
+                            </select>
+                                <input type="date" name="date" class="PDF_form_input"/>
+                                <button type="submit" id="pdf_btn">Search</button>
+                                <button  type="submit" id="pdf_btn">Download here!</button>
+                        </form>
+                </div>
+                
+            </div>
+            
+                
+    
 
-        </div>
+        
         
         
          <!-- Insert footer -->
         <div id="footer">
             <footer th:replace="footer::myFooter" />
         </div>
-        
+        <script>
+            //<![CDATA[
+            var data = [
+                    [0, 4, "Good Night User!"], 
+                    [5, 11, "Good Morning User!"],          //Store messages in an array
+                    [12, 17, "Good Afternoon User!"],
+                    [18, 24, "Good Night User!"]
+                ],
+                    hr = new Date().getHours();
+
+            for(var i = 0; i < data.length; i++){
+                if(hr >= data[i][0] &amp;&amp; hr <= data[i][1]){
+                    document.getElementById("greetings").innerHTML = data[i][2];
+                } 
+            }
+            //]]>
+            
+            
+                //<![CDATA[
+                
+                // Function to call api
+                
+//                console.log(dataResponse["Room_no"]);
+                var keys = [];
+                // Generate list of keys
+                for(var k in dataResponse["Room_no"]) keys.push(k);
+//                console.log(keys[0]);
+                
+                var x = document.getElementById("building");
+                    for (var buildingkey in dataResponse){
+                        var option = document.createElement("option");
+                        var arr = $.map(dataResponse["Room_no"], function(el) { return el });
+                        option.text = arr[0].Building;
+                        x.add(option);
+                    }
+
+                    var classroom = document.getElementById("classroom");
+                    building.addEventListener("change", function() {
+                        classroom.innerHTML = "";
+                        var option = document.createElement("option");
+                        option.text = "Select a classroom";
+                        classroom.add(option);
+                        var optionList = building.querySelectorAll("option");
+                        var selected = building.options[building.selectedIndex].text;     
+                        
+                        if (selected == "Computer Science and Informatics Centre") {
+                            for (var i = 0; i < keys.length; i++){
+                                var option = document.createElement("option");
+                                option.text = keys[i];
+                                classroom.add(option);
+                            }
+                        }
+                        else {
+                            document.getElementById('classroom').options.length = 0;
+                            var option = document.createElement("option");
+                            option.text = "Select a classroom";
+                            classroom.add(option);
+                        }
+                        
+                    });     
+                //]]>
+        </script>
     </body>
 </html>

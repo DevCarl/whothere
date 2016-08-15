@@ -7,19 +7,23 @@
 /*     BODY     */
 html, body { height: 100%; margin: 0; padding: 0;}
 
+
 body{
     background-image: url("../img/background.jpg");
     background-color: black;
     background-repeat: no-repeat;
     background-size: cover;
+    background-attachment: fixed;
+    height:100%;
 } 
 
 /*    HEADER    */
 header{
     background-color: rgba(255,255,240, 0.5);
     overflow: auto;
-    height: auto; 
+    height: 70px; 
     padding: 10px;
+    clear:both;
 }
 #logo{
     width: 60px;
@@ -69,10 +73,10 @@ header{
     margin-bottom: 10px;
 }
 #login_error{
-    color: orangered;
+    color: #FF6E21;
 }
 #logout_success{
-    color: seagreen;     
+    color: #008B8B;     
 }
 #login_fieldset{
     padding: 5px;
@@ -126,13 +130,17 @@ input.login{
 
 /*    SEARCH FORM    */
 #search_form{
-    margin: 0 auto;
-    width: 1045px;
+    margin-right: 10px;
+    width: 80%;
+    float:right;
 }
 #search_section{
     padding-bottom: 10px;
     padding-top: 10px;
-    padding-left: 10px;
+    margin: 0 auto;
+    width: 80%;
+    float:right;
+}
 }
 .search_select{
     height: 40px;
@@ -143,7 +151,7 @@ input.login{
 }
 #search_btn{
     height: 40px;
-    width: 250px; 
+    width: 90px; 
     background-color: darkcyan;
     font-family: Merriweather, sans-serif;
     font-size: 16px;
@@ -154,7 +162,7 @@ input.login{
 /*    MAIN SECTION - INCLUDES NAV BAR AND MAP    */
 #main{
     width: 100%;
-    height: 600px;
+    height: 1080px;
     margin: 0px;
     padding: 0px;
 }
@@ -164,13 +172,13 @@ aside {
     height: 100%;
     width: 15%;
     float: left;
-    display: inline;
+/*    display: inline;*/
     top: 142px;
     overflow: auto;
-    padding: 0px
+    padding: 0px;
+    background-color: #1f7b6c;
 }
 nav { 
-    height: 100%;
     margin: 0px;
     text-align: center;
     align-content: center;
@@ -178,6 +186,7 @@ nav {
     font-size: 15px;
     color: white;
     background-color: #1f7b6c;
+    float:left;
 /*    position: fixed;*/
 }
 
@@ -187,7 +196,6 @@ nav {
     padding-top: 5px;
     align-content: center;
     align-items:center;
-    overflow: hidden;
 }
 
 #nav_list_item {
@@ -213,7 +221,7 @@ nav li a:hover:not(.active) {
 
 /*    MAP    */
 #map, #info_section{
-    height: 1000px;
+    height: 800px;
     width: 85%;
     float: left;
     display: inline;
@@ -266,13 +274,13 @@ nav li a:hover:not(.active) {
 footer {
     background-color: rgba(255,255,240, 0.5);
     overflow: hidden;
-    position:fixed;
+/*    position:fixed;*/
     bottom:0;
     right:0;
     height: 40px; 
     padding-top: 5px; 
-    margin-left: 15px;
-    width: 85%;
+    width: 100%;
+    clear:both;
 }
 
 footer ul {
@@ -308,18 +316,7 @@ footer li a{
 }
 
 /*    CONTACT US PAGE    */
-/*    TITLE    */
 
-.title{
-    padding:5px;
-    color: #ff6e21;
-    font-family: Merriweather, sans-serif;
-    font-size: 30px;
-    text-align: center;
-    margin-top: 0px; 
-    margin-bottom: 50px;
-    border-bottom: thin solid #ff6e21;
-}
 
 /*    ADRESS, PHONE, MAIL    */
 #contact_box{
@@ -327,9 +324,10 @@ footer li a{
     -webkit-box-shadow: 2px 2px 10px -2px rgba(0,0,0,0.75);
     -moz-box-shadow: 2px 2px 10px -2px rgba(0,0,0,0.75);
     box-shadow: 2px 2px 10px -2px rgba(0,0,0,0.75);
-    margin: 0 auto;
-    margin-top: 50px;
-    margin-bottom: 50px;
+    margin-right:10px;
+    margin-left:210px;
+    margin-top: 20px;
+    margin-bottom: 20px;
     padding-top: 40px;
     padding-bottom: 40px;
     align-content: center;
@@ -389,8 +387,8 @@ footer li a{
     height: 300px;
     float:left;
     padding:10px;
-    margin-left: 30px;
-    margin-right: 10px;
+    margin-left: 20px;
+    margin-right: 30px;
     margin-top:5px;
 }
 
@@ -450,13 +448,15 @@ input.login{
 
 /* Class for uplaod page box */
 .holder_box {
-    background-color: rgba(255,255,240, 0.5);
+    background-color: rgba(255,255,240, 0.7);
     -webkit-box-shadow: 2px 2px 10px -2px rgba(0,0,0,0.75);
     -moz-box-shadow: 2px 2px 10px -2px rgba(0,0,0,0.75);
     box-shadow: 2px 2px 10px -2px rgba(0,0,0,0.75);
     margin: 0 auto;
     margin-top: 50px;
     margin-bottom: 50px;
+    margin-right:10px;
+    margin-left:210px;
     padding-top: 40px;
     padding-bottom: 40px;
     align-content: center;
@@ -599,3 +599,109 @@ input.login{
 }
 
 
+/* Fonts used in the website */
+
+/*    TITLE    */
+
+h2{
+    padding:5px;
+    color: #FF6E21;
+    font: normal 30px, Merriweather, sans-serif;
+    font-weight:normal;
+    text-align: center;
+    margin: 0px, 10px, 50px, 30px;
+    border-bottom: thin solid #ff6e21;
+}
+
+h3{
+    padding:5px;
+    color: #FF6E21;
+    font: bold 20px, Merriweather, sans-serif;
+    font-weight:normal;
+    text-align: justify;
+    margin:auto;
+    margin-left:30px;
+}
+
+h4{
+    padding:5px;
+    color: #FF6E21;
+    font: bold 18px, Merriweather, sans-serif;
+    font-weight:normal;
+    text-align: justify;
+    margin:auto;
+    margin-left:30px;
+}
+
+p {
+    font: 12px, Merriweather, sans-serif;
+    text-align:justify;
+    margin-left: 30px;
+    margin-right: 10px;
+}
+
+
+.textcode{
+    height:40px;
+    width: auto;
+    display: inline-block;
+    vertical-align: middle;
+    padding: 5px;
+    margin:auto;
+    margin-left: 50px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    background-color: #e7e7e7;
+    border: 0px;
+    resize:none;
+    overflow: auto;
+}
+
+.url{
+    text-align: justify;
+    display: inline-block;
+    margin:0 auto;
+    padding:5px;
+}
+
+
+.wrapper {
+     width: 100%;
+    height: 1000px;
+    margin: 0px;
+    padding: 0px;
+}
+
+
+#pdf_btn {
+    background-color: #FF6E21;
+    margin-bottom: 0px;
+    font-family: Merriweather, sans-serif;
+    color: white;
+    height:25px;
+    border:none;
+}
+
+form {
+    
+}
+
+.PDF_form_input {
+    margin-left: 20px;
+    float:left;
+    margin-right:20px;
+}
+
+#pdf_form {
+    margin-left: 10px;
+    float: left;
+    border:10px yellow;
+}
+
+
+
+
+.button_bar {
+    display: inline-block;
+}

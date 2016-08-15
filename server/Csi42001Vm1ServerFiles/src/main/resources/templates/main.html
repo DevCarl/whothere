@@ -10,8 +10,8 @@
 <!--        <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>-->
         
         <!--   Local javascript      -->
-        <script src="js/main.js"></script>
-        <script src="js/leaflet.js"></script>
+        <script src="../static/js/main.js"></script>
+        <script src="../static/js/leaflet.js"></script>
         <!--   JQery     -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/core.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
@@ -33,22 +33,20 @@
                 <select id="classroom" class="search_select">
                     <option>Select a classroom</option>
                 </select>
-                <input type="date" name="date" class="search_select"/>
-                <button type="submit" id="search_btn">Search</button>
+                <input type="date" name="date" max="2015-11-17" min="2015-11-02" value="2015-11-13" class="search_select"/>
+                <button type="submit" id="search_btn" >Search</button>
             </form>
         </section>
         
-        
-        <!-- Insert navigation bar -->
-        <aside id="nav_bar">
-            <nav th:replace="admin_nav_bar::myNav" />
-        </aside>
-            <main id="main">
-
+   
+        <main id="main">
+             <!-- Insert navigation bar -->
+            <aside id="nav_bar">
+                <nav th:replace="admin_nav_bar::myNav" />
+            </aside>
+            
             <!-- Map -->
-            <section id="map">
-                
-            </section>
+            <section id="map"></section>
             
             <!-- Section for floor plan and classroom info  -->
             <section id="info_section">
@@ -69,7 +67,7 @@
                     <div id="floor_plan_wrap"></div>
 
                     <div class="slider_bar" id="slider_div">
-                        <div>
+                        <div class="button_bar">
                             <p>Key: 
                                 <button class="button button3">Low</button>
                                 <button class="button button2">Medium</button>
@@ -88,8 +86,12 @@
                     </div>
                 </div>
             </section>
-            
-            
+             <!-- Insert footer -->
+        
+                <div id="footer">
+                    <footer th:replace="footer::myFooter" />
+                </div>
+        
                 <!--  Jqeuy slider  -->
                 <script>
                 //<![CDATA[
@@ -262,13 +264,12 @@
             </script>
                 
                 <script src="js/main.js" async = "async" defer = "defer"></script>
-            
+              
 
         </main>
-         <!-- Insert footer -->
-        <div id="footer">
-            <footer th:replace="footer::myFooter" />
-        </div>
+        
+        
+        
     </body>
 </html>
     

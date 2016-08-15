@@ -1,5 +1,7 @@
 package ie.ucd.serverjavafiles;
 
+// This class is used in the admincontrol POST form to upgrade a user. It assists SqlQueries.java - sqlUpgradeUsers in changing a users status
+
 public class Upgrade {
     
     private String UserName;

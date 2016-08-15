@@ -17,20 +17,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 @RestController
 public class ApiController {
     
+    	// Autowired set up to connect to settings found in MvcConfig.Java for Database connections
         @Autowired
         DataSource dataSource;
     	
         @RequestMapping(value = "/api/table", method = RequestMethod.GET)
         public String apiRequestTable(@RequestParam(value = "request", required=true) String request) throws Exception{
+            // Each connection must be established via getConnection
             Connection connection = dataSource.getConnection();
+            // You may then establish a new instance of the SqlQueries Class, with the connection as the parameter
             SqlQueries query = new SqlQueries(connection);
             request = query.sqlGetAllJson(request);
+            // Close the connection at the end of the RequestMapping, before the return is processed.
             connection.close();
             return request;
         }
-
+	
+	// Multiple parameters are processed by the <String, String> mapping.
 	@RequestMapping(value = "/api/tablesearch", method = RequestMethod.GET)
         public String apiRequestTableSearch(@RequestParam Map<String,String> requestParams) throws Exception{
+        	// To add more parameters, add a new variable and get the param from the URL where .get(Something) is the name in the URL
 		String request = requestParams.get("request");
 		String specific = requestParams.get("key");
             Connection connection = dataSource.getConnection();
@@ -42,6 +48,7 @@ public class ApiController {
 	
 	@RequestMapping(value = "/api/data", method = RequestMethod.GET)
 	public String apiRequestData(@RequestParam Map<String,String> requestParams) throws Exception{
+		// By ordering the .get correctly, you can use the value of one parameter as the name of another. For example, get(request) is the value of .get("request")
 		String request = requestParams.get("request");
 		String specific = requestParams.get(request);
                 String request2 = requestParams.get("request2");
@@ -51,6 +58,7 @@ public class ApiController {
                 Connection connection = dataSource.getConnection();
                 SqlQueries query = new SqlQueries(connection);
                 for (int i = 0; i < group.length; i++){
+                    // We use a switch statement to control what we allow as parameters
                     switch ((group[i] != null) ? group[i] : "Null"){
                         case "Date":
                             additional = additional + "AND W.Date = ? ";              break;

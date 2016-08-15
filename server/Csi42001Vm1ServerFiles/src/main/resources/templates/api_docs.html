@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Who's there - Contact us</title>
+        <title>Who's there - Api instructions</title>
         <link rel="stylesheet" type="text/css" href="../static/css/style.css" th:attr="href=@{/css/style.css}" />
                 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
@@ -15,32 +15,71 @@
         <header id="header" th:replace="header::myHeader"></header>
         
         <!-- Insert navigation bar -->
-        <aside id="nav_bar">
-            <nav th:replace="admin_nav_bar::myNav" />
-        </aside>
-        
-        <!--    Content section   -->
-        <div id="contact_box">
-            <p class="title">Instructions for using the API</p>
-            <p style="align:center;">Good Evening Comp Sci Masters students, <br/><br/>
-                    TO use our API, the basic request is sent to /api/data<br/><br/>
-                    The general extension is as follows ?request=[search1]&amp;[search1]=[value] <br/><br/>
-                    You may follow this with &amp;request2=[search2]&amp;[search2]=[value] for more specific results. <br/><br/>
-                    An example would be...
-                    <a href="/api/data?request=Date&amp;Date=2015/11/11">/api/data?request=Date&amp;Date=2015/11/11</a><br/><br/>
-                    The valid search terms are Date, Week, Module and Room_no. <br/>
-                    Week follows the same structure as Date where an individual date is selected.
-                    
-                
-            </p>
+        <div class="wrapper">
+            <aside id="nav_bar">
+                <nav th:replace="admin_nav_bar::myNav" />
+            </aside>
 
+            <!--    Content section   -->
+            <div id="contact_box">
+                <h2>Instructions for using the API</h2>
+                    <p id="greeting"> </p>
+                    <p> Our API allows you to query the latest information of the room occupancy in UCD buildings. </p>
+
+                    <h3>Base Url</h3>
+                        <p> All our API requests start with the following base:</p>
+                            <div class="textcode"> <p class="url">http://csi420-01-vm1.ucd.ie/api/data</p></div>
+                        <p> The general query format is the following: </p>
+                <div class="textcode"> <p class="url">http://csi420-01-vm1.ucd.ie/api/data?request=[search1]&amp;[search1]=[value]</p></div>
+                         <p>The valid search terms are: </p>
+                            <ul>
+                                <li>Date, which is written in format yy/mm/dd (e.g. 2015/11/25)</li>
+                                <li>Week, which it will take a date in the same format as data, but it will return the week of the day selected</li>
+                                <li>Module, which is the module code in which you are interested (e.g. COMP30250)</li>
+                                <li>Room_no, which indicate the name or the code of the room (e.g. B002)</li>        
+                            </ul>
+
+                        <h4>Example</h4>
+                            <p> This is an example on how a simple API query looks like:</p>
+                    <div class="textcode"><p class="url"> http://csi420-01-vm1.ucd.ie/api/data?request=Date&amp;Date=2015/11/11</p></div>
+
+                     <h3>Complex Url</h3>
+                        <p> If you want to make your research more precise you can combine two different requests together as showed below:</p>
+                    <div class="textcode"><p class="url"> http://csi420-01-vm1.ucd.ie/api/data?request=[search1]&amp;[search1]=[value]&amp;request2=[search2]&amp;[search2]=[value]</p></div>
+
+
+
+
+                <h4>Example</h4>
+                        <p> This is an example on how a complex API query looks like:</p>
+                    <div class="textcode"><p class="url"> http://csi420-01-vm1.ucd.ie/api/data?request=Room_no&amp;Room_no=B003&amp;request2=Date&amp;Date=2015-11-03</p>
+                        </div>
+            </div>
+
+
+             <!-- Insert footer -->
+            <div id="footer">
+                <footer th:replace="footer::myFooter" />
+            </div>
         </div>
         
-        
-         <!-- Insert footer -->
-        <div id="footer">
-            <footer th:replace="footer::myFooter" />
-        </div>
+        <script>
+            //<![CDATA[
+            var data = [
+                    [0, 4, "Good Night User!"], 
+                    [5, 11, "Good Morning User!"],          //Store messages in an array
+                    [12, 17, "Good Afternoon User!"],
+                    [18, 24, "Good Night User!"]
+                ],
+                    hr = new Date().getHours();
+
+            for(var i = 0; i < data.length; i++){
+                if(hr >= data[i][0] &amp;&amp; hr <= data[i][1]){
+                    document.getElementById("greeting").innerHTML = data[i][2];
+                } 
+            }
+            //]]>
+        </script>
         
     </body>
 </html>

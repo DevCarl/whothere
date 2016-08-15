@@ -1,3 +1,4 @@
+
 ---
 title: "Daily Classroom Occupancy"
 author: "Who's There"
@@ -28,14 +29,12 @@ library(data.table)
 
 
 #set up the url and the path of the api for server
-#url <- "http://csi420-01-vm1.ucd.ie:8080"
-#path <-"/apidata?request=Room_no&Room_no=B002"
+#url <- "paste("http://csi420-01-vm1.ucd.ie:8080"/api/data?request=Room_no&Room_no=B003&request2=Date&Date=2015-11-03"
 
 #set up the url and the path of the api locally
-url <- "http://192.168.10.2:8080"
-path <-"/api/data?request=Room_no&Room_no=B003&request2=Date&Date=2015-11-03"
+url <- "http://192.168.10.2:8080/api/data?request=Room_no&Room_no=B003&request2=Date&Date=2015-11-03"
 
-raw_contents <- GET(url = url, path=path)
+raw_contents <- GET(url = url)
 raw_contents$status_code
 
 json_raw <- httr::content(raw_contents, type = "text", encoding = "UTF-8")
@@ -87,6 +86,12 @@ time <-
   library(stringr)
   occupancy_table <-cbind(Time=str_sub(time$key, -8,-4), occupancy_table)
   occupancy_table <- occupancy_table[order(Time),] 
+  occupancy_table$Predicted_occupancy <- as.factor(occupancy_table$Predicted_occupancy)
+levels(occupancy_table$Predicted_occupancy)
+# [1] "a" "b" "c" "d"
+
+occupancy_table$Predicted_occupancy <- factor(occupancy_table$Predicted_occupancy, levels = c(" Low ", " Mid_Low ",  " Mid_High ",  " High " ))
+
   
 
 ```
@@ -112,7 +117,7 @@ pander(occupancy_table)
 
 
 ```{r, echo=FALSE, message=FALSE, fig.align='center'}
-occupancy_plot <- ggplot(data=occupancy_table, aes(x=factor(Time), y=Predicted_occupancy, fill=Predicted_occupancy)) + geom_bar(stat="identity")+ scale_fill_manual(values=c( "orangered","darkcyan","gold", "blue"))+ theme_bw()
+occupancy_plot <- ggplot(data=occupancy_table, aes(x=factor(Time), y=Predicted_occupancy, fill=Predicted_occupancy)) + geom_bar(stat="identity")+ scale_fill_manual(values=c( "orangered","gold","darkcyan", "blue"))+ theme_bw()
 
 count_plot <-ggplot(data=occupancy_table, aes(x=Time, y=Expected_people, group=1)) + geom_ribbon(data=occupancy_table,aes(ymin=Min_people, ymax=Max_people),alpha=0.2, fill="orangered3") + geom_line(color="orangered2")+ theme_bw() + geom_point(color="orangered2") 
 multiplot(occupancy_plot, count_plot, cols=2)

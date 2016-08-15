@@ -2,6 +2,8 @@ package ie.ucd.serverjavafiles;
 
 import org.mindrot.jbcrypt.BCrypt;
 
+// This class is used to hold values entered in the registration POST form. It assists SqlQueries.java - SqlSetUsers in registering users
+
 public class Registration {
     
     private String UserName;
@@ -12,6 +14,8 @@ public class Registration {
     private String RegistrationCode;
     
     public Registration() {
+        // This provides the default values for a new user. We have decided to set all new accounts as active, with no registration confirmation
+        // This may be added in future, in which case the AccountActive variable would be set to false until email is confirmed.
         this.Admin = "ROLE_USER";
         this.AccountActive = true;
         this.GroundTruthAccessCode = "Test";
@@ -65,6 +69,8 @@ public class Registration {
         this.RegistrationCode = RegistrationCode;
     }
     
+    // This line encrypts a password entered by a user. Currently, the default iterations for encryption is 10. To change this, add a number in BCrypt.gensalt().
+    // EG: BCrypt.hashpw(Password, BCrypt.gensalt(20))
     public String passwordEncryptor(String Password){
         String pw_hash = BCrypt.hashpw(Password, BCrypt.gensalt());
         return pw_hash;
