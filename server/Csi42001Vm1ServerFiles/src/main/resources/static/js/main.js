@@ -4,28 +4,78 @@
 
 // Create map varialbe as undefiend
 var geo_map;
+var dataResponse = "";
+
+// Load inital respone to populate drop down menus
+var search_url = "http://csi420-01-vm1.ucd.ie:8080/api/data?request=Date&Date=2015/11/13";
+load_data_response(search_url);
+
+
 
 function hey () {
     alert("hi");
 }
 
+// Serach bar funcion
+
+function load_serach() {
+    
+    var buildling = $('#building').val();
+    var room = $('#classroom').val();
+    var date = $('#search_date').val();
+    
+    if (buildling.trim() == "Select a building") {
+        alert("Please select a building");
+    }
+    // Removed as not using room section in seach bar
+//    else if (room.trim() == "Select a classroom") {
+//        alert("Please select a room");
+//    }
+    else {
+        // Load correct div depending on page
+        $('#info_section').css('display','block');
+        $('#map').css('display','none');
+        $('#main_dynamic_map').css('display','block');
+        $('#no_info_error').css('display','none');
+        
+        // Load new json xmr.open("GET", url, false);
+        
+        search_date = date.replace('-', "/").replace('-', "/");
+        search_url = "http://csi420-01-vm1.ucd.ie:8080/api/data?request=Date&Date=" + search_date;
+    
+        load_data_response(search_url);
+        
+        // Generate map
+        genearteMap ();
+        
+    }
+    
+    
+    
+    return false;
+}
+
+
 // Function to call api
 
-var dataResponse = "";
-var url = 'http://csi420-01-vm1.ucd.ie:8080/api/data?request=Date&Date=2015/11/11'
-var xmr = new XMLHttpRequest();
-xmr.open("GET", url, false);
-xmr.onreadystatechange = function(oEvent) {
-    if (xmr.readyState === 4) {
-        if (xmr.status === 200) {
-            dataResponse = JSON.parse(xmr.responseText);
+function load_data_response (url) { 
+//    var url = 'http://csi420-01-vm1.ucd.ie:8080/api/data?request=Date&Date=2015/11/11'
+    var xmr = new XMLHttpRequest();
+    xmr.open("GET", url, false);
+    xmr.onreadystatechange = function(oEvent) {
+        if (xmr.readyState === 4) {
+            if (xmr.status === 200) {
+                window.dataResponse = JSON.parse(xmr.responseText);
 
-        } else {
-            console.log("Error", xmr.statusText)
+            } else {
+                console.log("Error", xmr.statusText)
+            }
         }
     }
-}
     xmr.send(null);
+
+}
+
 
 // Create map and draw rooms on.
 function genearteMap () {
@@ -41,7 +91,9 @@ function genearteMap () {
     if (current_time=="9:00:00") {
         current_time = "09:00:00";
     }
-    var current_date = '2015-11-11'; // Hard coded as of now
+    var current_date =  $('#search_date').val().trim();
+    console.log(current_date);
+    console.log(dataResponse);
     
     
     geo_map = L.map('floor_plan_wrap', {
@@ -141,9 +193,7 @@ function genearteMap () {
     rooms_ground_floor[0].apiData = dataResponse.Room_no.B002;
     rooms_ground_floor[1].apiData = dataResponse.Room_no.B003;
     rooms_ground_floor[2].apiData = dataResponse.Room_no.B004;
-    
-//    console.log(dataResponse.Room_no.B004);
-//    console.log(rooms_ground_floor);
+
 
     
     // Set which map to load and which rooms to set
@@ -167,7 +217,7 @@ function genearteMap () {
     
 //    console.log(floor_no, current_floor);
     
-    var image = L.imageOverlay(current_floor, bounds).addTo(geo_map);
+    var image = L.imageOverlay(testDirectory+current_floor, bounds).addTo(geo_map);
     
 
     geo_map.fitBounds(bounds);
@@ -219,20 +269,20 @@ function genearteMap () {
 //                console.log(feature.apiData.Date[current_date].Timeslot[current_time]);
                 layer.bindPopup("<p class='center_text'><b> Room name: </b>" + feature.properties.room + "</p>" +
                                 "<p> "
-                                + "<b> Room name </b>:" + feature.apiData.Building 
-                                + "<br/> <b>Campus </b>:" + feature.apiData.Campus 
-                                + "<br/> <b>Building capacity< /b>:" + feature.apiData.Capacity 
-                                + "<br/> <b>Plug_friendly </b>:" + feature.apiData.Plug_friendly 
-                                + "<br/> <b>No_expected_students </b>:" + feature.apiData.Date[current_date].Timeslot[current_time].No_expected_students 
-                                + "<br/> <b>Class_went_ahead </b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Class_went_ahead 
-                                + "<br/> <b>Module </b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Module.Module_code
-                                + "<br/> <b>Facilty </b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Module.Facilty
-                                + "<br/> <b>Undergrad </b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Module.Undergrad
-                                + "<br/> <b>Course Level </b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Module.Course_level
-                                + "<br/> <b>People_estimate </b>:" + feature.apiData.Date[current_date].Timeslot[current_time].People_estimate 
-                                + "<br/> <b>Min_people_estimate </b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Min_people_estimate 
-                                + "<br/> <b>Max_people_estimate </b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Max_people_estimate 
-                                + "<br/> <b>Logistic_occupancy </b>:" + feature.apiData.Date[current_date].Timeslot[current_time].Logistic_occupancy
+                                + "<b> Room name</b>: " + feature.apiData.Building 
+                                + "<br/> <b>Campus</b>: " + feature.apiData.Campus 
+                                + "<br/> <b>Building capacity</b>:"  + feature.apiData.Capacity 
+                                + "<br/> <b>Plug_friendly</b>: " + feature.apiData.Plug_friendly 
+                                + "<br/> <b>No_expected_students</b>: " + feature.apiData.Date[current_date].Timeslot[current_time].No_expected_students 
+                                + "<br/> <b>Class_went_ahead</b>: " + feature.apiData.Date[current_date].Timeslot[current_time].Class_went_ahead 
+                                + "<br/> <b>Module</b>: " + feature.apiData.Date[current_date].Timeslot[current_time].Module.Module_code
+                                + "<br/> <b>Facilty</b>: " + feature.apiData.Date[current_date].Timeslot[current_time].Module.Facilty
+                                + "<br/> <b>Undergrad</b>: " + feature.apiData.Date[current_date].Timeslot[current_time].Module.Undergrad
+                                + "<br/> <b>Course Level</b>: " + feature.apiData.Date[current_date].Timeslot[current_time].Module.Course_level
+                                + "<br/> <b>People_estimate</b>: " + feature.apiData.Date[current_date].Timeslot[current_time].People_estimate 
+                                + "<br/> <b>Min_people_estimate</b>: " + feature.apiData.Date[current_date].Timeslot[current_time].Min_people_estimate 
+                                + "<br/> <b>Max_people_estimate</b>: " + feature.apiData.Date[current_date].Timeslot[current_time].Max_people_estimate 
+                                + "<br/> <b>Logistic_occupancy</b>: " + feature.apiData.Date[current_date].Timeslot[current_time].Logistic_occupancy
                                 + "</p>", popupOptions);
             }
             else if (floor_no=="first") {

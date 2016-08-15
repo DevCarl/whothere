@@ -689,3 +689,7 @@ form {
 .button_bar {
     display: inline-block;
 }
+
+#classroom {
+    display: none;
+}

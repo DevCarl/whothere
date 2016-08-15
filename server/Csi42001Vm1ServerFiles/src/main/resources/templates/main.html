@@ -26,15 +26,18 @@
     
         <!--  Search form: by building, module and date     -->
         <section id="search_section">
-            <form id="search_form">
+            
+            <form id="search_form" onsubmit="return false;">
                 <select id="building" class="search_select">
                     <option>Select a building</option>                 
                 </select>
+                
+                <!--  Currently if css is set to display none as room is not needed  -->
                 <select id="classroom" class="search_select">
                     <option>Select a classroom</option>
                 </select>
-                <input type="date" name="date" max="2015-11-17" min="2015-11-02" value="2015-11-13" class="search_select"/>
-                <button type="submit" id="search_btn" >Search</button>
+                <input type="date" name="date" max="2015-11-13" min="2015-11-03" value="2015-11-13" class="search_select" id="search_date"/>
+                <input type="submit" id="search_btn" onclick="load_serach()" value="Search"></input>
             </form>
         </section>
         
@@ -56,8 +59,9 @@
                 <p id="no_info_error"></p>
                 
                 <div id="main_dynamic_map">
-                    <div id="floor_no">  
+                    <div id="floor_no">
                         <form class="floor_form_input" onclick="genearteMap()">
+                            To load a different day select a date and click serach</br>
                             Select floor no => 
                             <input type="radio" name="floor_no" value="ground" checked="checked"/>Ground Floor
                           <input type="radio" name="floor_no" value="first" />First Floor<br/>
@@ -251,7 +255,8 @@
                         if(marker.metadata.id == "Computer Science and Informatics Centre"){
                             document.getElementById("main_dynamic_map").style.display = 'block';
                             genearteMap ();
-                            document.getElementById("floor_plan").style.display = 'block'; document.getElementById("no_info_error").style.display = 'none';
+//                            document.getElementById("floor_plan").style.display = 'block'; 
+                            document.getElementById("no_info_error").style.display = 'none';
                         }else{
                             document.getElementById("no_info_error").innerHTML = "Sorry, no information for this building yet!"
                             document.getElementById("no_info_error").style.display = 'block';
