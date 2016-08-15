@@ -14,7 +14,7 @@ public class helpers {
         try {
             Process p = Runtime.getRuntime().exec(run);
             BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            String line;
+            String line = null;
             while ((in.readLine()) != null) {
                 line = in.readLine();
                 System.out.println(line);
@@ -34,7 +34,7 @@ public class helpers {
         try {
             Process p = Runtime.getRuntime().exec(run);
             BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            String line;
+            String line = null;
             while ((in.readLine()) != null) {
                 line = in.readLine();
                 System.out.println(line);
