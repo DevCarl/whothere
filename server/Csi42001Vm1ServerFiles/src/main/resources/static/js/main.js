@@ -10,8 +10,6 @@ var dataResponse = "";
 var search_url = "http://csi420-01-vm1.ucd.ie:8080/api/data?request=Date&Date=2015/11/13";
 load_data_response(search_url);
 
-
-
 function hey () {
     alert("hi");
 }
