@@ -45,6 +45,8 @@ function load_serach() {
         
         // Generate map
         genearteMap ();
+        // Generate Charts
+        generateCharts ();
         
     }
     
@@ -309,24 +311,26 @@ function genearteMap () {
 
 
 // Generate charts based on room
+
+google.charts.load('current', {'packages':['bar','corechart',"calendar"]});
+//google.charts.load('current', {'packages':['corechart']});
+
 function generateCharts () {
     
-    // Get chosen room and day
-    var select_room = $('input[name="room_no"]:checked').val();
-    var current_date =  $('#search_date').val().trim();
+    // Testing section
+    generateCalanderData();
     
-    console.log(current_date);
-    console.log(dataResponse.Room_no[select_room].Date[current_date]);
+    // Clear current charts
+    google.charts.clearChart;
     
+    // Loads charts
+    google.charts.setOnLoadCallback(drawBarChart);
+    google.charts.setOnLoadCallback(drawLinesChart);
+    google.charts.setOnLoadCallback(drawCalanderChart);
     
-    bar_chart_data = generateBarChartData();
-    
-    google.charts.load('current', {'packages':['bar']});
-    google.charts.setOnLoadCallback(drawChart);
-    
-    google.charts.setOnLoadCallback(drawChart);
-    
-    function drawChart() {
+    // Function to draw the charts
+    function drawBarChart() {
+        var bar_chart_data = generateBarChartData();
         var data = google.visualization.arrayToDataTable(bar_chart_data);
         var options = {
             chart: {
@@ -343,51 +347,15 @@ function generateCharts () {
     }
     
     // Draw interval chart
-    
-    var intervalDataArray = [];
-    var maxArray = [];
-    var minArray = [];
-    var estimate = [];
-    
-    for (var room in dataResponse.Room_no){
-//        console.log("Room no: " + room);
-        for(var date in dataResponse.Room_no[room].Date){
-//            console.log("Date: " + date);
-            for(var timeSlot in dataResponse.Room_no[room].Date[date].Timeslot){
-//                console.log("Time " + parseInt(timeSlot.substring(0,2)));
-                dataArray.push([parseInt(timeSlot.substring(0,2)),
-                                dataResponse.Room_no[room].Date[date].Timeslot[timeSlot].People_estimate,
-                                dataResponse.Room_no[room].Date[date].Timeslot[timeSlot].Max_people_estimate,
-                                dataResponse.Room_no[room].Date[date].Timeslot[timeSlot].Min_people_estimate]);
-            }
-        }
-    }
-    
-//    for(var i = 0; i < dataArray.length; i++){
-//        console.log(dataArray[i].toString() + " length: " + dataArray[i].length);
-//    }
-    
-    dataArray.sort(sortFunction);
-
-    function sortFunction(a, b) {
-    if (a[0] === b[0]) {
-        return 0;
-    }
-    else {
-        return (a[0] < b[0]) ? -1 : 1;
-    }
-}
-
-    google.charts.load('current', {'packages':['corechart']});
-    google.charts.setOnLoadCallback(drawChart);
-
-    function drawChart() {
+    function drawLinesChart() {
+        
+        var linesChartData = generateLinesChartData();
         var data = new google.visualization.DataTable();
         data.addColumn('number', 'x');
         data.addColumn('number', 'Estimated occupancy');
         data.addColumn({id:'i1', type:'number', role:'interval'});
         data.addColumn({id:'i2', type:'number', role:'interval'});
-        data.addRows(dataArray);
+        data.addRows(linesChartData);
 
         var options = {
             title:'Daily occupancy',
@@ -406,6 +374,24 @@ function generateCharts () {
         chart_lines.draw(data, options);
     }
     
+    function drawCalanderChart() {
+        
+        var CalanderData = generateCalanderData();
+        
+        var dataTable = new google.visualization.DataTable();
+        dataTable.addColumn({ type: 'date', id: 'Date' });
+        dataTable.addColumn({ type: 'number', id: 'Occupancy' });
+        dataTable.addRows(CalanderData);
+
+        var chart = new google.visualization.Calendar(document.getElementById('calendar_basic'));
+
+        var options = {
+            title: "Daily Average Occupancy",
+            height: 350,
+        };
+
+        chart.draw(dataTable, options);
+    }
 }
 
 function generateBarChartData () {
@@ -437,5 +423,85 @@ function generateBarChartData () {
     return barCharDataArray;
 }
 
+function generateLinesChartData () {
+    
+    // Get variables
+    var select_room = $('input[name="room_no"]:checked').val();
+    var current_date =  $('#search_date').val().trim();
+    var intervalDataArray = [];
+    
+    var maxArray = [];
+    var minArray = [];
+    var estimate = [];
+    
+    for(var timeSlot in dataResponse.Room_no[select_room].Date[current_date].Timeslot){
+        
+        intervalDataArray.push([parseInt(timeSlot.substring(0,2)),
+                        dataResponse.Room_no[select_room].Date[current_date].Timeslot[timeSlot].People_estimate,
+                        dataResponse.Room_no[select_room].Date[current_date].Timeslot[timeSlot].Max_people_estimate,
+                        dataResponse.Room_no[select_room].Date[current_date].Timeslot[timeSlot].Min_people_estimate]);
+    }
+    
+    intervalDataArray.sort(sortFunction);
 
+    function sortFunction(a, b) {
+        if (a[0] === b[0]) {
+            return 0;
+        }
+        else {
+            return (a[0] < b[0]) ? -1 : 1;
+        }
+    }
+    
+    return intervalDataArray;
+}
+
+function generateCalanderData () {
+    
+    var select_room = $('input[name="room_no"]:checked').val();
+    var current_date =  $('#search_date').val().trim();
+    
+    var CalanderApi = "";
+    var currentUrl = 'http://csi420-01-vm1.ucd.ie/api/data?request=Room_no&Room_no='+ select_room
+//    console.log(currentUrl);
+    
+    // Get multi week data for room
+    var xmr = new XMLHttpRequest();
+    xmr.open("GET", currentUrl, false);
+    
+    xmr.onreadystatechange = function(oEvent) {
+//        console.log("Ready state: " + xmr.readyState);
+        if (xmr.readyState === 4) {
+//            console.log("status: " + xmr.status);   
+            if (xmr.status === 200) {
+                CalanderApi = JSON.parse(xmr.responseText);
+
+            } else {
+                console.log("Error", xmr.statusText)
+            }
+        }
+    }    
+    xmr.send(null);
+    
+//    console.log(CalanderApi);
+    var CalanderdataArray = [];
+
+    for(var date in dataResponse.Room_no[select_room].Date){
+        var i = 0;
+        var sum = 0;
+        for(var timeSlot in dataResponse.Room_no[select_room].Date[date].Timeslot){
+            sum += dataResponse.Room_no[select_room].Date[date].Timeslot[timeSlot].People_estimate;
+                i++;
+        }
+        var year = parseInt(date.substring(0,4));
+        var month = parseInt(date.substring(5,7)) - 1;
+        var day = parseInt(date.substring(8));
+//        console.log("Year: " + year + "\nMonth: " + month + "\nDay: " + day)
+        var formattedDate = new Date(year, month, day);
+        var avgOccupancy = parseInt(sum / i);
+        CalanderdataArray.push([formattedDate, avgOccupancy]);
+    }
+    
+    return CalanderdataArray;
+}
 //]]>

@@ -732,3 +732,11 @@ form {
 .first_floor_charts {
     display: inline;
 }
+
+#chart_lines {
+    
+}
+
+#calendar_basic {
+    background-color: white;
+}
