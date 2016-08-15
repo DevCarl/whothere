@@ -49,6 +49,7 @@
             dataArray.push([formattedDate, avgOccupancy]);
         }
     }
+    console.log(dataArray);
     
       google.charts.load("current", {packages:["calendar"]});
       google.charts.setOnLoadCallback(drawChart);

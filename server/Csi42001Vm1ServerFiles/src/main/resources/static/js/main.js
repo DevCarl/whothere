@@ -25,6 +25,9 @@ function load_serach() {
     if (buildling.trim() == "Select a building") {
         alert("Please select a building");
     }
+    else if (date == "2015-11-07" || date == "2015-11-08") {
+        alert("Pleaes select a date that is not the weekend");
+    }
     // Removed as not using room section in seach bar
 //    else if (room.trim() == "Select a classroom") {
 //        alert("Please select a room");
@@ -312,9 +315,6 @@ function genearteMap () {
 
 // Generate charts based on room
 
-google.charts.load('current', {'packages':['bar','corechart',"calendar"]});
-//google.charts.load('current', {'packages':['corechart']});
-
 function generateCharts () {
     
     // Testing section
@@ -323,7 +323,7 @@ function generateCharts () {
     // Clear current charts
     google.charts.clearChart;
     
-    // Loads charts
+    // Loads charts => callback
     google.charts.setOnLoadCallback(drawBarChart);
     google.charts.setOnLoadCallback(drawLinesChart);
     google.charts.setOnLoadCallback(drawCalanderChart);
@@ -419,6 +419,15 @@ function generateBarChartData () {
     }
     
     barCharDataArray.unshift(["Time Slots","Occupancy"]);
+
+//    console.log(barCharDataArray);
+//    
+//    for (var i=0; i<(barCharDataArray.length); i++) {
+//        console.log(barCharDataArray[i][1]);
+//        if (barCharDataArray[i][1].trim() == "Mid_Low" || barCharDataArray[i][1].trim() == "") {
+//            
+//        }
+//    }
     
     return barCharDataArray;
 }
@@ -483,14 +492,13 @@ function generateCalanderData () {
     }    
     xmr.send(null);
     
-//    console.log(CalanderApi);
     var CalanderdataArray = [];
 
-    for(var date in dataResponse.Room_no[select_room].Date){
+    for(var date in CalanderApi.Room_no[select_room].Date){
         var i = 0;
         var sum = 0;
-        for(var timeSlot in dataResponse.Room_no[select_room].Date[date].Timeslot){
-            sum += dataResponse.Room_no[select_room].Date[date].Timeslot[timeSlot].People_estimate;
+        for(var timeSlot in CalanderApi.Room_no[select_room].Date[date].Timeslot){
+            sum += CalanderApi.Room_no[select_room].Date[date].Timeslot[timeSlot].People_estimate;
                 i++;
         }
         var year = parseInt(date.substring(0,4));
@@ -502,6 +510,8 @@ function generateCalanderData () {
         CalanderdataArray.push([formattedDate, avgOccupancy]);
     }
     
+    
     return CalanderdataArray;
 }
+
 //]]>
