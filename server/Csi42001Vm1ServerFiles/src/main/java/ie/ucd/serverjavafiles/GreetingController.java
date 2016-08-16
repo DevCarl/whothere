@@ -89,7 +89,9 @@ public class GreetingController {
             String directory = "src/main/resources_scripts/dataAnalysis/";
             String params = search.getSearchMethod() + " " + search.getSearchTerms() + " ";
             params = params + directory;
+	    System.out.println(params);
             String fileName = helpers.activateScript("Rscript", "dataAnalysis", "create_pdf.R", params);
+	    System.out.println(fileName);
             File file = new File(fileName);
             response.setContentType("application/pdf");
             response.setHeader("Content-disposition", "attachment; filename=" + search.getSearchMethod() + search.getSearchTerms());

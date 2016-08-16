@@ -33,10 +33,10 @@
                 <div id="form_container">  
                         <form id="pdf_form" action="#" th:action="@{/pdf_reports}" th:object="${searchModel}" method="post">
                             <select id="building" class="PDF_form_input">
-                                <option>Select a building</option>                 
+                                <option value="Test">Select a building</option>                 
                             </select>
                             <select id="room" class="PDF_form_input" th:field="*{SearchMethod}">
-                                <option>Select a classroom</option>
+                                <option value="Test">Select a classroom</option>
                             </select>
                                 <input type="date" name="date" class="PDF_form_input" th:field="*{SearchTerms}"/>
                                 <button type="submit" id="pdf_btn">Download here!</button>
@@ -98,12 +98,9 @@
             }
                 document.getElementById("greetings").innerHTML = text;
                  
-            //]]>
-            
-                
-                //<![CDATA[
+
             // Function to call api
-            load_data_response('http://csi420-01-vm1.ucd.ie:8080/api/data?request=Date&Date=2015/11/11')
+            load_data_response('http://csi420-01-vm1.ucd.ie/api/tablesearch?request=Room&key=Building')
             function load_data_response (url) { 
             //    var url = 'http://csi420-01-vm1.ucd.ie:8080/api/data?request=Date&Date=2015/11/11'
                 var xmr = new XMLHttpRequest();
@@ -120,21 +117,12 @@
                 }
                 xmr.send(null);
 
-            }
-            //]]>
-            
-                
-//                console.log(dataResponse["Room_no"]);
-                var keys = [];
-                // Generate list of keys
-                for(var k in dataResponse["Room_no"]) keys.push(k);
-//                console.log(keys[0]);
+            }            
                 
                 var x = document.getElementById("building");
                     for (var buildingkey in dataResponse){
                         var option = document.createElement("option");
-                        var arr = $.map(dataResponse["Room_no"], function(el) { return el });
-                        option.text = arr[0].Building;
+                        option.text = buildingkey;
                         x.add(option);
                     }
 
@@ -147,17 +135,9 @@
                         var optionList = building.querySelectorAll("option");
                         var selected = building.options[building.selectedIndex].text;     
                         
-                        if (selected == "Computer Science and Informatics Centre") {
-                            for (var i = 0; i < keys.length; i++){
-                                var option = document.createElement("option");
-                                option.text = keys[i];
-                                classroom.add(option);
-                            }
-                        }
-                        else {
-                            document.getElementById("room").options.length = 0;
+                        for (var i = 0; i < dataResponse[selected].length; i++){
                             var option = document.createElement("option");
-                            option.text = "Select a classroom";
+                            option.text = dataResponse[selected][i]["Room_no"];
                             classroom.add(option);
                         }
                         

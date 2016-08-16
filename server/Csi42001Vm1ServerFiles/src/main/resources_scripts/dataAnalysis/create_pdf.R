@@ -3,6 +3,7 @@ library(random)
 args <- commandArgs(TRUE)
 if (length(args) < 2) stop("Bad args, usage refdir cmpdir")
 
+print("Set Up")
 room <- args[1]
 date_input <- args[2]
 directory <- args[3]
@@ -22,4 +23,4 @@ output_name <- paste(r_s[1,],Sys.Date(),'.pdf', sep='')
 render(input_location, params = list(room, date_input),output_file =output_name, output_dir = output_location)
 
 #remove R printing decoration
-cat(arg[], output_directory, output_name)
+cat(paste(output_directory, output_name, sep=""))

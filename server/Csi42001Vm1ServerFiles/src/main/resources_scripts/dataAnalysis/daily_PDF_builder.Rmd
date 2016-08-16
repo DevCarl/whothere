@@ -45,7 +45,7 @@ room <- args[1]
 date_input <- args[2]
 
 #set up the url and the path of the api locally
-url <- "http://192.168.10.2:8080/api/data?request=Room_no&Room_no=%s&request2=Date&Date=%s"
+url <- "http://csi420-01-vm1.ucd.ie:8080/api/data?request=Room_no&Room_no=%s&request2=Date&Date=%s"
 
 #set up the url and the path of the api locally
 url <- sprintf(url, room, date_input)
