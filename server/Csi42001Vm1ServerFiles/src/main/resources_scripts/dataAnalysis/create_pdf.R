@@ -1,26 +1,11 @@
 library(rmarkdown)
 library(random)
-args <- commandArgs(TRUE)
-if (length(args) < 2) stop("Bad args, usage refdir cmpdir")
+#set the directory for the server
 
 print("Set Up")
-room <- args[1]
-date_input <- args[2]
-directory <- args[3]
-#for testing
-#print(paste("room is", room))
-#print(paste("date is", date))
-
-#set the directory for the input file
-input_location <- paste(directory,'daily_PDF_builder.Rmd', sep='')
-#set the directory for the output file
-output_location <- paste(directory,'output_pdf/', sep='')
-#generate random dataframe
-r_s <- randomStrings(n=1, len=5)
-#generate a random name for the output file
-output_name <- paste(r_s[1,],Sys.Date(),'.pdf', sep='')
-#generate the PDF with the name specified in the directory specified
-render(input_location, params = list(room, date_input),output_file =output_name, output_dir = output_location)
-
-#remove R printing decoration
-cat(paste(output_directory, output_name, sep=""))
+args<-commandArgs(TRUE)
+input_location <- paste(args[3], "daily_PDF_builder.Rmd", sep="")
+output_location <- paste(args[3], "output_pdf", sep="")
+output_name <- paste(randomStrings(n=1, len=20), ".pdf", sep="")
+render(input_location, params= list(Date= args[1], Room_no= args[2]), output_dir = output_location, output_file = output_name)
+cat(paste(output_location, "/", output_name, sep=""))

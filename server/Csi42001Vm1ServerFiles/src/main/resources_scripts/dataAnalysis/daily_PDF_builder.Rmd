@@ -35,7 +35,6 @@ library(Rcpp)
 
 #get the variable from command line
 args <- commandArgs(trailingOnly = TRUE)
-print(args)
 # trailingOnly=TRUE means that only your arguments are returned, check:
 # print(commandsArgs(trailingOnly=FALSE))
 #when run the R script you have to specify the name of the file and the arguments
@@ -49,17 +48,13 @@ url <- "http://csi420-01-vm1.ucd.ie:8080/api/data?request=Room_no&Room_no=%s&req
 
 #set up the url and the path of the api locally
 url <- sprintf(url, room, date_input)
-print(url)
 # for test only: print(paste("http://192.168.10.2:8080/api/data?request=Room_no&Room_no=",room,"&request2=Date&Date=",date)) 
 
 raw_contents <- GET(url = url)
-print(raw_contents$status_code)
 
 json_raw <- httr::content(raw_contents, type = "text", encoding = "UTF-8")
 
 tidy_json <- json_raw %>% as.tbl_json
-
-print(tidy_json)
 
 #Getting the detail for printing the main information on the PDF 
 details <-
@@ -68,7 +63,6 @@ details <-
   enter_object(room) %>%
   spread_values(Campus = jstring("Campus"),Building = jstring("Building"), Capacity=jnumber("Capacity"), Plug_friendly= jstring("Plug_friendly"), Floor =jstring("Floor_no")) 
 
-print(details)
 #Getting the keys for Timeslot
 time <- 
   tidy_json %>%
@@ -79,11 +73,9 @@ time <-
   enter_object("Timeslot") %>%
   gather_keys 
 
-print(time)
 #for loop for gathering the information regarding the estimates on room occupancy
 #made by the model in each time slot and storing them in a dataframe 
   for (i in 1:8){
-  print(paste("i is", i))
   occupancy<-
   tidy_json %>%
   enter_object("Room_no") %>%
