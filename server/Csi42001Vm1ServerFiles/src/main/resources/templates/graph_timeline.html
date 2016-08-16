@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Page Title</title>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    
+</head>
+<body>
+    
+<script type="text/javascript">
+    //<![CDATA
+    var dataResponse = "";
+    var url = 'http://csi420-01-vm1.ucd.ie/api/data?request=Room_no&Room_no=B003&request2=Date&Date=2015-11-06%22'
+    var xmr = new XMLHttpRequest();
+    xmr.open("GET", url, false);
+    xmr.onreadystatechange = function(oEvent) {
+        if (xmr.readyState === 4) {
+            if (xmr.status === 200) {
+                dataResponse = JSON.parse(xmr.responseText);
+
+            } else {
+                console.log("Error", xmr.statusText)
+            }
+        }
+    }    
+    xmr.send(null);
+    
+    var dataArray = [];
+    for (var room in dataResponse.Room_no){
+        for(var date in dataResponse.Room_no[room].Date){
+            console.log(date);
+            var year = date.substring(0,4);
+            var month = date.substring(5, 7);
+            var day = date.substring(8);
+            
+            for(var timeSlot in dataResponse.Room_no[room].Date[date].Timeslot){
+                var students = dataResponse.Room_no[room].Date[date].Timeslot[timeSlot].Logistic_occupancy;
+
+                var timeSlotStart = parseInt(timeSlot.substring(0,2));
+                var timeSlotEnd = timeSlotStart + 1;
+                
+                var startDate = new Date(year, month, day, timeSlotStart);
+                var endDate = new Date(year, month, day, timeSlotEnd);
+                
+                console.log("Time: " + timeSlot + " start "+ timeSlotStart + " end " + timeSlotEnd);
+                
+                
+                dataArray.push([students, startDate, endDate]);
+            }
+        }
+    }
+
+    function sortFunction(a, b) {
+        if (a[0] === b[0]) {
+            return 0;
+        }else{
+            return (a[0] < b[0]) ? -1 : 1;
+        }
+    }
+    
+    google.charts.load('current', {'packages':['timeline']});
+    google.charts.setOnLoadCallback(drawChart);
+    function drawChart() {
+        var container = document.getElementById('timeline');
+        var chart = new google.visualization.Timeline(container);
+        var dataTable = new google.visualization.DataTable();
+
+        dataTable.addColumn({ type: 'string', id: 'Occupancy level' });
+        dataTable.addColumn({ type: 'date', id: 'Start' });
+        dataTable.addColumn({ type: 'date', id: 'End' });
+        dataTable.addRows(dataArray);
+        chart.draw(dataTable);
+    }         
+    //]]>
+</script>
+
+    <div id="timeline" style="width: 900px; height: 500px;"></div>
+</body>
+</html>
