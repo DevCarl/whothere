@@ -563,7 +563,7 @@ input.login{
 }
 
 .button {
-    background-color: #228B22; /* Green */
+    background-color: #03fc13; /* Green */
     border: none;
     color: black;
     padding: 10px 15px;
@@ -576,7 +576,7 @@ input.login{
 }
 
 .button2 {background-color: #FAB117;} /* Blue */
-.button3 {background-color: #B22222;} /* Red */
+.button3 {background-color: #fc1703;} /* Red */
 
 .error {
     width: 85%;
@@ -749,4 +749,9 @@ p {
     background-color: white;
     height: 200px;
     width: 100%;
+}
+
+
+.button4 {
+    background-color: #e8fc03;
 }

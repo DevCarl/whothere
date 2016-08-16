@@ -243,10 +243,10 @@ function genearteMap () {
                 // Logistic regression results
                 var log_reg = (feature.apiData.Date[current_date].Timeslot[current_time].Logistic_occupancy).trim();
                 switch (log_reg){
-                        case "Low" : return {color: "#B22222"};
-                        case "Mid_Low" : return {color: "#FAB117"};
+                        case "Low" : return {color: "#fc1703"};
+                        case "Mid_Low" : return {color: "#e8fc03"};
                         case "Mid_High" : return {color: "#FAB117"};
-                        case "High" : return {color: "#228B22"};
+                        case "High" : return {color: "#03fc13"};
                 }
                 
                 
@@ -417,12 +417,12 @@ function generateBarChartData () {
         }
     }
     
-    for (var i=0; i<barCharDataArray.length; i++) {
-//        console.log(barCharDataArray[i][0]);
-        if (barCharDataArray[i][0].trim() == "Mid_High" || barCharDataArray[i][0].trim() == "Mid_Low") {
-            barCharDataArray[i][0] = "Mid";
-        }
-    }
+//    for (var i=0; i<barCharDataArray.length; i++) {
+////        console.log(barCharDataArray[i][0]);
+//        if (barCharDataArray[i][0].trim() == "Mid_High" || barCharDataArray[i][0].trim() == "Mid_Low") {
+//            barCharDataArray[i][0] = "Mid";
+//        }
+//    }
     
     return barCharDataArray;
 }
