@@ -89,6 +89,11 @@ public class FileUploadController {
 				Files.copy(file.getInputStream(), Paths.get(ROOT, file.getOriginalFilename()));
 				redirectAttributes.addFlashAttribute("message",
 						"You successfully uploaded " + file.getOriginalFilename() + "!");
+				// Run upload script
+				System.out.println("Upload starting");
+				helpers.activateScript("python3", "data_cleaning", "data_input_manager.py");
+				helpers.activateScript("Rscript", "dataAnalysis", "final_analyses.R");
+				
 			} catch (IOException|RuntimeException e) {
 				redirectAttributes.addFlashAttribute("message", "Failued to upload " + file.getOriginalFilename() + " => " + e.getMessage());
 			}
@@ -97,6 +102,12 @@ public class FileUploadController {
 		}
 
 		return "redirect:/upload";
+	}
+	
+	public static void runProccessingScript() {
+		// Activate data upload
+		helpers.activateScript("python3", "data_cleaning/data_input_manager.py", "");
+		
 	}
 
 }
