@@ -4,8 +4,8 @@
         <title>Who's there - PDF reports</title>
         <link rel="stylesheet" type="text/css" href="../static/css/style.css" th:attr="href=@{/css/style.css}" />
                 
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?callback=initMap" async='defer'> </script>
+        
+    
          
     </head>
         
@@ -100,10 +100,29 @@
                  
             //]]>
             
-            
-                //<![CDATA[
                 
-                // Function to call api
+                //<![CDATA[
+            // Function to call api
+            load_data_response('http://csi420-01-vm1.ucd.ie:8080/api/data?request=Date&Date=2015/11/11')
+            function load_data_response (url) { 
+            //    var url = 'http://csi420-01-vm1.ucd.ie:8080/api/data?request=Date&Date=2015/11/11'
+                var xmr = new XMLHttpRequest();
+                xmr.open("GET", url, false);
+                xmr.onreadystatechange = function(oEvent) {
+                    if (xmr.readyState === 4) {
+                        if (xmr.status === 200) {
+                            window.dataResponse = JSON.parse(xmr.responseText);
+
+                        } else {
+                            console.log("Error", xmr.statusText)
+                        }
+                    }
+                }
+                xmr.send(null);
+
+            }
+            //]]>
+            
                 
 //                console.log(dataResponse["Room_no"]);
                 var keys = [];
@@ -144,6 +163,10 @@
                         
                     });     
                 //]]>
+             
+            
+
+            
         </script>
     </body>
 </html>
