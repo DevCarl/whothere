@@ -31,16 +31,15 @@
                 </p>
              
                 <div id="form_container">  
-                        <form id="pdf_form">
+                        <form id="pdf_form" action="#" th:action="@{/pdf_reports}" th:object="${searchModel}" method="post">
                             <select id="building" class="PDF_form_input">
                                 <option>Select a building</option>                 
                             </select>
-                            <select id="classroom" class="PDF_form_input">
+                            <select id="room" class="PDF_form_input" th:field="*{SearchMethod}">
                                 <option>Select a classroom</option>
                             </select>
-                                <input type="date" name="date" class="PDF_form_input"/>
-                                <button type="submit" id="pdf_btn">Search</button>
-                                <button  type="submit" id="pdf_btn">Download here!</button>
+                                <input type="date" name="date" class="PDF_form_input" th:field="*{SearchTerms}"/>
+                                <button type="submit" id="pdf_btn">Download here!</button>
                         </form>
                 </div>
                 
@@ -58,19 +57,47 @@
         </div>
         <script>
             //<![CDATA[
-            var data = [
-                    [0, 4, "Good Night User!"], 
-                    [5, 11, "Good Morning User!"],          //Store messages in an array
-                    [12, 17, "Good Afternoon User!"],
-                    [18, 24, "Good Night User!"]
-                ],
-                    hr = new Date().getHours();
-
-            for(var i = 0; i < data.length; i++){
-                if(hr >= data[i][0] &amp;&amp; hr <= data[i][1]){
-                    document.getElementById("greetings").innerHTML = data[i][2];
-                } 
+            hr = new Date().getHours();
+            console.log(hr);
+            var text;
+            switch (hr) {
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                    case 5:
+                        text = "Good Night User!";
+                        break; 
+                    case 6:
+                    case 7:
+                    case 8:
+                    case 9:
+                    case 10:
+                    case 11:
+                    case 12:
+                       text = "Good Morning User!";
+                        break; 
+                    case 13:
+                    case 14:
+                    case 15:
+                    case 16:
+                    case 17:
+                    case 18:
+                       text = "Good Afternoon User!";
+                        break;
+                    case 19:
+                    case 20:
+                    case 21:
+                    case 22:
+                    case 23:
+                        text = "Good Evening User!";
+                        break;
+                    default: 
+                        text = "Hello User!"
             }
+                document.getElementById("greetings").innerHTML = text;
+                 
             //]]>
             
             
@@ -92,7 +119,7 @@
                         x.add(option);
                     }
 
-                    var classroom = document.getElementById("classroom");
+                    var classroom = document.getElementById("room");
                     building.addEventListener("change", function() {
                         classroom.innerHTML = "";
                         var option = document.createElement("option");
@@ -109,7 +136,7 @@
                             }
                         }
                         else {
-                            document.getElementById('classroom').options.length = 0;
+                            document.getElementById("room").options.length = 0;
                             var option = document.createElement("option");
                             option.text = "Select a classroom";
                             classroom.add(option);
