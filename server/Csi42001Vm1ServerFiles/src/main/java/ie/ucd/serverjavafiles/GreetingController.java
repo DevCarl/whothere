@@ -78,15 +78,21 @@ public class GreetingController {
 	
 	@RequestMapping(value="/pdf_reports", method=RequestMethod.GET)
 	public String pdfReports(Model model) {
+		model.addAttribute("searchModel", new Search());
 		return "pdf_reports";
 	}
 	
 	@RequestMapping(value="/pdf_reports", method=RequestMethod.POST)
-        public void pdfReportsPost(@ModelAttribute Search search, HttpServletResponse response) throws IOException {
+        public void pdfReportsPost(@ModelAttribute Search search, HttpServletResponse response, Model model) throws IOException {
+            model.addAttribute("searchModel", new Search());
             // Code goes here to call R Script to generate PDF report, and the return value of name/location
-            File file = new File(this.getClass().getResource("/ds.pdf").getFile());
+            String directory = "src/main/resources_scripts/dataAnalysis/";
+            String params = search.getSearchMethod() + " " + search.getSearchTerms() + " ";
+            params = params + directory;
+            String fileName = helpers.activateScript("Rscript", "dataAnalysis", "create_pdf.R", params);
+            File file = new File(fileName);
             response.setContentType("application/pdf");
-            response.setHeader("Content-disposition", "inline; filename=" + file);
+            response.setHeader("Content-disposition", "attachment; filename=" + search.getSearchMethod() + search.getSearchTerms());
             InputStream inputStream = new BufferedInputStream(new FileInputStream(file));
             OutputStream outputStream = response.getOutputStream();
             IOUtils.copy(inputStream, outputStream);
