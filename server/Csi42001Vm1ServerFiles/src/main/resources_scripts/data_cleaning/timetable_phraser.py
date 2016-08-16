@@ -168,11 +168,11 @@ def convert_sheets_into_dict(sheet_objects):
 
             ### Section need to be updated ###
 
-            # Set start date manually
+            # Set start date
             if i == 1:
-                start_day = 2
+                start_day = int(current_sheet[start_column+"1"].value.split(" ")[0])
             else:
-                start_day = 9
+                start_day = int(current_sheet[start_column+"1"].value.split(" ")[0])
 
             # Cycle through columns and print first value
             for col_letter in range(ord(start_column),ord(finish_column)+1,2):

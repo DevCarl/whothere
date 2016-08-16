@@ -32,7 +32,7 @@ public class FileUploadController {
 
 	private static final Logger log = LoggerFactory.getLogger(FileUploadController.class);
 
-	public static final String ROOT = "src/main/resources_scripts/data_cleaning/data_storage/upload_data_staging";
+	public static final String ROOT = "src/main/resources_scripts/data_cleaning/data_storage/new_data";
 
 	private final ResourceLoader resourceLoader;
 
