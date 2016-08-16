@@ -27,7 +27,7 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
         driverManagerDataSource.setUrl("jdbc:mysql://localhost:3306/who_there_db?autoReconnect=true&useSSL=false");
         // Our Project's MySql Database username is set to "root" and the password is set to "goldilocks"
         driverManagerDataSource.setUsername("root");
-        driverManagerDataSource.setPassword("Rufiedog101010");
+        driverManagerDataSource.setPassword("goldilocks");
         return driverManagerDataSource;
     }
     
