@@ -175,7 +175,6 @@ def process_files(data_directory, file_list, db_tuple):
 
             elif file_type == 2:
                 file_data = phrase_timetable_excel_sheet_into_array_of_dicts(data_directory+file)
-                print(file_data)
                 modules = [moudle for moudle in generate_list_of_modules(file_data) if moudle != None]
                 rooms = generate_list_of_rooms(file_data)
 
@@ -317,7 +316,7 @@ def input_file_into_db(data_to_be_input_tuple, db_host_name, db_user_name, db_pa
 
     if data_type == 1:
         for current_data in general_data:
-            print(current_data)
+            # print(current_data)
 
             # Get room_id for current room
             room = current_data.get("room")

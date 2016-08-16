@@ -387,7 +387,7 @@ function generateCharts () {
 
         var options = {
             title: "Daily Average Occupancy",
-            height: 350,
+            height: 200,
         };
 
         chart.draw(dataTable, options);
