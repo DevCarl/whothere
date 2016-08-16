@@ -324,26 +324,23 @@ function generateCharts () {
     google.charts.clearChart;
     
     // Loads charts => callback
-    google.charts.setOnLoadCallback(drawBarChart);
+    google.charts.setOnLoadCallback(drawTimelineChart);
     google.charts.setOnLoadCallback(drawLinesChart);
     google.charts.setOnLoadCallback(drawCalanderChart);
     
     // Function to draw the charts
-    function drawBarChart() {
+    function drawTimelineChart() {
         var bar_chart_data = generateBarChartData();
-        var data = google.visualization.arrayToDataTable(bar_chart_data);
-        var options = {
-            chart: {
-                title: 'Occupancy'
-            },
-            bars: 'vertical',
-            series: {
-                0:{color: '#FAB117'}
-            }
-        };
+        
+        var container = document.getElementById('timeline');
+        var chart = new google.visualization.Timeline(container);
+        var dataTable = new google.visualization.DataTable();
 
-        var chart = new google.charts.Bar(document.getElementById('barchart_material'));
-        chart.draw(data, options);
+        dataTable.addColumn({ type: 'string', id: 'Occupancy level' });
+        dataTable.addColumn({ type: 'date', id: 'Start' });
+        dataTable.addColumn({ type: 'date', id: 'End' });
+        dataTable.addRows(bar_chart_data);
+        chart.draw(dataTable);
     }
     
     // Draw interval chart
@@ -400,34 +397,32 @@ function generateBarChartData () {
     var select_room = $('input[name="room_no"]:checked').val();
     var current_date =  $('#search_date').val().trim();
     var barCharDataArray = [];
+    
+    for(var date in dataResponse.Room_no[select_room].Date){
+        var year = date.substring(0,4);
+        var month = date.substring(5, 7);
+        var day = date.substring(8);
 
-    for(var timeSlot in dataResponse.Room_no[select_room].Date[current_date].Timeslot){
-        var students = dataResponse.Room_no[select_room].Date[current_date].Timeslot[timeSlot].Logistic_occupancy;
-        barCharDataArray.push([timeSlot, students]);
-    }
+        for(var timeSlot in dataResponse.Room_no[select_room].Date[current_date].Timeslot){
+            var students = dataResponse.Room_no[select_room].Date[date].Timeslot[timeSlot].Logistic_occupancy;
 
-        
-    barCharDataArray.sort(sortFunction);
+            var timeSlotStart = parseInt(timeSlot.substring(0,2));
+            var timeSlotEnd = timeSlotStart + 1;
 
-    function sortFunction(a, b) {
-        if (a[0] === b[0]) {
-            return 0;
-        }
-        else {
-            return (a[0] < b[0]) ? -1 : 1;
+            var startDate = new Date(year, month, day, timeSlotStart);
+            var endDate = new Date(year, month, day, timeSlotEnd);
+
+//            console.log("Time: " + timeSlot + " start "+ timeSlotStart + " end " + timeSlotEnd);
+            barCharDataArray.push([students, startDate, endDate]);
         }
     }
     
-    barCharDataArray.unshift(["Time Slots","Occupancy"]);
-
-//    console.log(barCharDataArray);
-//    
-//    for (var i=0; i<(barCharDataArray.length); i++) {
-//        console.log(barCharDataArray[i][1]);
-//        if (barCharDataArray[i][1].trim() == "Mid_Low" || barCharDataArray[i][1].trim() == "") {
-//            
-//        }
-//    }
+    for (var i=0; i<barCharDataArray.length; i++) {
+//        console.log(barCharDataArray[i][0]);
+        if (barCharDataArray[i][0].trim() == "Mid_High" || barCharDataArray[i][0].trim() == "Mid_Low") {
+            barCharDataArray[i][0] = "Mid";
+        }
+    }
     
     return barCharDataArray;
 }
