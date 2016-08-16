@@ -15,7 +15,7 @@ output:
 ---
 
 ```{r, echo=FALSE,results='hide', message=FALSE, warning=FALSE}
-#Upload all the libraries necessary for the analyses.
+#echo=FALSE,results='hide', message=FALSE, warning=FALSE
 library(httr)
 library(jsonlite)
 library(lubridate)
@@ -26,41 +26,60 @@ library(dplyr)
 library(tidyjson)
 library(magrittr)
 library(data.table)
+library(digest)
+library(Rcpp)
 
 
 #set up the url and the path of the api for server
-#url <- "http://csi420-01-vm1.ucd.ie:8080"
-#path <-"/apidata?request=Room_no&Room_no=B002&request2=Date&Date=2015-11-03"
+#url <- "paste("http://csi420-01-vm1.ucd.ie:8080"/api/data?request=Room_no&Room_no=B003&request2=Date&Date=2015-11-03"
+
+#get the variable from command line
+args <- commandArgs(trailingOnly = TRUE)
+print(args)
+# trailingOnly=TRUE means that only your arguments are returned, check:
+# print(commandsArgs(trailingOnly=FALSE))
+#when run the R script you have to specify the name of the file and the arguments
+#in windows will be: Rscript --vanilla namescript.R 
+
+room <- args[1]
+date_input <- args[2]
 
 #set up the url and the path of the api locally
-url <- "http://192.168.10.2:8080/api/data?request=Room_no&Room_no=B003&request2=Date&Date=2015-11-03"
+url <- "http://192.168.10.2:8080/api/data?request=Room_no&Room_no=%s&request2=Date&Date=%s"
+
+#set up the url and the path of the api locally
+url <- sprintf(url, room, date_input)
+print(url)
+# for test only: print(paste("http://192.168.10.2:8080/api/data?request=Room_no&Room_no=",room,"&request2=Date&Date=",date)) 
 
 raw_contents <- GET(url = url)
-raw_contents$status_code
+print(raw_contents$status_code)
 
 json_raw <- httr::content(raw_contents, type = "text", encoding = "UTF-8")
 
 tidy_json <- json_raw %>% as.tbl_json
 
+print(tidy_json)
 
 #Getting the detail for printing the main information on the PDF 
 details <-
   tidy_json %>%
   enter_object("Room_no") %>%
-  enter_object("B003") %>%
+  enter_object(room) %>%
   spread_values(Campus = jstring("Campus"),Building = jstring("Building"), Capacity=jnumber("Capacity"), Plug_friendly= jstring("Plug_friendly"), Floor =jstring("Floor_no")) 
 
-
+print(details)
 #Getting the keys for Timeslot
 time <- 
   tidy_json %>%
   enter_object("Room_no") %>%
-  enter_object("B003") %>%
+  enter_object(room) %>%
   enter_object("Date") %>%
-  enter_object("2015-11-03") %>%
+  enter_object(date_input) %>%
   enter_object("Timeslot") %>%
   gather_keys 
 
+print(time)
 #for loop for gathering the information regarding the estimates on room occupancy
 #made by the model in each time slot and storing them in a dataframe 
   for (i in 1:8){
@@ -68,9 +87,9 @@ time <-
   occupancy<-
   tidy_json %>%
   enter_object("Room_no") %>%
-  enter_object("B003") %>%
+  enter_object(room) %>%
   enter_object("Date") %>%
-  enter_object("2015-11-03") %>%
+  enter_object(date_input) %>%
   enter_object("Timeslot") %>%
   enter_object(time$key[i])%>%
     spread_values(Predicted_occupancy= jstring("Logistic_occupancy"), Expected_people= jnumber("People_estimate"), Max_people = jnumber("Max_people_estimate"), Min_people = jnumber("Min_people_estimate"))%>%
@@ -96,11 +115,11 @@ occupancy_table$Predicted_occupancy <- factor(occupancy_table$Predicted_occupanc
   
 
 ```
-**Day**:  
+**Day**: `r print(date_input)`  
 **Campus**:`r details$Campus`  
 **Building**: `r details$Building`  
 **Floor number**: `r details$Floor`  
-**Room**:   
+**Room**: `r print(room)`  
 **Capacity of the room**: `r details$Capacity`   
 **Plug-friendly**: `r details$Plug_friendly`  
 
@@ -123,7 +142,5 @@ occupancy_plot <- ggplot(data=occupancy_table, aes(x=factor(Time), y=Predicted_o
 count_plot <-ggplot(data=occupancy_table, aes(x=Time, y=Expected_people, group=1)) + geom_ribbon(data=occupancy_table,aes(ymin=Min_people, ymax=Max_people),alpha=0.2, fill="orangered3") + geom_line(color="orangered2")+ theme_bw() + geom_point(color="orangered2") 
 multiplot(occupancy_plot, count_plot, cols=2)
 ```
-
-
 
 
