@@ -48,7 +48,7 @@
                     <option>Select a classroom</option>
                 </select>
                 <input type="date" name="date" max="2015-11-13" min="2015-11-03" value="2015-11-13" class="search_select" id="search_date"/>
-                <input type="submit" id="search_btn" onclick="load_serach()" value="Search"></input>
+                <input type="submit" id="search_btn" onclick="load_serach()" value="Search"/>
             </form>
         </section>
         
@@ -59,77 +59,71 @@
                 <nav th:replace="admin_nav_bar::myNav" />
             </aside>
             
-            <div>
-                
-                <!-- Map -->
-                <section id="map"></section>
+          <!-- Map -->
+            <section id="map"></section>
 
-                <!-- Section for floor plan and classroom info  -->
-                <section id="info_section">
-                    <button id="to_map_btn">Back to map</button>
+            <!-- Section for floor plan and classroom info  -->
+            <section id="info_section">
+                <button id="to_map_btn">Back to map</button>
 
-                    <h3 id="building_title"></h3>
-                    <p id="no_info_error"></p>
+                <h3 id="building_title"></h3>
+                <p id="no_info_error"></p>
 
-                    <div id="main_dynamic_map">
-                        <div id="floor_no">
-                            <form class="floor_form_input" onclick="genearteMap()">
-                                To load a different day select a date and click serach<br/>
-                                Select floor no => 
-                                <input type="radio" name="floor_no" value="ground" checked="checked"/>Ground Floor
-                              <input type="radio" name="floor_no" value="first"/>First Floor<br/>
-                            </form>
+                <div id="main_dynamic_map">
+                    <div id="floor_no">
+                        <form class="floor_form_input" onclick="genearteMap()">
+                            To load a different day select a date and click serach<br/>
+                            Select floor no => 
+                            <input type="radio" name="floor_no" value="ground" checked="checked"/>Ground Floor
+                          <input type="radio" name="floor_no" value="first"/>First Floor<br/>
+                        </form>
+                    </div>
+
+                    <div id="floor_plan_wrap"></div>
+
+                    <div class="slider_bar" id="slider_div">
+                        <div class="button_bar">
+                            <p>Key: 
+                                <button class="button button3">Low 0-25%</button>
+                                <button class="button button4">Med_low - 25-50%</button>
+                                <button class="button button2">Med_high - 50-75%</button>
+                                <button class="button">High - 75-100%</button>
+                            </p>
+
                         </div>
-
-                        <div id="floor_plan_wrap"></div>
-
-                        <div class="slider_bar" id="slider_div">
-                            <div class="button_bar">
-                                <p>Key: 
-                                    <button class="button button3">Low 0-25%</button>
-                                    <button class="button button4">Med_low - 25-50%</button>
-                                    <button class="button button2">Med_high - 50-75%</button>
-                                    <button class="button">High - 75-100%</button>
-                                </p>
-
-                            </div>
-                            <div>
-                                 Select a time. One hour increments:
-                                <input class="slider_outptu" type="text" id="amount" /><br/><br/>
-                            </div>
-                            <div>
-                                <div id="slider" onclick="genearteMap()"></div>
-                                <textarea id="slider_value" rows="1" cols="50">Yes</textarea>
-                            </div>
+                        <div>
+                             Select a time. One hour increments:
+                            <input class="slider_outptu" type="text" id="amount" /><br/><br/>
+                        </div>
+                        <div>
+                            <div id="slider" onclick="genearteMap()"></div>
+                            <textarea id="slider_value" rows="1" cols="50">Yes</textarea>
                         </div>
                     </div>
-                    <br/>
-                    <div class="charts_section">
-                        Select the room you wish to see charts for:
-                        <form class="first_floor_charts">
-                            Sorry no information for these rooms<br/>
-                        </form>
-                        <form class="ground_floor_charts" onclick="generateCharts()">
-                            <input type="radio" name="room_no" value="B002" checked="checked"/>B002
-                            <input type="radio" name="room_no" value="B003"/>B003
-                            <input type="radio" name="room_no" value="B004"/>B004
-                        </form>
-                        <div class="room_charts_section">
-                        
-                            <div id="timeline"></div>
-                            
-                            <div id="chart_lines" style="width: 100%; height: 300px;"></div>
-                            
-                            <div id="calendar_basic" style="width: 100%; height: 200px;"></div>
-                            
-                        </div>
-                        
-                        
+                </div>
+                <br/>
+                <div class="charts_section">
+                    Select the room you wish to see charts for:
+                    <form class="first_floor_charts">
+                        Sorry no information for these rooms<br/>
+                    </form>
+                    <form class="ground_floor_charts" onclick="generateCharts()">
+                        <input type="radio" name="room_no" value="B002" checked="checked"/>B002
+                        <input type="radio" name="room_no" value="B003"/>B003
+                        <input type="radio" name="room_no" value="B004"/>B004
+                    </form>
+                    <div class="room_charts_section">
+
+                        <div id="timeline"></div>
+
+                        <div id="chart_lines" style="width: 100%; height: 300px;"></div>
+
+                        <div id="calendar_basic" style="width: 100%; height: 200px;"></div>
+
+                    </div> 
                     </div>
                 </section>
 
-                
-            </div>
             
             <!-- Insert footer -->
         
