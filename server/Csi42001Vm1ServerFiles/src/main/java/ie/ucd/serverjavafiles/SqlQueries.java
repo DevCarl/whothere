@@ -109,6 +109,15 @@ public class SqlQueries {
             int count = statement.executeUpdate();
             return count > 0;
         }
+        
+        public boolean sqlCheckUserExists(String User) throws SQLException {
+            String sql = "SELECT User_name FROM Users WHERE User_name = ?";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, User);
+            ResultSet resultSet = statement.executeQuery();
+            resultSet.last();
+            return (resultSet.getRow() < 1);
+        }
     
     
     public void setGroundTruth(GroundTruthData groundTruth){
