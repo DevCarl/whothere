@@ -110,10 +110,10 @@ public class SqlQueries {
             return count > 0;
         }
         
-        public boolean sqlCheckUserExists(String User) throws SQLException {
+        public boolean sqlCheckUserExists(String user) throws SQLException {
             String sql = "SELECT User_name FROM Users WHERE User_name = ?";
             PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setString(1, User);
+            statement.setString(1, user);
             ResultSet resultSet = statement.executeQuery();
             resultSet.last();
             return (resultSet.getRow() < 1);
