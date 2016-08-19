@@ -109,8 +109,8 @@ public class SqlQueries {
                 + "P.Model_type, P.Model_info";
         String from = " FROM Room R, Time_table T, Module M, Processed_data P, Wifi_log W";
         String join = " LEFT JOIN Ground_truth_data G";
-        String on = " ON W.Room_Room_id = G.Room_Room_id AND W.Date = G.Date ";
-        String where = " WHERE W.Room_Room_id = R.Room_id AND HOUR(W.Time) = HOUR(G.Time) "
+        String on = " ON W.Room_Room_id = G.Room_Room_id AND W.Date = G.Date AND HOUR(W.Time) = HOUR(G.Time)";
+        String where = " WHERE W.Room_Room_id = R.Room_id "
                         + "AND HOUR( W.Time ) = HOUR( T.Time_period ) AND T.Module_Module_code = M.Module_code "
                         + "AND T.Date = W.Date AND T.Room_Room_id = W.Room_Room_id "
                         + "AND P.Time_Table_Date = W.Date AND P.Time_table_Time_period = T.Time_period "
