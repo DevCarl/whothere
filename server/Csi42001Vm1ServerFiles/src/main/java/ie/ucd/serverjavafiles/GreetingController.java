@@ -117,7 +117,7 @@ public class GreetingController {
         Connection connection = dataSource.getConnection();
         SqlQueries query = new SqlQueries(connection);
         if (register.getRegistrationCode().equals("TEST")){
-            if (query.sqlCheckUserExists){
+            if (query.sqlCheckUserExists(register.getUserName())){
                 query.sqlSetUsers(register);
                 connection.close();
                 return "redirect: /login?newaccount";
