@@ -23,6 +23,18 @@ public class ApiController {
     	
         @RequestMapping(value = "/api/table", method = RequestMethod.GET)
         public String apiRequestTable(@RequestParam(value = "request", required=true) String request) throws Exception{
+            switch (request){
+                case "Buildings":
+                case "Ground_truth_data":
+                case "Module":
+                case "Processed_data":
+                case "Room":
+                case "Time_table":
+                case "Wifi_log":
+                    break;
+                default:
+                    request = null;
+            }
             // Each connection must be established via getConnection
             Connection connection = dataSource.getConnection();
             // You may then establish a new instance of the SqlQueries Class, with the connection as the parameter
@@ -36,9 +48,21 @@ public class ApiController {
 	// Multiple parameters are processed by the <String, String> mapping.
 	@RequestMapping(value = "/api/tablesearch", method = RequestMethod.GET)
         public String apiRequestTableSearch(@RequestParam Map<String,String> requestParams) throws Exception{
-        	// To add more parameters, add a new variable and get the param from the URL where .get(Something) is the name in the URL
-		String request = requestParams.get("request");
-		String specific = requestParams.get("key");
+            // To add more parameters, add a new variable and get the param from the URL where .get(Something) is the name in the URL
+	    String request = requestParams.get("request");
+	    String specific = requestParams.get("key");
+	    switch (request){
+                case "Buildings":
+                case "Ground_truth_data":
+                case "Module":
+                case "Processed_data":
+                case "Room":
+                case "Time_table":
+                case "Wifi_log":
+                    break;
+                default:
+                    request = null;
+            }
             Connection connection = dataSource.getConnection();
             SqlQueries query = new SqlQueries(connection);
             request = query.sqlGetAllJsonObject(request, specific);
