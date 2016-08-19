@@ -31,20 +31,20 @@ import org.apache.tomcat.util.http.fileupload.IOUtils;
 @Controller
 public class GreetingController {
         
-        @Autowired
-        DataSource dataSource;
+    @Autowired
+    DataSource dataSource;
         
-//	@RequestMapping(value="/index", method=RequestMethod.GET)
-//	public String indexPage(Model model) {
-//		return "main";
-//	}
+//  @RequestMapping(value="/index", method=RequestMethod.GET)
+//  public String indexPage(Model model) {
+//	return "main";
+//  }
 	
-//	In order of navigation. Upload page mapped within contorller
+//  In order of navigation. Upload page mapped within contorller
 	
-	@RequestMapping(value={"/", "/main"}, method=RequestMethod.GET)
-	public String indexPageFromLocalhost(Model model) {
-		return "main";
-	}
+    @RequestMapping(value={"/", "/main"}, method=RequestMethod.GET)
+    public String indexPageFromLocalhost(Model model) {
+	return "main";
+    }
         
     @RequestMapping(value="/admincontrol", method=RequestMethod.GET)
     public String adminControlPage(Model model) throws SQLException {
@@ -55,10 +55,9 @@ public class GreetingController {
     @RequestMapping(value="/admincontrol", method=RequestMethod.POST)
     public String adminControlPage(@ModelAttribute Upgrade upgrade, Model model) throws SQLException {
         model.addAttribute("upgradeModel", new Upgrade());
-        Connection connection = dataSource.getConnection();
-        SqlQueries query = new SqlQueries(connection);
+        SqlQueries query = new SqlQueries(dataSource.getConnection());
         boolean check = query.sqlUpgradeUsers(upgrade);
-        connection.close();
+        query.closeConnections();
         if (check) {
             return "redirect: /admincontrol?success";
         }
@@ -67,44 +66,39 @@ public class GreetingController {
 	
     @RequestMapping(value="/error", method=RequestMethod.GET)
 	public String errorPage(Model model) {
-		return "error";
-	}
-      
-        
-	@RequestMapping(value="/api_docs", method=RequestMethod.GET)
-	public String apiDocs(Model model) {
-		return "api_docs";
-	}
+	    return "error";
+    }
+          
+    @RequestMapping(value="/api_docs", method=RequestMethod.GET)
+    public String apiDocs(Model model) {
+	return "api_docs";
+    }
 	
-	@RequestMapping(value="/pdf_reports", method=RequestMethod.GET)
-	public String pdfReports(Model model) {
-		model.addAttribute("searchModel", new Search());
-		return "pdf_reports";
-	}
+    @RequestMapping(value="/pdf_reports", method=RequestMethod.GET)
+    public String pdfReports(Model model) {
+	model.addAttribute("searchModel", new Search());
+	return "pdf_reports";
+    }
 	
-	@RequestMapping(value="/pdf_reports", method=RequestMethod.POST)
-        public void pdfReportsPost(@ModelAttribute Search search, HttpServletResponse response, Model model) throws IOException {
-            model.addAttribute("searchModel", new Search());
-            // Code goes here to call R Script to generate PDF report, and the return value of name/location
-            String directory = "src/main/resources_scripts/dataAnalysis/";
-            String params = search.getSearchMethod() + " " + search.getSearchTerms() + " ";
-            params = params + directory;
-	    System.out.println(params);
-            String fileName = helpers.activateScript("Rscript", "dataAnalysis", "create_pdf.R", params);
-	    System.out.println(fileName);
-            File file = new File(fileName);
-            response.setContentType("application/pdf");
-            response.setHeader("Content-disposition", "attachment; filename=" + search.getSearchMethod() + search.getSearchTerms());
-            InputStream inputStream = new BufferedInputStream(new FileInputStream(file));
-            OutputStream outputStream = response.getOutputStream();
-            IOUtils.copy(inputStream, outputStream);
-            IOUtils.closeQuietly(inputStream);
-            response.flushBuffer();
-            file.delete();
-        }
-	
-	
-	
+    @RequestMapping(value="/pdf_reports", method=RequestMethod.POST)
+    public void pdfReportsPost(@ModelAttribute Search search, HttpServletResponse response, Model model) throws IOException {
+        model.addAttribute("searchModel", new Search());
+        // Code goes here to call R Script to generate PDF report, and the return value of name/location
+        String directory = "src/main/resources_scripts/dataAnalysis/";
+        String params = search.getSearchMethod() + " " + search.getSearchTerms() + " ";
+        params = params + directory;
+        String fileName = helpers.activateScript("Rscript", "dataAnalysis", "create_pdf.R", params);
+        File file = new File(fileName);
+        response.setContentType("application/pdf");
+        response.setHeader("Content-disposition", "attachment; filename=" + search.getSearchMethod() + search.getSearchTerms());
+        InputStream inputStream = new BufferedInputStream(new FileInputStream(file));
+        OutputStream outputStream = response.getOutputStream();
+        IOUtils.copy(inputStream, outputStream);
+        IOUtils.closeQuietly(inputStream);
+        response.flushBuffer();
+        file.delete();
+    }
+		
     @RequestMapping(value="/registration", method=RequestMethod.GET)
     public String registrationPage(Model model){
         model.addAttribute("registerModel", new Registration());
@@ -114,77 +108,76 @@ public class GreetingController {
     @RequestMapping(value="/registration", method=RequestMethod.POST)
     public String registrationPost(@ModelAttribute Registration register, Model model) throws SQLException {
         model.addAttribute("registerModel", new Registration());
-        Connection connection = dataSource.getConnection();
-        SqlQueries query = new SqlQueries(connection);
+        SqlQueries query = new SqlQueries(dataSource.getConnection());
         if (register.getRegistrationCode().equals("TEST")){
-            if (query.sqlCheckUserExists){
+            if (query.sqlCheckUserExists(register.getUserName())){
                 query.sqlSetUsers(register);
-                connection.close();
+                query.closeConnections();
                 return "redirect: /login?newaccount";
             }
 	    return "redirect: /registration?errorN";
         }
-        connection.close();
+        query.closeConnections();
         return "redirect: /registration?errorR";
     }
     
     @RequestMapping(value="/site_map", method=RequestMethod.GET)
-	public String siteMap(Model model) {
-		return "site_map";
-	}
+    public String siteMap(Model model) {
+	return "site_map";
+    }
 	
-	@RequestMapping(value="/contact", method=RequestMethod.GET)
-	public String contactPage(Model model) throws MessagingException {
-            model.addAttribute("contactModel", new Email());
-            return "contact";
-	}
+    @RequestMapping(value="/contact", method=RequestMethod.GET)
+    public String contactPage(Model model) throws MessagingException {
+        model.addAttribute("contactModel", new Email());
+        return "contact";
+    }
         
-        @RequestMapping(value="/contact", method=RequestMethod.POST)
-	public String contactPage(@ModelAttribute Email email, Model model) throws MessagingException {
-            model.addAttribute("contactModel", new Email());
-            SendMail mail = new SendMail();
-            email.addEmailInMsg(email.getMsg());
-            try {
-		mail.mailSender(email.getName(), email.getEmail(), email.getMsg());
-		return "redirect: /contact?success";
-	    } catch (MessagingException exc) {
-	        return "redirect: /contact?failure";
-	    }
-	}
+    @RequestMapping(value="/contact", method=RequestMethod.POST)
+    public String contactPage(@ModelAttribute Email email, Model model) throws MessagingException {
+        model.addAttribute("contactModel", new Email());
+        SendMail mail = new SendMail();
+        email.addEmailInMsg(email.getMsg());
+        try {
+	    mail.mailSender(email.getName(), email.getEmail(), email.getMsg());
+	    return "redirect: /contact?success";
+	} catch (MessagingException exc) {
+            return "redirect: /contact?failure";
+        }
+    }
 	
-//   Internal page elements    
+// Internal page elements    
     
-	@RequestMapping(value="/header", method=RequestMethod.GET)
-	public String headerPage(Model model) {
-		return "header";
-	}
+    @RequestMapping(value="/header", method=RequestMethod.GET)
+    public String headerPage(Model model) {
+	return "header";
+    }
 
-	@RequestMapping(value="/nav_bar", method=RequestMethod.GET)
-	public String navPage(Model model) {
-		return "nav_bar";
-	}
+    @RequestMapping(value="/nav_bar", method=RequestMethod.GET)
+    public String navPage(Model model) {
+        return "nav_bar";
+    }
 	
-	@RequestMapping(value="/admin_nav_bar", method=RequestMethod.GET)
-	public String adminNavPage(Model model) {
-		return "admin_nav_bar";
-	}
+    @RequestMapping(value="/admin_nav_bar", method=RequestMethod.GET)
+    public String adminNavPage(Model model) {
+        return "admin_nav_bar";
+    }
 
-	@RequestMapping(value="/footer", method=RequestMethod.GET)
-	public String footerPage(Model model) {
-		return "footer";
-	}
+    @RequestMapping(value="/footer", method=RequestMethod.GET)
+    public String footerPage(Model model) {
+        return "footer";
+    }
     
     @RequestMapping(value="/post/groundtruth", method=RequestMethod.POST, consumes = "application/json")
-	public ResponseEntity<String> saveGroundTruth(@RequestBody GroundTruthData groundTruth) throws SQLException{
-    	if(groundTruth.getAccessCode().trim().equalsIgnoreCase("test")){
-			Connection connection = dataSource.getConnection();
-                        SqlQueries query = new SqlQueries(connection);
-			query.setGroundTruth(groundTruth);
-			return new ResponseEntity<String>(HttpStatus.OK);
-		}else{
-			return new ResponseEntity<String>(HttpStatus.UNAUTHORIZED);
-		}		
-	}
+    public ResponseEntity<String> saveGroundTruth(@RequestBody GroundTruthData groundTruth) throws SQLException{
+        if(groundTruth.getAccessCode().trim().equalsIgnoreCase("test")){
+            Connection connection = dataSource.getConnection();
+            SqlQueries query = new SqlQueries(connection);
+            query.setGroundTruth(groundTruth);
+            return new ResponseEntity<String>(HttpStatus.OK);
+	}else{
+            return new ResponseEntity<String>(HttpStatus.UNAUTHORIZED);
+        }		
+    }
 	
 	
 //  @RequestMapping(value="/greeting", method=RequestMethod.GET)

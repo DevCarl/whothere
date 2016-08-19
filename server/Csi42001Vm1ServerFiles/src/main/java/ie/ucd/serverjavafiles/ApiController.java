@@ -36,12 +36,11 @@ public class ApiController {
                     request = null;
             }
             // Each connection must be established via getConnection
-            Connection connection = dataSource.getConnection();
-            // You may then establish a new instance of the SqlQueries Class, with the connection as the parameter
-            SqlQueries query = new SqlQueries(connection);
+            // You may establish a new instance of the SqlQueries Class, with the connection as the parameter
+            SqlQueries query = new SqlQueries(dataSource.getConnection());
             request = query.sqlGetAllJson(request);
             // Close the connection at the end of the RequestMapping, before the return is processed.
-            connection.close();
+            query.closeConnections();
             return request;
         }
 	
@@ -63,10 +62,9 @@ public class ApiController {
                 default:
                     request = null;
             }
-            Connection connection = dataSource.getConnection();
-            SqlQueries query = new SqlQueries(connection);
+            SqlQueries query = new SqlQueries(dataSource.getConnection());
             request = query.sqlGetAllJsonObject(request, specific);
-            connection.close();
+            query.closeConnections();
             return request;
         }
 	
@@ -79,8 +77,7 @@ public class ApiController {
                 String specific2 = requestParams.get(request2);
                 String[] group = {request, request2};
                 String additional = "";
-                Connection connection = dataSource.getConnection();
-                SqlQueries query = new SqlQueries(connection);
+                SqlQueries query = new SqlQueries(dataSource.getConnection());
                 for (int i = 0; i < group.length; i++){
                     // We use a switch statement to control what we allow as parameters
                     switch ((group[i] != null) ? group[i] : "Null"){
@@ -95,7 +92,7 @@ public class ApiController {
                     }
                 }
 		request = query.sqlJson(additional, specific, specific2);
-                connection.close();
+                query.closeConnections();
 		return request;
 	}
 	
