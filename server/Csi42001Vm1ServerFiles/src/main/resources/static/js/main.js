@@ -243,10 +243,10 @@ function genearteMap () {
                 // Logistic regression results
                 var log_reg = (feature.apiData.Date[current_date].Timeslot[current_time].Logistic_occupancy).trim();
                 switch (log_reg){
-                        case "Low" : return {color: "#fc1703"};
-                        case "Mid_Low" : return {color: "#e8fc03"};
-                        case "Mid_High" : return {color: "#FAB117"};
-                        case "High" : return {color: "#03fc13"};
+                        case "Low" : return {color: "#d50f25"};
+                        case "Mid_Low" : return {color: "#eeb211"};
+                        case "Mid_High" : return {color: "#009925"};
+                        case "High" : return {color: "#3369e8"};
                 }
                 
                 

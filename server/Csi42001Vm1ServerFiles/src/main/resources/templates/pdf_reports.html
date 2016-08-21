@@ -33,7 +33,7 @@
                 <div id="form_container">  
                         <form id="pdf_form" action="#" th:action="@{/pdf_reports}" th:object="${searchModel}" method="post">
                             <select id="building" class="PDF_form_input">
-                                <option value="Test">Select a building</option>                 
+                                <option value="Test" >Select a building</option>                 
                             </select>
                             <select id="room" class="PDF_form_input" th:field="*{SearchMethod}">
                                 <option value="Test">Select a classroom</option>
