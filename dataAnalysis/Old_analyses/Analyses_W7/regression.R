@@ -247,7 +247,7 @@ occupancy.poisson1 = glm(Counted_client ~ Max_clients + Room + Factor_Time + Cou
 summary(occupancy.poisson1)
 plot(occupancy.poisson1)
 
-#This model suffer of overdispersion, therefore we corrected the standard errors using a quasi-GLM model where the variance is given by ?? × ?? , where ?? is the mean and ?? the dispersion parameter. 
+#This model suffer of overdispersion, therefore we corrected the standard errors using a quasi-GLM model. 
 
 occupancy.poisson2 = glm(Counted_client ~ Max_clients + Room + Factor_Time + Course_Level + Course_Level * Max_clients + Factor_Time * Course_Level, family = quasipoisson, data=AnalysisTable)
 summary(occupancy.poisson2)

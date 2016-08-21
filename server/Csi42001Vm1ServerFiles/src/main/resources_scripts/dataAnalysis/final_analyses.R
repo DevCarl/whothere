@@ -4,8 +4,6 @@ asFrame <- do.call("rbind.fill", lapply(y, as.data.frame))
 
 #upload the necessary packages
 library(RMySQL)
-library(nlme)
-library(caret) # for splitting the database
 library(nnet)#package for running multinomial regression
 
 #<-----------------------------SELECT THE DATA FROM THE DATABASE ------------------------------>

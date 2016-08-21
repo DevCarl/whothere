@@ -1,13 +1,9 @@
 ---
-title: "Logistic_regression_report"
-author: "Silvia Saloni"
-date: "Thursday, July 28, 2016"
-output:
-  pdf_document:
-    fig_height: 8
-    fig_width: 14
+title: "Logistic_regression_preliminary analysis"
+author: 'Team: Who''s there'
+date: "Thursday, August 18, 2016"
+output: pdf_document
 ---
-
 #Introduction
 
 The aim of the project was to be able to find a model that best predict the relationship between:
@@ -82,8 +78,8 @@ AnalysisTable$Course_Level <- factor(AnalysisTable$Course_Level)
 
 * **Tutorial**, which can affect the number of logged people. First of all, because tutorial divided the room in 2 and therefore there will be measured less people than expected. 
 ```{r, echo=FALSE, warning=FALSE}
-AnalysisTable$Double_module <- factor(AnalysisTable$Double_module)
-AnalysisTable$Class_went_ahead <- factor(AnalysisTable$Class_went_ahead)
+AnalysisTable$Tutorial <- factor(AnalysisTable$Tutorial)
+
 ```
 
 * **Double_module**, categorical variable indicating wether in the class there are more than one module, increasing the number of people expected in the room.
@@ -117,7 +113,7 @@ Furthermore for the variables Wifi_Average_clients and Wifi_Max_clients, it seem
 
 For exploring possible issues related with the continuous variables we plotted histograms and boxplots.
 
-### Histograms
+### Histograms  
 
 ```{r, echo=FALSE,warning=FALSE}
 #histogram for showing the count in each bin for the Maximum number of clients
@@ -131,14 +127,13 @@ histo3 <- ggplot(AnalysisTable, aes(x = Time)) + geom_histogram(binwidth = 2,  c
 
 #plot all the histograms in one window
 multiplot(histo1, histo2, histo3, cols=2)
-```
+```  
 
-<br><br><br>
-Form the histograms we could see that the distribution of the feature Wifi Maximum_client (i.e. the Maximum number of devices logged in one hour lecture) was skewed to the left, indicating that the in the majority of the lecture were counted no more than 40 people. Furthermore, we could see that there are potential outliers (values > 150). Similar pattern was observed for the feature Wifi_Average_clients.
+<br><br>Form the histograms we could see that the distribution of the feature Wifi Maximum_client (i.e. the Maximum number of devices logged in one hour lecture) was skewed to the left, indicating that the in the majority of the lecture were counted no more than 40 people. Furthermore, we could see that there are potential outliers (values > 150). Similar pattern was observed for the feature Wifi_Average_clients.
 Feature times had as well a skewed distribution, suggesting that the majority of the lectures were concentrating during the early morning and they were decreasing towards the afternoon.
 <br><br><br>
-#### Boxplots
-<br>
+### Box plots.   
+<br><br><br><br>  
   
 ```{r, echo=FALSE, warning=FALSE}
 #make the boxplot for continuous variable
@@ -153,13 +148,12 @@ box3 <- ggplot(AnalysisTable, aes(x = factor(0), y = Time)) + geom_boxplot() + x
 #plot all the boxplots in one window
 multiplot(box1, box2, box3, cols=2)
 ```  
-<br><br>
-
-From the boxplots, all the trends observed in the histograms were confirmed.
+<br><br> From the boxplots, all the trends observed in the histograms were confirmed.
 
 For categorical variables we plot bar plot graphs.  
 
-#### Bar plots  
+### Bar plots.   
+<br><br><br><br>
 
 ```{r, echo=FALSE, warning=FALSE}
 #bar plot for the categorical variable: Room
@@ -177,11 +171,10 @@ bar4 <- ggplot(AnalysisTable, aes(x = Factor_Time)) + geom_bar(fill="orangered2"
 #plot all the barplots in one window
 multiplot(bar1, bar2, bar3, bar4, cols=2)
 ```
-<br><br>
-From the barplots, we could see that observations were equally distributed across all the levels of the feature Room and Factor Time. On the contrary, there were more observations for non lectures and level 3 courses and classes was observed mostly occupied. No issues were detected for those features.  
+<br><br>From the barplots, we could see that observations were equally distributed across all the levels of the feature Room and Factor Time. On the contrary, there were more observations for non lectures and level 3 courses and classes was observed mostly occupied. No issues were detected for those features.  
 
-#### Summary
-<br><br>
+### Summary.   
+<br><br><br><br> 
 
 Features               | Issues                                   | Planned Solution             
 -----------------------|------------------------------------------|----------------------------
@@ -271,25 +264,69 @@ Consequently we are going to explore the following 2 models:
 <br>
 
 # Analysis
-<br>
-For running the logistic regression we performed k fold cross validation with the aim of testing if the selected model can be applied to new datasets. K fold validation was preferred over the validationset approach and the Leave Out Cross Validation (LOOCV), because it is more robust and more accurate in estimating the test error. The Validation set approach tends to give an over estimate of the test error and the test error is dependent on the observations included randomly in the test set. Furthermore, the LOOCV tends to provide a test error with a high variance, because the folds used to calculating it are correlated among each other. 
-In particular in this analysis we are going to perform a 10 fold cross validation, which is pretty standard.
+For the preliminary analysis for time constraint we run the analysis using the Validation set approach, which consists in dividing the dataset in a training and a test approach. Since the dataset was not that big, we decided to divide it in 60% for training and 40% for testing. This will give to the test dataset enough data for running the linear model. We are aware of the limitation of the Validation Set Approach and in the next analyses we are going to run the model with a 10-fold cross validation.
 <br>
 
-# Results
-The model $Binary_Occupancy ~ Maximum Wifi occupancy + Time + Course_Level$ was very accurate, as showed below:
-```{r, warning=FALSE}
-Logitmodel1 <- glm(Binary_Occupancy ~Wifi_Max_clients  + Factor_Time + Course_Level,family=binomial,data =AnalysisTable)
+```{r, echo=FALSE,results='hide', message=FALSE, warning=FALSE, fig.keep='none'}
+#declaring the sample size for the training set as 60% of the whole dataset
+smp_size <- floor(0.60 * nrow(AnalysisTable))
 
-CVbinary (Logitmodel1, nfolds= 10)
+## set the seed to make your partition reproductible
+set.seed(123)
+#select the 60% of the dataset
+train_ind <- sample(seq_len(nrow(AnalysisTable)), size = smp_size)
+
+#creating the training set with the 60% of the observation selected before
+train <-AnalysisTable[train_ind, ]
+#creating the test set with rest of the obervation - 60% 
+test <- AnalysisTable[-train_ind, ]
+
+#N.B. In the next version replace this method with k-Fold Cross-Validation, because more robust
+
+#<--------------------------- LOGISTIC REGRESSION ------------------------>
+
+#CASE 1: Logistic regression with Max Clients
+Logitmodel.max <- glm(Binary_Occupancy ~Wifi_Max_clients + Room + Factor_Time + Course_Level ,family=binomial,data=train)
+
+#calculate the predicted 
+fitted.max <- predict(Logitmodel.max,test, type='response')
+fitted.max <- ifelse(fitted.max > 0.5,'1','0')
+
+#calculate the accuracy
+misClasificError.max <- mean(fitted.max != test$Binary_Occupancy)
+accuracy.max <- 1-misClasificError.max
+
+#CASE 2: Logistic regression with Average Clients
+Logitmodel.avg <- glm(Binary_Occupancy ~Wifi_Average_clients + Room + Factor_Time + Course_Level ,family=binomial,data=train)
+
+#calculate the predicted 
+fitted.avg <- predict(Logitmodel.avg,test, type='response')
+fitted.avg <- ifelse(fitted.avg > 0.5,'1','0')
+
+#calculate the accuracy
+misClasificError.avg <- mean(fitted.avg != test$Binary_Occupancy)
+accuracy.avg <- 1-misClasificError.avg
+
+```
+| Models                                                                    |Accuracy          
+|---------------------------------------------------------------------------|------------------------
+|Binary_Occupancy ~Wifi_Max_clients + Room + Factor_Time + Course_Level     |`r 1-misClasificError.max`               
+|Binary_Occupancy ~Wifi_Average_clients + Room + Factor_Time + Course_Level |`r 1-misClasificError.avg`
+
+The second model was the one with the best accuracy, so we decided to apply it to the whole data set and we explore its residuals to see if it was a good model.
+The graph plotting the residuals, against predicted values and the logistic regression in black with green showing the confidence interval showed that the logistic regression is quite close to the dotted line as should be expected and it shows the presence of potential outliers. 
+
+```{r, echo=FALSE,results='hide', message=FALSE, warning=FALSE, fig.keep='none'}
+
+Logitmodel.final <- glm(Binary_Occupancy ~Wifi_Average_clients + Room + Factor_Time + Course_Level, family=binomial,data=AnalysisTable)
+
+plot(predict(Logitmodel.final),residuals(Logitmodel.final),col=c("blue","orange")[(AnalysisTable$Binary_Occupancy)])
+abline(h=0,lty=2,col="grey")
+lines(lowess(predict(Logitmodel.final),residuals(Logitmodel.final)),col="black",lwd=2)
+#rl=lm(residuals(Logitmodel.final)~bs(predict(Logitmodel.final),8))
+rl=loess(residuals(Logitmodel.final)~predict(Logitmodel.final))
+y=predict(rl,se=TRUE)
+segments(predict(Logitmodel.final),y$fit+2*y$se.fit,predict(Logitmodel.final),y$fit-2*y$se.fit,col="green")
 ```
 
-Also the second model, $Binary_Occupancy ~ Average Wifi occupancy + Time + Course_Level$ had a good accuracy, but lower than the previous one. 
-
-```{r,  warning=FALSE}
-Logitmodel2 <- glm(Binary_Occupancy ~Wifi_Average_clients + Factor_Time + Course_Level,family=binomial,data =AnalysisTable)
-
-CVbinary (Logitmodel2, nfolds= 10)
-```
-
-Therefore, we selected as best logistic model the first one, which suggested that Max Wifi occupancy, Time and Course_Level were good predictor of the occupancy of the room.
+For the next analysis we will try to implement a multinomial regression with a k-fold cross validation and we might explore if this is better without the outliers.

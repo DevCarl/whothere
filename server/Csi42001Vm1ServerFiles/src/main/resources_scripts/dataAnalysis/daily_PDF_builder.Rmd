@@ -35,11 +35,10 @@ library(Rcpp)
 
 #get the variable from command line
 args <- commandArgs(trailingOnly = TRUE)
-# trailingOnly=TRUE means that only your arguments are returned, check:
-# print(commandsArgs(trailingOnly=FALSE))
-#when run the R script you have to specify the name of the file and the arguments
-#in windows will be: Rscript --vanilla namescript.R 
 
+#when run the R script you have to specify the name of the file and the arguments
+#in windows will be: Rscript --vanilla namescript.R arg1 arg2
+#assign a name to the 2 passed argument
 room <- args[1]
 date_input <- args[2]
 
@@ -107,16 +106,16 @@ occupancy_table$Predicted_occupancy <- factor(occupancy_table$Predicted_occupanc
   
 
 ```
-**Day**: `r print(date_input)`  
+**Day**: `r date_input`  
 **Campus**:`r details$Campus`  
 **Building**: `r details$Building`  
 **Floor number**: `r details$Floor`  
-**Room**: `r print(room)`  
+**Room**: `r room`  
 **Capacity of the room**: `r details$Capacity`   
 **Plug-friendly**: `r details$Plug_friendly`  
 
 
-This document summarised the occupancy of the room estimated using the predicted values gathered through our models for the day requested.  
+This document summarises the occupancy of the room estimated using the predicted values gathered through our models for the day requested.  
 
 The data are summarised by the following table and graphs.  
 
