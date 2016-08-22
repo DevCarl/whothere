@@ -31,7 +31,7 @@ library(Rcpp)
 
 
 #set up the url and the path of the api for server
-#url <- "paste("http://csi420-01-vm1.ucd.ie:8080"/api/data?request=Room_no&Room_no=B003&request2=Date&Date=2015-11-03"
+url <- "http://csi420-01-vm1.ucd.ie:8080/api/data?request=Room_no&Room_no=B003&request2=Date&Date=2015-11-03"
 
 #get the variable from command line
 args <- commandArgs(trailingOnly = TRUE)
@@ -64,7 +64,7 @@ print(tidy_json)
 #Getting the detail for printing the main information on the PDF 
 details <-
   tidy_json %>%
-  enter_object("Room_no") %>%
+  enter_object(B003) %>%
   enter_object(room) %>%
   spread_values(Campus = jstring("Campus"),Building = jstring("Building"), Capacity=jnumber("Capacity"), Plug_friendly= jstring("Plug_friendly"), Floor =jstring("Floor_no")) 
 
@@ -73,23 +73,23 @@ print(details)
 time <- 
   tidy_json %>%
   enter_object("Room_no") %>%
-  enter_object(room) %>%
+  enter_object("B003") %>%
   enter_object("Date") %>%
-  enter_object(date_input) %>%
+  enter_object("2015-11-03") %>%
   enter_object("Timeslot") %>%
   gather_keys 
 
 print(time)
 #for loop for gathering the information regarding the estimates on room occupancy
 #made by the model in each time slot and storing them in a dataframe 
-  for (i in 1:8){
+  for (i in 1:8{
   print(paste("i is", i))
   occupancy<-
   tidy_json %>%
   enter_object("Room_no") %>%
-  enter_object(room) %>%
+  enter_object("B003") %>%
   enter_object("Date") %>%
-  enter_object(date_input) %>%
+  enter_object("2015-11-03") %>%
   enter_object("Timeslot") %>%
   enter_object(time$key[i])%>%
     spread_values(Predicted_occupancy= jstring("Logistic_occupancy"), Expected_people= jnumber("People_estimate"), Max_people = jnumber("Max_people_estimate"), Min_people = jnumber("Min_people_estimate"))%>%
