@@ -107,7 +107,7 @@ occupancy_table$Predicted_occupancy <- factor(occupancy_table$Predicted_occupanc
 
 ```
 **Day**: `r date_input`  
-**Campus**:`r details$Campus`  
+**Campus**: `r details$Campus`  
 **Building**: `r details$Building`  
 **Floor number**: `r details$Floor`  
 **Room**: `r room`  
@@ -128,10 +128,10 @@ pander(occupancy_table)
 
 
 ```{r, echo=FALSE, message=FALSE, fig.align='center'}
-occupancy_plot <- ggplot(data=occupancy_table, aes(x=factor(Time), y=Predicted_occupancy, fill=Predicted_occupancy)) + geom_bar(stat="identity")+ scale_fill_manual(values=c( "orangered","gold","darkcyan", "blue"))+ theme_bw()
+occupancy_plot <- ggplot(data=occupancy_table, aes(x=factor(Time), y=Predicted_occupancy, fill=Predicted_occupancy)) + geom_bar(stat="identity")+ scale_fill_manual(values=c( "orangered","gold","darkcyan", "blue"),  breaks=c(" Low ", " Mid_Low ",  " Mid_High ",  " High " )),labels=c("0-25%", "25-50%", "50-75%", "75%-100%")))+ theme_bw()+labs(x="Time",y="Predicted room occupancy")
 
-count_plot <-ggplot(data=occupancy_table, aes(x=Time, y=Expected_people, group=1)) + geom_ribbon(data=occupancy_table,aes(ymin=Min_people, ymax=Max_people),alpha=0.2, fill="orangered3") + geom_line(color="orangered2")+ theme_bw() + geom_point(color="orangered2") 
-multiplot(occupancy_plot, count_plot, cols=2)
+count_plot <-ggplot(data=occupancy_table, aes(x=factor(Time), y=Expected_people, group=1)) + geom_ribbon(data=occupancy_table,aes(ymin=Min_people, ymax=Max_people),alpha=0.2, fill="orangered3") + geom_line(color="orangered2")+ theme_bw() + geom_point(color="orangered2") 
+multiplot(occupancy_plot, count_plot, cols=2)+labs(x="Time",y="Predicted number of people in the room")
 ```
 
 
