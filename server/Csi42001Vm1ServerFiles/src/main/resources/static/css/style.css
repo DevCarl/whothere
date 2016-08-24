@@ -234,6 +234,7 @@ nav li a:hover:not(.active) {
     width: 85%;
     float: left;
     display: inline;
+    margin-bottom: 0px;
 }
 
 /*    INFO SECTION    */
@@ -533,6 +534,7 @@ input.login{
 .slider_bar {
     text-align: center;
     font-size: 20px;
+    margin-bottom: 0px;
 }
 
 #slider {
