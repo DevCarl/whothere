@@ -38,7 +38,7 @@
                             <select id="room" class="PDF_form_input" th:field="*{SearchMethod}">
                                 <option value="Test">Select a classroom</option>
                             </select>
-                                <input type="date" name="date" class="PDF_form_input" th:field="*{SearchTerms}"/>
+                                <input type="date" max="2015-11-13" min="2015-11-03" value="2015-11-13" name="date" class="PDF_form_input" th:field="*{SearchTerms}"/>
                                 <button type="submit" id="pdf_btn">Download here!</button>
                         </form>
                 </div>
