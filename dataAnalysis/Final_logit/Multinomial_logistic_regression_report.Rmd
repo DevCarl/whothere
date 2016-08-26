@@ -487,7 +487,7 @@ for (cv in seq(1:cv)) {
 |Binned_occupancy ~ Wifi_Average_logs + Room + Factor_Time + Course_Level|`r mean(totalAccuracy.avg.full)`|`r mean(totalAIC.avg.full)`
 
 
-The best model in term of accuracy and AIC was Binned_occupancy ~ Wifi_Average_logs + Room with accuracy equals to 0.58 and AIC equal to 364.
+The best model in term of accuracy and AIC was Binned_occupancy ~ Wifi_Average_logs + Room, with an AIC of ~ `r mean(totalAIC.avg.room)` and an accuracy of `r mean(totalAccuracy.avg.room)`.  To assess the importance of the other models in respect to the best one, we can calculate the difference between their AIC value and the best model's AIC. For semplicity, we can say that if the difference between the first best model and the rest is > 2 we can be sure that the model selected was the best one. In this case, the difference between the AIC of the best model and the AIC of the rest of the model was higher than 2. Therfore we are confident with our choice.
 
 ###CASE2: Wifi maximum logs
 
@@ -695,7 +695,7 @@ for (cv in seq(1:cv)) {
 |Binned_occupancy ~ Wifi_Max_logs + Room + Factor_Time + Course_Level |`r mean(totalAccuracy.max.full)`|`r mean(totalAIC.max.full)`
 
 
-The best model in term of accuracy and AIC was Binned_occupancy ~ Wifi_Max_logs + Room  with an accuracy of 0.55 and an AIC of 385.
+The best model in term of accuracy and AIC was Binned_occupancy ~ Wifi_Max_logs + Room with an AIC of  `r mean(totalAIC.max.room)`and an accuracy of `r mean(totalAccuracy.max.room)`. Again the difference between the AIC of the best model and the AIC of the rest of the model was higher than 2. Therfore we are confident with our choice.
 However the accuracy and the AIC of the Binned_occupancy ~ Wifi_Average_logs + Room  model was better and we keep it as best model and we will run it on the whole dataset.
 
 final.avg.room <- multinom(Binned_Occupancy ~ Wifi_Average_logs+Room, data=AnalysisTable,maxit=1000)
@@ -936,7 +936,7 @@ for (cv in seq(1:cv)) {
 |Binned_occupancy ~ Wifi_Average_logs + Factor_Time + Course_Level       |`r mean(totalAccuracy.ord.avg.time.level)`|`r mean(totalAIC.ord.avg.time.level)`
 |Binned_occupancy ~ Wifi_Average_logs + Room + Factor_Time + Course_Level|`r mean(totalAccuracy.ord.avg.full)`|`r mean(totalAIC.ord.avg.full)`
 
-Binned_occupancy ~ Wifi_Average_logs + Room  was the best model in term of AIC (377) and accuracy (0.575). However, the ordinal regression did not improve the accuracy of the multinomial logistic regression. Similar pattern were observed for Wifi_Max_logs as dependent variable.
+Binned_occupancy ~ Wifi_Average_logs + Room  was the best model in term of AIC (`r mean(totalAIC.ord.avg.room)`) and accuracy (`r mean(totalAccuracy.ord.avg.room)`). However, the ordinal regression did not improve the accuracy of the multinomial logistic regression. Similar pattern were observed for Wifi_Max_logs as independent variable.
 
 ##CASE1: Wifi Maximum logs
 ```{r, echo=FALSE,results='hide', message=FALSE, warning=FALSE, fig.keep='none'}
@@ -1149,6 +1149,6 @@ for (cv in seq(1:cv)) {
 |Binned_occupancy ~ Wifi_Max_logs + Room + Factor_Time + Course_Level |`r mean(totalAccuracy.ord.max.full)`|`r mean(totalAIC.ord.max.full)`
 
 
-The best model in term of AIC (391) and accuracy (0.57) was Binned_Occupancy ~ Wifi_Max_logs+Room. The occuracy of this model was not better than the accuracy of the ordinal model with Wifi_Average_logs as dependent variable. 
+The best model in term of AIC (`r mean(totalAIC.ord.max.room)`) and accuracy (`r mean(totalAccuracy.ord.max.room)`) was Binned_Occupancy ~ Wifi_Max_logs+Room. The occuracy of this model was not better than the accuracy of the multinomial model with Wifi_Average_logs as descriptive variable. 
 
 Therefore, we are going to considered as best model: Binned_Occupancy ~ Wifi_Average_logs+Room run with a multinomial logistic regression, suggesting that the occupancy of the room was accurately predicted by the average of the Wi-Fi logs measured across the hour and by the room.
