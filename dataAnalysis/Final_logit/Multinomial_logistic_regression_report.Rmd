@@ -14,9 +14,9 @@ The aim of the project was to be able to find a model that best predict the rela
 
 This will allow to see whether Wi-Fi log is a good predictor for estimating occupancy in a classroom.
 
-Given the fact that the target feature was a percentage we tried to run a logistic regression to predict when the room was more likely to be empty or occupied. 
+Given the fact that the target feature was a percentage we tried to run a logistic regression to predict when the room was more likely to be empty, 25\%, half, 75\% and 100\% occupied. 
 
-Below we describes step by step all the analysis performed.
+Below we describes step by step all the analyses performed.
 
 ### DATABASE CONNECTION AND DATASET
 
@@ -34,7 +34,7 @@ First of all, we set up the connection to the database, using the following code
 ```{r}
 connection <- dbConnect(MySQL(),user="root", password="",dbname="who_there_db", host="localhost")
 ```  
-Then we made a query to the database, in order to get all the groundth truth data collected in room B.002, B.004 and B.006 from 9 to 17 and the correspondent Wi-Fi Log measured in that time frame and rooms. 
+Then we made a query to the database, in order to get all the ground truth data collected in room B.002, B.004 and B.006 from 9:00 a.m. to 17 a.m. and the correspondent Wi-Fi Log measured in that time frame and rooms. 
 
 ```{r, echo=FALSE, warning=FALSE}
 query <-"SELECT W.`Room_Room_id` as Room, W.`Date`, HOUR( W.Time ) as Time, T.`Module_Module_code` as Module, M.`Course_Level`,T.`Tutorial`, T.`Double_module`, T.`Class_went_ahead`, R.`Capacity`, G.`Percentage_room_full`, AVG(W.`Associated_client_counts`) as Wifi_Average_logs, MAX(W.`Authenticated_client_counts`) as Wifi_Max_logs FROM Room R, Wifi_log W, Ground_truth_data G, Time_table T, Module M WHERE W.Room_Room_id = R.Room_id AND G.Room_Room_id = W.Room_Room_id AND W.Date = G.Date AND HOUR( W.Time ) = HOUR( G.Time ) AND HOUR( W.Time ) = HOUR( T.Time_period ) AND T.Date = W.Date AND T.Room_Room_id = W.Room_Room_id AND M.`Module_code` = T.`Module_Module_code` GROUP BY W.Room_Room_id, HOUR( W.Time ) , W.Date"
@@ -46,7 +46,7 @@ AnalysisTable <-dbGetQuery(connection, query)
 The dataset created had in total 216 rows and it will allow us to explore if Wi-Fi log can estimate precisely if a room is empty or occupied during a certain hour.
 
 As a **target features** for the multinomial logistic regression we decided to create a categorical features with 4 levels using the percentage of the room full. In particular, the levels were:
-  * Low occupancy with an occupancy between 0 and 25%;
+* Low occupancy with an occupancy between 0 and 25%;
 * Mid Low occupancy, which ranges from 25-50% of occupancy;
 * Mid High occupancy, which contain obeservation between 50-75%;
 * High Occupancy with an occupancy range between 75-100%.
@@ -59,7 +59,7 @@ As response variables or feature we considered Wi-Fi logs, which were summarised
 
 Together with the Wi-Fi log, we included in the data set the following features: 
   
-  * **Date**, which we did not use in this analysis, because they just cover 2 weeks of Novemeber, but for future analyses they can be used to group observations by seasons or semesters or to finds seasonal trends for time series analyses.
+* **Date**, which we did not use in this analysis, because they just cover 2 weeks of November, but for future analyses they can be used to group observations by seasons or semesters or to finds seasonal trends for time series analyses.
 
 * **Time**, which will be explored either as continous variable and as categorical to explore if the time of the day can have an affect on the Wi-Fi log. To do so we, bin the time in 4 ranges: early morning (9-11), late morning (11-13), early afternoon (13-15) and late afternoon (15-17). This will allow us to see if the Wi-Fi log accuracy was changing during the day. For example, it is more likely that all the electronic devices are fully powered early in the morning and consequently the Wi-fi log data can be more accurate or overestimating the occupancy of the room (i.e. more than one device per person). On the contrary in the afternoon, the devices may be more likely to be out of battery and it is possible that there are less devices in the room.
 ```{r, echo=FALSE, warning=FALSE}
@@ -99,7 +99,7 @@ head(AnalysisTable)
 
 Before running any analyses, we carried out the data quality report to check for any issue related to the variable (e.g. outlier, skewed distribution, NaN values) and solutions we will implement to solve them.
 
-Initially set all the categorical variables as factors and then we printed the descriptive statistic for all the features.
+Initially we set all the categorical variables as factors and then we printed the descriptive statistic for all the features.
 ```{r}
 summary(AnalysisTable)
 ```
@@ -126,7 +126,7 @@ histo3 <- ggplot(AnalysisTable, aes(x = Time)) + geom_histogram(binwidth = 2,  c
 multiplot(histo1, histo2, histo3, cols=2)
 ```
 <br><br><br>Form the histograms we could see that the distribution of the feature Wifi Maximum_client (i.e. the Maximum number of devices logged in one hour lecture) was skewed to the left, indicating that the in the majority of the lecture were counted no more than 40 people. Furthermore, we could see that there are potential outliers (values > 150). Similar pattern was observed for the feature Wifi_Average_logs.
-Feature times had as well a skewed distribution, suggesting that the majority of the lectures were concentrating during the early morning and they were decreasing towards the afternoon.<br><br>
+Feature times had as well a skewed distribution, suggesting that the majority of the lectures were concentrating during the early morning and they were decreasing towards the afternoon.  
 ### Box plots.   
 <br><br><br><br>
   
@@ -183,15 +183,15 @@ Wifi Average clients   |Distibution skewed to the left \& outliers|To solve duri
 Wifi Maximum clients   |Distibution skewed to the left \& outliers|To solve during analysis
 Binary Occupancy       |None                                      |None
 
-  ## FEATURES AFFECTING THE TARGET FEATURE  
+## FEATURES AFFECTING THE TARGET FEATURE  
   
-  The next step of the analysis was to see which feature really affect the target feature for deciding which features we would include into the model.  
+The next step of the analysis was to see which feature really affect the target feature for deciding which features we would include into the model.  
 
-For the continuous features we used box plots, while for categorical we use bar plots.
+For the continuous features we used box plots, while for categorical we use bar plots. 
 
 ### Box plots for categorical variables.   
 <br><br><br><br>
-  ```{r,echo=FALSE,warning=FALSE}
+```{r,echo=FALSE,warning=FALSE}
 pairbox1 <- ggplot(AnalysisTable, aes(x = Binned_Occupancy, y =Wifi_Average_logs)) + geom_boxplot()+ theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
 pairbox2 <- ggplot(AnalysisTable, aes(x = Binned_Occupancy, y = Wifi_Max_logs)) + geom_boxplot() + theme_bw()+theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
@@ -207,7 +207,7 @@ The occupacy seems to not change with the time, so were not going to explore it.
 
 ## Barplots 
 
-```{r,echo=TRUE,warning=FALSE}
+```{r,echo=FALSE,warning=FALSE}
 barpair1 <-ggplot(AnalysisTable, aes(x = Room, fill = Binned_Occupancy)) + geom_bar(position = "dodge")+ scale_fill_manual(values=c( "darkblue","cyan4","orange", "yellow"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
 
 barpair2 <-ggplot(AnalysisTable, aes(x = Factor_Time, fill =Binned_Occupancy)) + geom_bar(position = "dodge")+ scale_fill_manual(values=c( "darkblue","cyan4","orange", "yellow"))+theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
@@ -216,7 +216,7 @@ barpair3 <-ggplot(AnalysisTable, aes(x = Course_Level, fill = Binned_Occupancy))
 
 multiplot(barpair1, barpair2, barpair3, cols=2)
 ```
-All the ranges of occupancy were equally represented in all the three rooms, indicating that room was not affecting the ocuupancy.
+All the ranges of occupancy were equally represented in all the three rooms, indicating that room was not affecting the occupancy.
 The occupancy level tend to change across the levels of course levels. Level1 and level2 courses had an higher Mid-low and Mid-high occupancy, while all the other levels had a higher low and mid-low occupancy. This was expected for level 0, where we expect no lecture is running. Therefore, we are considering all those features in the model.
 
 ### Interacting effect on the target feature  
@@ -224,23 +224,22 @@ The occupancy level tend to change across the levels of course levels. Level1 an
   For selecting the features that together with the max logs or with the average logs best predict the ground truth data we will do model selection using AIC values.     
 For doing so, we decided to considered the models that better suited our hypothesis and they are the following:
   
-  * *Binned occupancy ~ 1*, the null model;
+* *Binned occupancy ~ 1*, the null model;
 
-* *Binned occupancy ~ Average Wifi occupancy*, for testing whether average Wi-Fi counting logs were accurately predicting the occupancy of the room;
+* *Binned occupancy ~ Average Wifi occupancy*;
 
-* *Binned occupancy ~ Average Wifi occupancy + Room*, for testing whether average Wi-Fi counting logs and the room were were accurately predicting the occupancy of the room;
+* *Binned occupancy ~ Average Wifi occupancy + Room*;
 
-* *Binned occupancy ~ Average Wifi occupancy + Time*, for testing whether average Wi-Fi counting logs and the time of the day were accurately predicting the occupancy of the room;
+* *Binned occupancy ~ Average Wifi occupancy + Time*;
 
-* *Binned occupancy ~ Average Wifi occupancy + Course_Level*, for testing whether average Wi-Fi counting logs and course levels were accurately predicting the occupancy of the room;
+* *Binned occupancy ~ Average Wifi occupancy + Course_Level*;
 
-* *Binned occupancy ~ Average Wifi occupancy + Room + Time*, for testing whether average Wi-Fi counting logs, room type and the time of the day were accurately predicting the occupancy of the room;
-* *Binned occupancy ~ Average Wifi occupancy + Room + Course_Level*, for testing whether average Wi-Fi counting logs, room type and course levels were accurately predicting the occupancy of the room;
-* *Binned occupancy ~ Average Wifi occupancy + Time + Course_Level*, for testing whether average Wi-Fi counting logs, the time of the day and the course levels were accurately predicting the occupancy of the room;
+* *Binned occupancy ~ Average Wifi occupancy + Room + Time*;
+* *Binned occupancy ~ Average Wifi occupancy + Room + Course_Level*;
+* *Binned occupancy ~ Average Wifi occupancy + Time + Course_Level*;
+* *Binned occupancy ~ Average Wifi occupancy + Room + Time + Course_Level*;
 
-* *Binned occupancy ~ Average Wifi occupancy + Room + Time + Course_Level*, for testing whether average Wi-Fi counting logs, rooms, the time of the day and the course levels were accurately predicting the occupancy of the room;
-
-The same models were run also with the occupancy estimated with the maximum number of logs measured in that hour. All these models were run using the k-fold cross. K-fold validation was preferred over the validation set approach and the Leave Out Cross Validation (LOOCV), because it is more robust and more accurate in estimating the test error. The Validation set approach tends to give an over estimate of the test error and the test error is dependent on the observations included randomly in the test set. Furthermore, the LOOCV tends to provide a test error with a high variance, because the folds used to calculating it are correlated among each other. 
+The same models were run also with the occupancy estimated with the maximum number of logs measured in that hour. All these models were run using the k-fold cross. K-fold validation was preferred over the validation set approach and the Leave Out Cross Validation (LOOCV), because it is more robust and more accurate in estimating the test error. The Validation set approach tends to give an over estimate of the test error and the test error is dependent on the observations included randomly in the test set. Furthermore, the LOOCV tends to provide a test error with a high variance, because the folds, used to calculating it, are correlated among each other. 
 In particular in this analysis we are going to perform a 10-fold cross validation, which is pretty standard.
 
 The 10 fold cross validation was carried out manually using the package *carret*, as showed in the following tutorial: (http://amunategui.github.io/multinomial-neuralnetworks-walkthrough). 
@@ -248,7 +247,7 @@ For each model we estracted the overall accuracy and the AIC and we picked as be
 
 # Results
 
-##CASE1: 
+###CASE1: Wifi average logs
 All the models ran with the response variable Wifi average logs are summarised in the following table showing their accuracy and AIC. 
 ```{r, echo=FALSE,results='hide', message=FALSE, warning=FALSE, fig.keep='none'}
 set.seed(1000)
@@ -475,8 +474,8 @@ for (cv in seq(1:cv)) {
 
 
 
-| Models                                                                 | MSE                        |AIC
-|------------------------------------------------------------------------|-------------------------------
+| Models                                                                 | Accuracy           |AIC
+|------------------------------------------------------------------------|--------------------|----
 |Binned_occupancy ~ 1                                                    |`r mean(totalAccuracy.null)`|`r mean(totalAIC.null)`
 |Binned_occupancy ~ Wifi_Average_logs                                    |`r mean(totalAccuracy.avg)` |`r mean(totalAIC.avg)`
 |Binned_occupancy ~ Wifi_Average_logs + Room                             |`r mean(totalAccuracy.avg.room)`|`r mean(totalAIC.avg.room)`
@@ -488,9 +487,9 @@ for (cv in seq(1:cv)) {
 |Binned_occupancy ~ Wifi_Average_logs + Room + Factor_Time + Course_Level|`r mean(totalAccuracy.avg.full)`|`r mean(totalAIC.avg.full)`
 
 
-#The best model in term of accuracy and AIC was Binned_occupancy ~ Wifi_Average_logs + Room with accuracy equal to 0.58 and AIC equal to 364.
+The best model in term of accuracy and AIC was Binned_occupancy ~ Wifi_Average_logs + Room with accuracy equals to 0.58 and AIC equal to 364.
 
-#CASE2: MAX MODELS
+###CASE2: Wifi maximum logs
 
 ```{r, echo=FALSE,results='hide', message=FALSE, warning=FALSE, fig.keep='none'}
 #max model
@@ -683,8 +682,8 @@ for (cv in seq(1:cv)) {
   totalAIC.max.full <- c(totalAIC.max.full, AIC(max.full))
 }
 ```
-| Models                                                              | MSE                        |AIC
-|---------------------------------------------------------------------|-------------------------------
+| Models                                                              | Accuracy                |AIC
+|---------------------------------------------------------------------|-------------------------|---
   |Binned_occupancy ~ 1                                                 |`r mean(totalAccuracy.null)`|`r mean(totalAIC.null)`
 |Binned_occupancy ~ Wifi_Max_logs                                     |`r mean(totalAccuracy.max)` |`r mean(totalAIC.max)`
 |Binned_occupancy ~ Wifi_Max_logs + Room                              |`r mean(totalAccuracy.max.room)`|`r mean(totalAIC.max.room)`
@@ -701,7 +700,10 @@ However the accuracy and the AIC of the Binned_occupancy ~ Wifi_Average_logs + R
 
 final.avg.room <- multinom(Binned_Occupancy ~ Wifi_Average_logs+Room, data=AnalysisTable,maxit=1000)
 
+With the hope of increasing the accuracy of our final model we decided to take into account in the analyses the order that there is among the level of the target feature. To do so, we performed the ordinal regression.
+
 #ORDINAL REGRESSION
+##CASE1: Wifi average logs
 ```{r, echo=FALSE,results='hide', message=FALSE, warning=FALSE, fig.keep='none'}
 #null model
 totalAccuracy.ord.null <- c()
@@ -922,8 +924,8 @@ for (cv in seq(1:cv)) {
 ```
 
 
-| Models                                                                 | MSE                        |AIC
-|------------------------------------------------------------------------|-------------------------------
+| Models                                                                 |Accuracy           |AIC                       
+|------------------------------------------------------------------------|-------------------|-----
   |Binned_occupancy ~ 1                                                    |`r mean(totalAccuracy.ord.null)`|`r mean(totalAIC.ord.null)`
 |Binned_occupancy ~ Wifi_Average_logs                                    |`r mean(totalAccuracy.ord.avg)` |`r mean(totalAIC.ord.avg)`
 |Binned_occupancy ~ Wifi_Average_logs + Room                             |`r mean(totalAccuracy.ord.avg.room)`|`r mean(totalAIC.ord.avg.room)`
@@ -934,9 +936,9 @@ for (cv in seq(1:cv)) {
 |Binned_occupancy ~ Wifi_Average_logs + Factor_Time + Course_Level       |`r mean(totalAccuracy.ord.avg.time.level)`|`r mean(totalAIC.ord.avg.time.level)`
 |Binned_occupancy ~ Wifi_Average_logs + Room + Factor_Time + Course_Level|`r mean(totalAccuracy.ord.avg.full)`|`r mean(totalAIC.ord.avg.full)`
 
-Binned_occupancy ~ Wifi_Average_logs + Room  was the best model in term of AIC (377) and accuracy (0.575). Howevre, the ordinal regression did not improve the accuracy of the multinomial logistic regression. Similar pattern were expected from running the same analyses, but with Wifi_Max_logs as dependent variable.
+Binned_occupancy ~ Wifi_Average_logs + Room  was the best model in term of AIC (377) and accuracy (0.575). However, the ordinal regression did not improve the accuracy of the multinomial logistic regression. Similar pattern were observed for Wifi_Max_logs as dependent variable.
 
-#CASE2: MAX MODELS
+##CASE1: Wifi Maximum logs
 ```{r, echo=FALSE,results='hide', message=FALSE, warning=FALSE, fig.keep='none'}
 #max model
 totalAccuracy.ord.max <- c()
@@ -1133,8 +1135,9 @@ for (cv in seq(1:cv)) {
   totalAIC.ord.max.full <- c(totalAIC.ord.max.full, AIC(ord.max.full))
 }
 ```
-| Models                                                              | Accuracy and AIC
-|---------------------------------------------------------------------|-------------------------------
+
+| Models                                                              |Accuracy           |AIC                       
+|---------------------------------------------------------------------|-------------------|-----
 |Binned_occupancy ~ 1                                                 |`r mean(totalAccuracy.ord.null)`|`r mean(totalAIC.ord.null)`
 |Binned_occupancy ~ Wifi_Max_logs                                     |`r mean(totalAccuracy.ord.max)` |`r mean(totalAIC.ord.max)`
 |Binned_occupancy ~ Wifi_Max_logs + Room                              |`r mean(totalAccuracy.ord.max.room)`|`r mean(totalAIC.ord.max.room)`
@@ -1148,4 +1151,4 @@ for (cv in seq(1:cv)) {
 
 The best model in term of AIC (391) and accuracy (0.57) was Binned_Occupancy ~ Wifi_Max_logs+Room. The occuracy of this model was not better than the accuracy of the ordinal model with Wifi_Average_logs as dependent variable. 
 
-Therefore, we are going to considered as best model: Binned_Occupancy ~ Wifi_Average_logs+Room run with a multinomial logistic regression, suggesting that the occupancy of the room was accurately predicted by the average of the Wi-Fi logs measured across the hour. However, the accuracy of the estimate was affected by the room.
+Therefore, we are going to considered as best model: Binned_Occupancy ~ Wifi_Average_logs+Room run with a multinomial logistic regression, suggesting that the occupancy of the room was accurately predicted by the average of the Wi-Fi logs measured across the hour and by the room.

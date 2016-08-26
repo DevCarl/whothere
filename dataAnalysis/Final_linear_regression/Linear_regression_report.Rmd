@@ -1,6 +1,6 @@
 ---
 title: "Linear_regression_report"
-author: "Team: Who's there"
+author: 'Team: Who''s there'
 output:
   pdf_document:
     fig_height: 8
@@ -23,52 +23,60 @@ source("http://peterhaschke.com/Code/multiplot.R") #for using multiplot
 
 #Introduction
 
-The aim of the project was to be able to find a model that best predicts the relationship between:  
+The aim of the project is to be able to find a model that best predict the relationship between:  
 
 * the number of people counted with the survey for a given class at a particular hour 
 * Wi-fi log counted in that room at that hour
 
-This will allow to see whether Wi-Fi log is a good predictor for estimating room occupancy.
+This will validate whether Wi-Fi log is a good predictor for estimating room occupancy.
 
-We first tried to see if the relationship between these two variables was linear. To do so we run a linear regression.
+We first set out if the relationship between these two variables was linear. To do so we ran a linear regression.
 
-Below we describes step by step all the analysis performed.
+Below we describe in detail step by step how the analysis was performed.
 
-First of all, we set up the connection to the database, using the following code:
+First of all, we set up a connection to the database, using the following code:
 
 ```{r, echo=TRUE}
 connection <- dbConnect(MySQL(),user="root", password="",dbname="who_there_db", host="localhost")
 ```  
-Then we made a query to the database, in order to get all the groundth truth data collected in room B.002, B.004 and B.006 from 9 to 17 and the correspondent Wi-Fi Log measured in that time frame and rooms. 
+Then we made a query to the database, in order to get all the ground truth data collected in room B.002, B.004 and B.006 from 9:00 a.m. to 17:00 p.m. and the correspondent Wi-Fi Log measured in that time frame and rooms. 
 
 ```{r, echo=FALSE, warning=FALSE}
 query <-"SELECT W.`Room_Room_id` as Room, W.`Date`, HOUR( W.Time ) as Time, T.`Module_Module_code` as Module, M.`Course_Level`,T.`Tutorial`, T.`Double_module`, T.`Class_went_ahead`, R.`Capacity`, G.`Percentage_room_full`, AVG(W.`Associated_client_counts`) as Wifi_Average_logs, MAX(W.`Authenticated_client_counts`) as Wifi_Max_logs FROM Room R, Wifi_log W, Ground_truth_data G, Time_table T, Module M WHERE W.Room_Room_id = R.Room_id AND G.Room_Room_id = W.Room_Room_id AND W.Date = G.Date AND HOUR( W.Time ) = HOUR( G.Time ) AND HOUR( W.Time ) = HOUR( T.Time_period ) AND T.Date = W.Date AND T.Room_Room_id = W.Room_Room_id AND M.`Module_code` = T.`Module_Module_code` GROUP BY W.Room_Room_id, HOUR( W.Time ) , W.Date"
 
 #select the data based on the query and store them in a dataframe called Analysis table
 AnalysisTable <-dbGetQuery(connection, query)  
+#for trying it locally upload the following csv file: AnalysisTable.csv
+#AnalysisTable <- read.csv("../whothere/dataAnalysis/AnalysisTable.csv")
+
 ```
 
-The dataset created had in total 216 rows and it will allow us to explore if Wi-Fi log is a good predictor of the observed occupancy of the room in a certain hour.
+The dataset created had in total 216 rows, which are sufficient for running this analysis.
 
-As a **target features** for our linear regression we decided to use the number of associated client, calculated by multiplying the percentage of the room with the capacity of the room.
+As a **target features** for our linear regression we decided to use the number of people present in the room, calculated by multiplying the percentage of the room with the capacity of the room.
 ```{r, echo=FALSE,warning=FALSE}
 #create the new column for getting number of people counted through ground truth data
 AnalysisTable$Survey_occupancy <- AnalysisTable$Capacity * AnalysisTable$Percentage_room_full
 ```
-As response variables or feature we considered Wi-Fi logs, which were summarised either as average of the logs counted for each room and for each hour or as maximum of the logs measured for each room and for each hour. 
+As dependent features we considered Wi-Fi logs, which were summarised either as average of the logs counted for each room and for each hour or as maximum of the logs measured for each room and for each hour. 
 
 Together with the Wi-Fi log, we included in the data set the following features: 
 
-* **Date**, which we did not use in this analysis, because they just cover 2 weeks of Novemeber, but for future analyses they can be used to group observations by seasons or semesters or to finds seasonal trends for time series analyses.
+* **Date**, which we did not use in this analysis, because they just cover 2 weeks of November, but for future analyses they can be used to group observations by seasons or semesters or to finds seasonal trends for time series analyses.
 
-* **Time**, which will be explored either as continous variable and as categorical to explore if the time of the day can have an affect on the Wi-Fi log. To do so, we binned the time in 4 ranges: early morning (9-11), late morning (11-13), early afternoon (13-15) and late afternoon (15-17). This allowed us to see if the Wi-Fi log accuracy was changing during the day. For example, it is more likely that all the electronic devices are fully powered early in the morning and consequently the Wi-fi log data can be more accurate or overestimating the occupancy of the room (i.e. more than one device per person). On the contrary in the afternoon, the devices may be more likely to be out of battery and it is possible that there are less devices in the room.
+* **Room**, which is a categorical variable with 3 levels: B002, B003, B004
+```{r, echo=FALSE, warning=FALSE}
+AnalysisTable$Room <- factor(AnalysisTable$Room)
+```
+
+* **Time**, which will be explored either as continuous variable and as categorical. For exploring time also as a categorical variable, we binned the time in 4 ranges: early morning (9:00-11:00), late morning (11:00-13:00), early afternoon (13:00-15:00) and late afternoon (15:00-17:00). This allowed us to see if the Wi-Fi log accuracy was changing during the day. For example, it is more likely that all the electronic devices are fully powered early in the morning and consequently the Wi-fi log data can be more accurate or overestimating the occupancy of the room (i.e. more than one device per person). On the contrary in the afternoon, the devices may be more likely to be out of battery and it is possible that there are less devices in the room.
 ```{r, echo=FALSE, warning=FALSE}
 AnalysisTable$Factor_Time <-cut(AnalysisTable$Time, breaks = 4, right=FALSE, labels=c('Early Morning','Late Morning','Early Afternoon','Late Afternoon' ))
 ```
 
 * **Module**, which we are not going to include it in the analysis because the majority of the module present are for computer science. For future analyses it will be possible to explore if the accuracy of Wi-fi log in predicting the occupancy change across the courses. Science courses (especially computer science courses) will be more likely to use electronic devices during lectures than art students.
 
-* **Course level**, which can indicate us whether electronic devices will be less used during different course levels. For example, first and second level courses can be more theoretical than the upper levels. Therefore, we might expect less connections. However, undergraduates might be more distracted during lectures and look at their phones. This will result in an increase of connections in that hour.
+* **Course level**, which can indicate us whether electronic devices will be less used during different course levels. For example, first and second level courses can be more theoretical than the upper levels. Therefore, we might expect fewer connections. However, undergraduates might be more distracted during lectures and look at their phones. This will result in an increase of connections in that hour.
 
 ```{r, echo=FALSE, warning=FALSE}
 AnalysisTable$Course_Level <- factor(AnalysisTable$Course_Level)
@@ -76,8 +84,7 @@ AnalysisTable$Course_Level <- factor(AnalysisTable$Course_Level)
 
 * **Tutorial**, which can affect the number of logged people. First of all, because tutorial divided the room in 2 and therefore there will be measured less people than expected. 
 ```{r, echo=FALSE, warning=FALSE}
-AnalysisTable$Double_module <- factor(AnalysisTable$Double_module)
-AnalysisTable$Class_went_ahead <- factor(AnalysisTable$Class_went_ahead)
+AnalysisTable$Tutorial <- factor(AnalysisTable$Tutorial)
 ```
 
 * **Double_module**, categorical variable indicating whether in the class there are more than one module, increasing the number of people expected in the room.
@@ -97,25 +104,23 @@ head(AnalysisTable)
 
 ## DATA QUALITY REPORT
 
-Before running any analyses, we carried out the data quality report to check for any issue related to the variables (e.g. outliers, skewed distribution, NaN values) and we planned the solutions that we implemented to solve them.
+Before running any analyses, we carried out the data quality report to check for any issue related with the variables (e.g. outliers, skewed distribution, NaN values) and we displayed the solutions that we are willing to implemented to solve them in the data quality plan table (see below).
 
-Initially we set all the categorical variables as factors and then we printed the descriptive statistics for all the features.
+Initially we set all the categorical variables as factors and then we print the descriptive statistics for all the features.
 ```{r, echo=FALSE} 
 summary(AnalysisTable)
 ```  
-From this we could see that NaN values were not present in the data set. 
-We could notice that the observations for the features Tutorials and Double_model were not even distributed across the 2 levels of the variables. In fact, only 6 observations were present for tutorial class and for double module class. Therefore, we decided to discard both the features, because they will be not informative for the analysis. Similarly for the feature class_went_ahead the majority of the lectures did not have similar number of the observations across the features levels and we decided to discard it.
-Furthermore, for the variables Wifi_Average_clients, Wifi_Max_clients and Survey_occupancy it seems that there were few outliers, since the median is lower than the mean and the max values were far higher than the mean values. We explored this issue with histograms and boxplots.
+From the descriptive statistic we can see that the data set does not contain any NaN values, but we could notice several issues. 
+For example the features Tutorials, Double_model and class_went_ahead were not even distributed across the 2 levels of the variables. Therefore, we decided to discard those features from the analyses, because they will not be informative. 
+Furthermore, for the variables Wifi_Average_clients, Wifi_Max_clients and Survey_occupancy it seems that there were few outliers, since their median is lower than the mean and the max values were far higher than the mean values. We explored this issue with histograms and boxplots.
 
 ### Exploratory graphs
-
-For exploring possible issues related with the continuous variables we plotted histograms and boxplots.
 
 ### Histograms  
 
 ```{r, echo=FALSE,warning=FALSE, message=FALSE}
 
-histo1 <- ggplot(AnalysisTable, aes(x = Wifi_Max_logs)) + geom_histogram(binwidth = 10,  col="red", aes(fill=..count..)) + scale_fill_gradient("Count", low = "yellow", high = "red") +theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+histo1 <- ggplot(AnalysisTable, aes(x = Percentage_room_full)) + geom_histogram(binwidth = 0.10,  col="red", aes(fill=..count..)) + scale_fill_gradient("Count", low = "yellow", high = "red") +theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
 #histogram for showing the count in each bin for the Average number of clients
 histo2 <- ggplot(AnalysisTable, aes(x = Wifi_Average_logs)) + geom_histogram(binwidth = 10,  col="red", aes(fill=..count..)) + scale_fill_gradient("Count", low = "yellow", high = "red") +theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
@@ -130,34 +135,25 @@ histo4 <- ggplot(AnalysisTable, aes(x = Time)) + geom_histogram(binwidth = 2,  c
 multiplot(histo1, histo2, histo3, histo4, cols=2)
 ```  
 
-<br><br>Form the histograms we could see that the distribution of the feature Wifi Maximum_client (i.e. the Maximum number of devices logged in one hour lecture) was skewed to the left, indicating that no more than 40 people attended the majority of the lectures. Furthermore, we could see that there were potential outliers (values > 140). Similar patterns were observed for the feature Wifi_Average_clients.
-Different was the situation of the target feature, Survey_counted client, which showed a skewed distribution, but more scattered, similar to a Poisson distribution. This could cause a problem in running a linear regression and more likely we have have to run a generalise linear model with a Poisson distribution. This is not surprising, since we are dealing with count data (Zuur et al. 2009).
-Feature times had as well a skewed distribution, suggesting that the majority of the lectures were concentrating during the early morning and they were decreasing towards the afternoon.  <br><br>
+<br><br>Form the histograms we could see that the distribution of the feature Wifi Maximum_client (i.e. the Maximum number of devices logged in one hour lecture) was skewed to the left, indicating that no more than 40 people attended the majority of the lectures. Furthermore, we could see that there were potential outliers. Similar patterns were observed for the feature Wifi Average clients. Different was the situation of the target feature, Survey counted client, which showed a skewed distribution, but more scattered, similar to a Poisson distribution. This could cause a problem in running a linear regression and more likely we have have to run a generalise linear model with a Poisson distribution. This is not surprising, since we are dealing with count data (Zuur et al. 2009). Feature times had as well a skewed distribution, suggesting that the majority of the lectures were concentrating during the early morning and they were decreasing towards the afternoon.<br><br>
+### Box plots. 
+<br><br><br><br> 
+```{r, echo=FALSE, warning=FALSE, message=FALSE} 
+box1 <- ggplot(AnalysisTable, aes(x = factor(0), y = Survey_occupancy)) + geom_boxplot() + theme_bw()+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
 
-
-### Box plots.   
-<br><br><br><br>   
-
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
-box1 <- ggplot(AnalysisTable, aes(x = factor(0), y = Survey_occupancy)) + geom_boxplot() + theme_bw()+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
-
-#box plot for the counted clients variable
+#box plot for the counted clients variable 
 box2 <- ggplot(AnalysisTable, aes(x = factor(0), y = Wifi_Average_logs)) + geom_boxplot() + theme_bw()+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
-
-#box plot for the maximum number of clients variable
-box3 <- ggplot(AnalysisTable, aes(x = factor(0), y =Wifi_Max_logs)) + geom_boxplot() + theme_bw()+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
-
-#box plot for the Time continuous variable
-box4 <- ggplot(AnalysisTable, aes(x = factor(0), y = Time)) + geom_boxplot() + theme_bw()+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
-#plot all the boxplots in one window
-multiplot(box1, box2, box3, box4, cols=2)
-```  
+#box plot for the maximum number of clients variable 
+box3 <- ggplot(AnalysisTable, aes(x = factor(0), y =Wifi_Max_logs)) + geom_boxplot() + theme_bw()+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+#box plot for the Time continuous variable 
+box4 <- ggplot(AnalysisTable, aes(x = factor(0), y = Time)) + geom_boxplot() + theme_bw()+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
+#plot all the boxplots in one window 
+multiplot(box1, box2, box3, box4, cols=2) 
+```
 <br><br>From the boxplots, all the trends observed in the histograms were confirmed.
-For categorical variables we plotted bar plot graphs.    
-
+For categorical variables we plotted bar plot graphs.
 ### Bar plots.   
 <br><br><br><br>  
-
 ```{r, echo=FALSE, warning=FALSE}
 
 bar1 <- ggplot(AnalysisTable, aes(x = Room)) + geom_bar(fill="orangered2")+ theme_bw()+theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) 
@@ -173,21 +169,19 @@ multiplot(bar1, bar2, bar3, cols=2)
 ```
 <br><br>From the barplots, we could see that observations were equally distributed across all the levels of the feature Room and Factor Time. On the contrary, there were more observations for non lectures and level 3 courses. No issues were detected for those features.  
 
-### Summary.   
-<br><br><br><br> 
-
-Features               | Issues                                   | Planned Solution             
------------------------|------------------------------------------|---------------------------
-Room                   |None                                      |None
-Time                   |Distibution skewed to the left            |To solve during analysis 
-Factor Time            |None                                      |None
-Course level           |None                                      |None
-Tutorial               |Uneven representation of the level        |Discarded from the analysis
-Double Module          |Uneven representation of the level        |Discarded from the analysis
-Class went ahead       |Uneven representation of the level        |Discarded from the analysis
-Wifi Average clients   |Distibution skewed to the left \& outliers|To solve during analysis
-Wifi Maximum clients   |Distibution skewed to the left \& outliers|To solve during analysis
-Survey Counted clients |Distibution skewed to the left \& outliers|To solve during analysis
+### Summary.<br><br>
+|Features               | Issues                                    | Planned Solution             
+|-----------------------|-------------------------------------------|---------------------------
+|Room                   |None                                       |None
+|Time                   |Distibution skewed to the left             |To solve during analysis 
+|Factor Time            |None                                       |None
+|Course level           |None                                       |None
+|Tutorial               |Uneven representation of the level         |Discarded from the analysis
+|Double Module          |Uneven representation of the level         |Discarded from the analysis
+|Class went ahead       |Uneven representation of the level         |Discarded from the analysis
+|Wifi Average clients   |Distibution skewed to the left \& outliers |To solve during analysis
+|Wifi Maximum clients   |Distibution skewed to the left \& outliers |To solve during analysis
+|Survey Counted clients |Distibution skewed to the left \& outliers |To solve during analysis
 
 ## FEATURES AFFECTING THE TARGET FEATURE  
 
@@ -208,7 +202,7 @@ my_fn <- function(data, mapping, ...){
 ggpairs(AnalysisTable, columns = c('Survey_occupancy','Wifi_Max_logs', 'Wifi_Average_logs', 'Time'), lower = list(continuous = my_fn)) + theme_bw()
 ```  
 <br><br><br><br>
-From the correlation matrix Survey counted  clients seems to have a good correlation with Wifi Average counted clients and Maximum counted clients, therefore we are will try to run 2 models: one for exploring the relationship between Survey counted clients and Average counted clients and another for Survey counted clients and Maximum counted clients. However, from this graphs we can see that there are 2 point that are clearly two outliers. Therefore, we are going to run the analyses with and without them to see if there is an improvement of the analysis without them.
+From the correlation matrix Survey countedclients seems to have a good correlation with Wifi Average counted clients and Maximum counted clients, therefore we will try to run 2 models: one for exploring the relationship between Survey counted clients and Average counted clients and another for Survey counted clients and Maximum counted clients. However, from this graph we can see that there are 2 point that are clearly two outliers. Therefore, we are going to run the analyses with and without them to see if there is an improvement of the analysis without them.
 
 From the graphs we can see that Average counted clients and Maximum counted clients are highly correlated showing that both of them are not so different. Therefore we will not expect too much difference among the 2 models.
 
@@ -231,35 +225,28 @@ pairbox3 <- ggplot(AnalysisTable, aes(x = Course_Level, y =Survey_occupancy)) + 
 multiplot(pairbox1, pairbox2, pairbox3, cols=2)
 ``` 
 <br><br><br><br>
-From the boxplot plotting the counted people in the different room, it can be observed that the average of the counted people in room 1 was not different from room2. Room3 had an higher number of people on average, but this can be due to the outlier. 
+From the boxplot plotting the counted people in the different room, it can be observed that the average of the counted people in room 1 is not different from room2. Room3 has an higher number of people on average, but this can be due to outliers. 
 The average number of counted people, instead, changed across the different course levels and it will be worth to explore if the occupancy of the room was affected by the course level.
-The highest average number of counted people was in the late morning around 50, while it was around 30 for the rest of the day. Therefore it will be interesting to explore the effect of the time on the occupancy.
+The highest average number of counted people was around 50 and it was registered in the late morning , while it was around 30 for the rest of the day. Therefore it will be interesting to explore the effect of the time on the occupancy.
 
 # Analysis
 <br>
 For selecting the features that together with the max logs or with the average logs best predict the ground truth data we will do model selection with a method similar to the one used by James et al. (2013).     
-For doing so, instead, of using the function *regsubset* for selecting all the possible models, we decided to considered the following models, because they better suits our hypothesis:
+The first step of the analysis is running all the models with all the combinations of the dependent variables, but making sure to always include the Wi-Fi log estimate. The models selected are the following:
 
 * *Survey occupancy ~ 1*, the null model;
+* *Survey occupancy ~ Average Wifi occupancy*;
+* *Survey occupancy ~ Average Wifi occupancy + Room*;
+* *Survey occupancy ~ Average Wifi occupancy + Time*;
+* *Survey occupancy ~ Average Wifi occupancy + Course_Level*;
+* *Survey occupancy ~ Average Wifi occupancy + Room + Time*;
+* *Survey occupancy ~ Average Wifi occupancy + Room + Course_Level*;
+* *Survey occupancy ~ Average Wifi occupancy + Time + Course_Level*;
+* *Survey occupancy ~ Average Wifi occupancy + Room + Time + Course_Level*, ;
 
-* *Survey occupancy ~ Average Wifi occupancy*, for testing whether average Wi-Fi counting logs were accurately predicting the occupancy of the room;
-
-* *Survey occupancy ~ Average Wifi occupancy + Room*, for testing whether average Wi-Fi counting logs and the room were were accurately predicting the occupancy of the room;
-
-* *Survey occupancy ~ Average Wifi occupancy + Time*, for testing whether average Wi-Fi counting logs and the time of the day were accurately predicting the occupancy of the room;
-
-* *Survey occupancy ~ Average Wifi occupancy + Course_Level*, for testing whether average Wi-Fi counting logs and course levels were accurately predicting the occupancy of the room;
-
-* *Survey occupancy ~ Average Wifi occupancy + Room + Time*, for testing whether average Wi-Fi counting logs, room type and the time of the day were accurately predicting the occupancy of the room;
-* *Survey occupancy ~ Average Wifi occupancy + Room + Course_Level*, for testing whether average Wi-Fi counting logs, room type and course levels were accurately predicting the occupancy of the room;
-* *Survey occupancy ~ Average Wifi occupancy + Time + Course_Level*, for testing whether average Wi-Fi counting logs, the time of the day and the course levels were accurately predicting the occupancy of the room;
-
-* *Survey occupancy ~ Average Wifi occupancy + Room + Time + Course_Level*, for testing whether average Wi-Fi counting logs, rooms, the time of the day and the course levels were accurately predicting the occupancy of the room;
-
-The same models were run also with the occupancy estimated with the Maximum number of logs measured in that hour. All these models were run using the k-fold cross validation. K-fold validation was preferred over the validation set approach and the Leave Out Cross Validation (LOOCV), because it is more robust and more accurate in estimating the test error. The Validation set approach tends to give an over estimate of the test error and the test error is dependent on the observations included randomly in the test set. Furthermore, the LOOCV tends to provide a test error with a high variance, because the folds used to calculating it are correlated among each other. 
-In particular in this analysis we are going to perform a 10-fold cross validation, which is pretty standard.
-
-The 10 fold cross validation was carried out with the package, CVglm. For each model we estract the overall mean square error(MSE) and we picked as best model the model with the lowest MSE.  
+The same models will be run also with the Maximum number of logs as dependent variable. All these models were run using the k-fold cross validation. K-fold validation was preferred over the validation set approach and the Leave Out Cross Validation (LOOCV), because it is more robust and more accurate in estimating the test error. The Validation set approach tends to give an over estimate of the test error and the test error is dependent on the observations used to calculate it. Furthermore, the LOOCV tends to provide a test error with a high variance, because the folds used for estimating it are correlated among each other. 
+In this analysis we are going to perform a 10-fold cross validation (10-fold CV), which is pretty standard.
+The 10-fold CV is carried out with the package: CVglm. For each model we estract the overall mean square error(MSE) and we picked as best model the model with the lowest MSE.  
 
 #Results
 
@@ -329,27 +316,27 @@ lm.max.full <- CVlm (data=AnalysisTable, m= 10, form.lm = formula (Survey_occupa
 
 | Models                                                             | MSE           
 |--------------------------------------------------------------------|------------------------
-|Survey_occupancy ~ 1                                                |`r attr(null.model, "ms")` 
-|Survey_occupancy ~ Wifi_Max_logs                                    |`r  attr(lm.max, "ms")`
-|Survey_occupancy ~ Wifi_Max_logs + Room                             |`r attr(lm.max.room, "ms")`
-|Survey_occupancy ~ Wifi_Max_logs + Factor_Time                      |`r attr(lm.max.time, "ms")`
-|Survey_occupancy ~ Wifi_Max_logs + Course_Level                     |`r attr(lm.max.level, "ms")`
-|Survey_occupancy ~ Wifi_Max_logs + Room + Factor_Time               |`r attr(lm.max.room.time, "ms")`
-|Survey_occupancy ~ Wifi_Max_logs + Room + Course_Level              |`r attr(lm.max.room.level, "ms")`
-|Survey_occupancy ~ Wifi_Max_logs + Factor_Time + Course_Level       |`r attr(lm.max.time.level, "ms")`
+|Survey_occupancy ~ 1                                                |`r attr(null.model,"ms")` 
+|Survey_occupancy ~ Wifi_Max_logs                                    |`r  attr(lm.max,"ms")`
+|Survey_occupancy ~ Wifi_Max_logs + Room                             |`r attr(lm.max.room,"ms")`
+|Survey_occupancy ~ Wifi_Max_logs + Factor_Time                      |`r attr(lm.max.time,"ms")`
+|Survey_occupancy ~ Wifi_Max_logs + Course_Level                     |`r attr(lm.max.level,"ms")`
+|Survey_occupancy ~ Wifi_Max_logs + Room + Factor_Time               |`r attr(lm.max.room.time,"ms")`
+|Survey_occupancy ~ Wifi_Max_logs + Room + Course_Level              |`r attr(lm.max.room.level,"ms")`
+|Survey_occupancy ~ Wifi_Max_logs + Factor_Time + Course_Level       |`r attr(lm.max.time.level,"ms")`
 |Survey_occupancy ~ Wifi_Max_logs + Room + Factor_Time + Course_Level|`r attr(lm.max.full, "ms")` 
 
-The model with the lowest MSE was the model: Survey_occupancy ~ Wifi_Max_logs. However, its MSE was slightly higher than the previous best model.
-Therefore we are going to run the Survey_occupancy ~ Wifi_Average_logs on the whole dataset.
+The model with the lowest MSE is the model: Survey_occupancy ~ Wifi_Max_logs. However, its MSE is slightly higher than the previous best model.
+Therefore the best model was: Survey_occupancy ~ Wifi_Average_logs, which we are going to run on the whole dataset.
 
 ```{r, echo=FALSE, warning=FALSE}
 occupancy.lm.avg <- lm(Survey_occupancy ~ Wifi_Average_logs, data=AnalysisTable)
 ```
-Looking at the model summary, the Wifi_Average_logs were significantly related to the Survey ground truth data. 
+Looking at the model summary, the Wifi_Average_logs is significantly related to the ground truth data. 
 ```{r, message=FALSE}
 summary(occupancy.lm.avg)
 ``` 
-However when we looked at the residuals plotted, there were few issues. As it could be seen below from the plot, showing the fitted values plotted againist the residuals, the target features had a lot values closed together similarly to what expected from a categorical features and there were a potential outliers (fitted values > 140). The observations seemed normally distributed, but the variance did not seem homogeneous.  
+However when we look at the residuals plotted, there are a few issues. As it can be seen below from the plot, showing the fitted values plotted against the residuals, the target features had a lot of values close together, similarly to what was expected from the categorical features and there were  potential outliers (fitted values > 140). The observations seemed normally distributed, but the variance did not seem homogeneous.   
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 library(ggfortify)
@@ -359,7 +346,7 @@ autoplot(occupancy.lm.avg, smooth.colour = 'orangered') + theme_bw()
 
 ## Removing the outliers  
 
-For deciding which observations remove, we looked at the histograms (see above), which showed that for Wi-fi Average logs and Maximum logs had potential outliers when the values were higher than 140, while for the Survey occupancy observations higher than 120 seemed outliers. Only 3 observations were removed and we did not lose too much data.  
+For deciding which observation to remove, we looked at the histograms (see above), which showed that for Wi-fi Average logs and Maximum logs had potential outliers when the values were higher than 140, while for the Survey occupancy observations higher than 120 seemed outliers. Only 3 observations were removed and we did not lose too much data.  
 ```{r, echo=FALSE, warning=FALSE}
 NoOutlierTable <- AnalysisTable[ AnalysisTable$Wifi_Max_logs < 140,] 
 NoOutlierTable <- NoOutlierTable[ NoOutlierTable$Survey_occupancy < 120,] 
@@ -411,7 +398,7 @@ out.lm.avg.full <- CVlm (data=NoOutlierTable, m= 10, form.lm = formula (Survey_o
 
 | Models                                                                 | MSE           
 |------------------------------------------------------------------------|--------------------
-|Survey_occupancy ~ 1                                                    |`r attr(out.null.model, "ms")`
+|Survey_occupancy ~ 1                                                    |`r attr(out.null.model,"ms")`
 |Survey_occupancy ~ Wifi_Average_logs                                    |`r attr(out.lm.avg, "ms")`
 |Survey_occupancy ~ Wifi_Average_logs + Room                             |`r attr(out.lm.avg.room, "ms")`
 |Survey_occupancy ~ Wifi_Average_logs + Factor_Time                      |`r attr(out.lm.avg.time, "ms")`
@@ -421,8 +408,9 @@ out.lm.avg.full <- CVlm (data=NoOutlierTable, m= 10, form.lm = formula (Survey_o
 |Survey_occupancy ~ Wifi_Average_logs + Factor_Time + Course_Level       |`r attr(out.lm.avg.time.level, "ms")`
 |Survey_occupancy ~ Wifi_Average_logs + Room + Factor_Time + Course_Level|`r attr(out.lm.avg.full, "ms")` 
 
+As we can see from the table, the best model was still Survey_occupancy ~ Wifi_Average_logs, with a MSE ~ 315. Removing the outlier improved slightly the fit of the model.
+
 ### CASE 2: Model selection with the dependent variable Wi-Fi maximum logs without outliers
-The best model was again the model with only the average logs as dependent variable. The MSE was slighty improved from the first time.
 
 ```{r, echo=FALSE,results='hide', message=FALSE, warning=FALSE, fig.keep='none'}
 out.lm.max <- CVlm (data=NoOutlierTable, m= 10, form.lm = formula (Survey_occupancy ~ Wifi_Max_logs))
@@ -455,28 +443,29 @@ out.lm.max.full <- CVlm (data=NoOutlierTable, m= 10, form.lm = formula (Survey_o
 |Survey_occupancy ~ Wifi_Max_logs + Factor_Time + Course_Level       |`r attr(out.lm.max.time.level, "ms")`
 |Survey_occupancy ~ Wifi_Max_logs + Room + Factor_Time + Course_Level|`r attr(out.lm.max.full, "ms")` 
 
-The model with the lowest MSE was the model with only the Wi-Fi Max logs as response variable, which was slightly higher than the Wi-Fi Average best model. Therefore we are going to run the Survey_occupancy ~ Wifi_Average_logs on the whole dataset.
+The model with the lowest MSE is the model with only the Wi-Fi Max logs as response variable, whose MSE is slightly higher than the Wi-Fi Average best model. 
+Therefore we are going to consider againg the Survey_occupancy ~ Wifi_Average_logs as best model and we run it on the entire data set.
 
 ```{r, echo=FALSE}
 out.occupancy.lm.avg <- lm(Survey_occupancy ~ Wifi_Average_logs, data=NoOutlierTable)
 ```
 
-Looking at the model summary, the Wifi_Average_logs were significantly related to the Survey ground truth data. 
+Looking at the model summary, the Wifi_Average_logs were significantly related to the Survey occupancy. 
 ```{r, echo=FALSE}
 summary(out.occupancy.lm.avg)
 ```
-However when we looked at the residuals, there were few issues. From the plot looking at the residual vs fitted values, we still could see that the Survey occupancy was assuming more or less the same values and this explain the line pattern of the graphs. The data were quite normal distributed, but the variance did not seem homogeneous.
+When we looked at the residuals they were acceptable. From the plot looking at the residual vs fitted values, we still can see that the Survey occupancy was assuming more or less the same values. The data were quite normal distributed, and the variance seems more or less homogeneous.
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 library(ggfortify)
 class(autoplot(out.occupancy.lm.avg))
 autoplot(out.occupancy.lm.avg, smooth.colour = 'orangered') + theme_bw()
 ```
 
-Since the logaritmic transformation of the target features did not work, we ran a generalised linear model with a quasi-poisson GLM model, because the Poisson model suffered of overdispersion. 
+In order to improve the fit of our linear model we tried to perform a generalised linear model with a  Poisson distribution. From previous analysis we saw that this model suffered of overdispersion, therefore corrected the standards errors using a quasi-GLM model, as suggested by Zuur et al. (2009). 
 
 ## GENERALISED LINEAR MODEL WITH POISSON DISTRIBUTION
 
-We run all the models using the package glm with family quasi-poisson and cv.glm for running 10-fold cross validation and we took the model with the lowest raw cross-validation estimate of prediction (delta) as best model.
+We ran all the models using the package glm with family quasi-poisson and cv.glm for running 10-fold cross validation and we took the model with the lowest raw cross-validation estimate of prediction (delta) as best model.
 
 ```{r, echo=FALSE,results='hide', message=FALSE, warning=FALSE, fig.keep='none'}
 set.seed(1)
@@ -585,9 +574,9 @@ out.poisson.max.full <- cv.glm(data=NoOutlierTable, glmfit=out.max.full, K=10)
 |Survey_occupancy ~ Wifi_Max_logs + Factor_Time + Course_Level       |`r out.poisson.max.time.level$delta[2]`
 |Survey_occupancy ~ Wifi_Max_logs + Room + Factor_Time + Course_Level|`r out.poisson.max.full$delta[2]` 
 
-The best model was Survey_occupancy ~ Wifi_Max_logs with an adjusted cross-validation estimate of prediction error of: 394, which was slightly worst than the model with the average logs as predictor. 
+The best model was Survey_occupancy ~ Wifi_Max_logs with an adjusted cross-validation estimate of prediction error (delta) of: 394, which was slightly worst than the delta of model with the average logs as dependent variable. 
 Therefore we are going to run Survey_occupancy ~ Wifi_Average_logs on the whole dataset.
-To validate the model we plotted the following residuals, as suggested by Zuur et al. (2009): Ordinal residuals, Pearson residual, scaled Pearson residuals (to take into account the overdispersion) and the deviance residuals for the optimal quasi-Poisson model applied on the dataset without outliers. 
+To validate the model we plotted the following residuals, as suggested by Zuur et al. (2009): Ordinal residuals, Pearson residual, scaled Pearson residuals (to take into account the overdispersion) and the deviance residuals for the optimal quasi-Poisson model applied on the dataset without outliers. If we spots some patterns in this graphs, it will mean that the distribution selected was not correct or that there is an issue with independence. 
 
 ```{r, echo=FALSE, warning=FALSE}
 Pearson_Residuals <- resid(out.avg, type = "pearson")
@@ -605,10 +594,12 @@ plot(x = mu, y = Deviance_Residuals, main = "Deviance residuals")
 par(op)
 ```
 
-From all the residuals plot we could see a pattern, the residuals were decresing as the average or mu of the fited values were decreasing, suggesting that the quasi-poisson glm was not appropriate. For double checking it, we checked if the variance of the residuals was proportional to the mean, as suggested by this tutorial (https://www.ssc.wisc.edu/sscc/pubs/RFR/RFR_Regression.html).
-For doing so we plotted the residuals aganist the predicted mean and in this graph we plotted 3 lines:
+From all the residuals plot we could see a pattern, the residuals were decreasing as the average (mu) of the fitted values were decreasing, suggesting that the quasi-poisson glm was not appropriate.
+
+For double checking it, we checked if the variance of the residuals was proportional to the mean, as suggested by this tutorial ([linked phrase](https://www.ssc.wisc.edu/sscc/pubs/RFR/RFR_Regression.html)).
+For doing so we plotted the residuals against the predicted mean and in this graph we plotted 3 lines:
   
-* a black line representing the Poisson assumed variance;
+* a black line representing the Poisson assumed variance (~ 1);
 * a blue plotting the quasi-Poisson assumed variance;
 * orange curve for the smoothed mean of the square of the residual.
 
@@ -636,6 +627,15 @@ ggplot(data=p1Diag, aes(x=fit, y=residSqr)) +
   theme_bw() 
 ```
 As we can see from the graph, the orange smoothed mean of the square of the residual is diverging from the Poisson assumed variance. For this reason, the quasi-poisson model was not appropriate for our data. 
-Therefore,  we decided to run the model using a negative bionomial distribution that it is designed to deal with overdispersion.
-The negative bionomial model, however, has a very high dispersion parameter and it was suited for our data. Therefore the linear model was selected as our best model.
+Therefore,  we decided to run the model using a negative binomial distribution that it is designed to deal with over dispersion.
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+negbin <- glm.nb(Survey_occupancy ~ Wifi_Average_logs,  data=NoOutlierTable)
+```
+The negative bionomial model, however, has a very high dispersion parameter and it was not suited for our data. 
 
+Therefore, we can conclude that the linear model is our best choice. However, we think that the occupancy data were collected very approximatively. People conducting the survey were only asked to give to the class a score of 0\% for empty room, 25\% full, 50\% full, 75\% full or 100\% full. These kind of data are more suited for a classification problem. 
+To solve this problem we created a mobile application for helping the people conducting the survey in inputting the right number of people and have a better estimate of the head count in a room. 
+For this reason we still keep the model regression in our application for estimating the count of head in the room.
+
+#Reference
+Zuur A., Ieno E. & Elphick C.(2009) Mixed Effects Models and Extensions in Ecology with R. Springer.
