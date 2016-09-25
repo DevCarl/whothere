@@ -1,13 +1,28 @@
-# whothere
+<b> Introduction </b>
 
-Introduction
+UCD required an efficient cost effective system that would estimate the level of room util- isation across the campus. The current system costs approximately 25,000 Euros a year to run and requires individuals to manually check rooms on campus 15 minutes after classes have started. They estimate the levels of occupancy based on the following bins: 0% 25% 50% 75% and 100% This information is used by UCD to assist in the allocation of rooms.
 
+Problems with the current system:
+<ul>
+<li> High costs </li>
+<li> Short term observation </li>
+<li> Issues with estimating actual numbers of individuals in the room with only a short observation </li>
+<li> Labour intensive </li>
+</ul>
 
-This project is undertaken as group of four as part of the UCD Computer Science Conversion MSc research partcicum.
+The main objective of the project is to create an automated system that could generate this data efficiently, more cost effectively and less labour intensive for UCD’s administration department.
+To achieve the required outcome necessitated combing data into a model and then presenting our results. The raw data sources were as follows;
 
-The core aim of the project is to work together as a group using the agile methodolgy. 
-The goal of the project is to use  wifi log data to predict the number of studnets that are currently in a room. This will be based on the number of devices that are connected to the network.
+<ul>
+<li> Wifi logs of connected users specific to room level access points. </li>
+<li> Timetables detailing modules and number of expected individuals. </li>
+<li> Two week period of surveys to act as ground truth. </li>
+</ul>
 
+￼This information would first have to be cleaned and then correctly stored for later work.
+The analysed data was then used to build our model. The data model would define the relationship between number of devices connected and the number of individuals present at the time. The results are then stored in the database.
+A graphical interface was then used to present a clear overview of our results to users. This would take the form of a website application run by the server allocated to our team.
+The team were also encouraged to make innovations based on the core requirements and feedback received from the customer. This is to add additional functionality to the overall product. These innovations separate out different teams.
 
 <b> Start Up Process </b>
 
